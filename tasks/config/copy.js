@@ -5,10 +5,10 @@
  *
  * # dev task config
  * Copies all directories and files, exept coffescript and less fiels, from the sails
- * assets folder into the .tmp/public directory.
+ * assets folder into the dist directory.
  *
  * # build task config
- * Copies all directories nd files from the .tmp/public directory into a www directory.
+ * Copies all directories nd files from the dist directory into a www directory.
  *
  * For usage docs see:
  * 		https://github.com/gruntjs/grunt-contrib-copy
@@ -21,13 +21,13 @@ module.exports = function(grunt) {
 				expand: true,
 				cwd: './assets',
 				src: ['**/*.!(coffee|less)', '!js/**'],
-				dest: '.tmp/public'
+				dest: 'dist'
 			}]
 		},
 		build: {
 			files: [{
 				expand: true,
-				cwd: '.tmp/public',
+				cwd: 'dist',
 				src: ['**/*'],
 				dest: 'www'
 			}]

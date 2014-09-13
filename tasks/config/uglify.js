@@ -13,8 +13,8 @@ module.exports = function(grunt) {
 
 	grunt.config.set('uglify', {
 		dist: {
-			src: ['.tmp/public/js/main.js'],
-      dest: '.tmp/public/js/main.min.js'
+			src: ['dist/js/main.js'],
+      dest: 'dist/js/main.min.js'
 		}
 	});
 

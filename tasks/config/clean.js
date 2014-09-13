@@ -3,7 +3,7 @@
  *
  * ---------------------------------------------------------------
  *
- * This grunt task is configured to clean out the contents in the .tmp/public of your
+ * This grunt task is configured to clean out the contents in the dist of your
  * sails project.
  *
  * For usage docs see:
@@ -12,7 +12,7 @@
 module.exports = function(grunt) {
 
 	grunt.config.set('clean', {
-		dev: ['.tmp/public/**'],
+		dev: ['dist/**'],
 		build: ['www']
 	});
 

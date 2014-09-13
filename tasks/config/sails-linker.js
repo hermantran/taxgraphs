@@ -18,12 +18,12 @@ module.exports = function(grunt) {
 			options: {
 				startTag: '<!--SCRIPTS-->',
 				endTag: '<!--SCRIPTS END-->',
-				fileTmpl: '<script src=".tmp/public%s"></script>',
-				appRoot: '.tmp/public'
+				fileTmpl: '<script src="dist%s"></script>',
+				appRoot: 'dist'
 			},
 			files: {
         '*.html': require('../pipeline').jsFilesToInject,
-				'.tmp/public/**/*.html': require('../pipeline').jsFilesToInject,
+				'dist/**/*.html': require('../pipeline').jsFilesToInject,
 				'views/**/*.html': require('../pipeline').jsFilesToInject,
 				'views/**/*.ejs': require('../pipeline').jsFilesToInject
 			}
@@ -34,11 +34,11 @@ module.exports = function(grunt) {
 				startTag: '<!--SCRIPTS-->',
 				endTag: '<!--SCRIPTS END-->',
 				fileTmpl: '<script src="%s"></script>',
-				appRoot: '.tmp/public',
+				appRoot: 'dist',
 				relative: true
 			},
 			files: {
-				'.tmp/public/**/*.html': require('../pipeline').jsFilesToInject,
+				'dist/**/*.html': require('../pipeline').jsFilesToInject,
 				'views/**/*.html': require('../pipeline').jsFilesToInject,
 				'views/**/*.ejs': require('../pipeline').jsFilesToInject
 			}
@@ -49,12 +49,12 @@ module.exports = function(grunt) {
 				startTag: '<!--SCRIPTS-->',
 				endTag: '<!--SCRIPTS END-->',
 				fileTmpl: '<script src="%s"></script>',
-				appRoot: '.tmp/public'
+				appRoot: 'dist'
 			},
 			files: {
-				'.tmp/public/**/*.html': ['.tmp/public/min/production.min.js'],
-				'views/**/*.html': ['.tmp/public/min/production.min.js'],
-				'views/**/*.ejs': ['.tmp/public/min/production.min.js']
+				'dist/**/*.html': ['dist/min/production.min.js'],
+				'views/**/*.html': ['dist/min/production.min.js'],
+				'views/**/*.ejs': ['dist/min/production.min.js']
 			}
 		},
 
@@ -63,13 +63,13 @@ module.exports = function(grunt) {
 				startTag: '<!--SCRIPTS-->',
 				endTag: '<!--SCRIPTS END-->',
 				fileTmpl: '<script src="%s"></script>',
-				appRoot: '.tmp/public',
+				appRoot: 'dist',
 				relative: true
 			},
 			files: {
-				'.tmp/public/**/*.html': ['.tmp/public/min/production.min.js'],
-				'views/**/*.html': ['.tmp/public/min/production.min.js'],
-				'views/**/*.ejs': ['.tmp/public/min/production.min.js']
+				'dist/**/*.html': ['dist/min/production.min.js'],
+				'views/**/*.html': ['dist/min/production.min.js'],
+				'views/**/*.ejs': ['dist/min/production.min.js']
 			}
 		},
 
@@ -77,13 +77,13 @@ module.exports = function(grunt) {
 			options: {
 				startTag: '<!--STYLES-->',
 				endTag: '<!--STYLES END-->',
-				fileTmpl: '<link rel="stylesheet" href=".tmp/public%s">',
-				appRoot: '.tmp/public'
+				fileTmpl: '<link rel="stylesheet" href="dist%s">',
+				appRoot: 'dist'
 			},
 
 			files: {
         '*.html': require('../pipeline').cssFilesToInject,
-				'.tmp/public/**/*.html': require('../pipeline').cssFilesToInject,
+				'dist/**/*.html': require('../pipeline').cssFilesToInject,
 				'views/**/*.html': require('../pipeline').cssFilesToInject,
 				'views/**/*.ejs': require('../pipeline').cssFilesToInject
 			}
@@ -94,12 +94,12 @@ module.exports = function(grunt) {
 				startTag: '<!--STYLES-->',
 				endTag: '<!--STYLES END-->',
 				fileTmpl: '<link rel="stylesheet" href="%s">',
-				appRoot: '.tmp/public',
+				appRoot: 'dist',
 				relative: true
 			},
 
 			files: {
-				'.tmp/public/**/*.html': require('../pipeline').cssFilesToInject,
+				'dist/**/*.html': require('../pipeline').cssFilesToInject,
 				'views/**/*.html': require('../pipeline').cssFilesToInject,
 				'views/**/*.ejs': require('../pipeline').cssFilesToInject
 			}
@@ -110,12 +110,12 @@ module.exports = function(grunt) {
 				startTag: '<!--STYLES-->',
 				endTag: '<!--STYLES END-->',
 				fileTmpl: '<link rel="stylesheet" href="%s">',
-				appRoot: '.tmp/public'
+				appRoot: 'dist'
 			},
 			files: {
-				'.tmp/public/index.html': ['.tmp/public/min/production.min.css'],
-				'views/**/*.html': ['.tmp/public/min/production.min.css'],
-				'views/**/*.ejs': ['.tmp/public/min/production.min.css']
+				'dist/index.html': ['dist/min/production.min.css'],
+				'views/**/*.html': ['dist/min/production.min.css'],
+				'views/**/*.ejs': ['dist/min/production.min.css']
 			}
 		},
 
@@ -124,13 +124,13 @@ module.exports = function(grunt) {
 				startTag: '<!--STYLES-->',
 				endTag: '<!--STYLES END-->',
 				fileTmpl: '<link rel="stylesheet" href="%s">',
-				appRoot: '.tmp/public',
+				appRoot: 'dist',
 				relative: true
 			},
 			files: {
-				'.tmp/public/index.html': ['.tmp/public/min/production.min.css'],
-				'views/**/*.html': ['.tmp/public/min/production.min.css'],
-				'views/**/*.ejs': ['.tmp/public/min/production.min.css']
+				'dist/index.html': ['dist/min/production.min.css'],
+				'views/**/*.html': ['dist/min/production.min.css'],
+				'views/**/*.ejs': ['dist/min/production.min.css']
 			}
 		},
 
@@ -139,14 +139,14 @@ module.exports = function(grunt) {
 			options: {
 				startTag: '<!--TEMPLATES-->',
 				endTag: '<!--TEMPLATES END-->',
-				fileTmpl: '<script src=".tmp/public%s"></script>',
-				appRoot: '.tmp/public'
+				fileTmpl: '<script src="dist%s"></script>',
+				appRoot: 'dist'
 			},
 			files: {
-        '*.html': ['.tmp/public/jst.js'],
-				'.tmp/public/index.html': ['.tmp/public/jst.js'],
-				'views/**/*.html': ['.tmp/public/jst.js'],
-				'views/**/*.ejs': ['.tmp/public/jst.js']
+        '*.html': ['dist/jst.js'],
+				'dist/index.html': ['dist/jst.js'],
+				'views/**/*.html': ['dist/jst.js'],
+				'views/**/*.ejs': ['dist/jst.js']
 			}
 		},
 
@@ -155,7 +155,7 @@ module.exports = function(grunt) {
 				startTag: '// SCRIPTS',
 				endTag: '// SCRIPTS END',
 				fileTmpl: 'script(src="%s")',
-				appRoot: '.tmp/public'
+				appRoot: 'dist'
 			},
 			files: {
 				'views/**/*.jade': require('../pipeline').jsFilesToInject
@@ -167,7 +167,7 @@ module.exports = function(grunt) {
 				startTag: '// SCRIPTS',
 				endTag: '// SCRIPTS END',
 				fileTmpl: 'script(src="%s")',
-				appRoot: '.tmp/public',
+				appRoot: 'dist',
 				relative: true
 			},
 			files: {
@@ -180,10 +180,10 @@ module.exports = function(grunt) {
 				startTag: '// SCRIPTS',
 				endTag: '// SCRIPTS END',
 				fileTmpl: 'script(src="%s")',
-				appRoot: '.tmp/public'
+				appRoot: 'dist'
 			},
 			files: {
-				'views/**/*.jade': ['.tmp/public/min/production.min.js']
+				'views/**/*.jade': ['dist/min/production.min.js']
 			}
 		},
 
@@ -192,11 +192,11 @@ module.exports = function(grunt) {
 				startTag: '// SCRIPTS',
 				endTag: '// SCRIPTS END',
 				fileTmpl: 'script(src="%s")',
-				appRoot: '.tmp/public',
+				appRoot: 'dist',
 				relative: true
 			},
 			files: {
-				'views/**/*.jade': ['.tmp/public/min/production.min.js']
+				'views/**/*.jade': ['dist/min/production.min.js']
 			}
 		},
 
@@ -205,7 +205,7 @@ module.exports = function(grunt) {
 				startTag: '// STYLES',
 				endTag: '// STYLES END',
 				fileTmpl: 'link(rel="stylesheet", href="%s")',
-				appRoot: '.tmp/public'
+				appRoot: 'dist'
 			},
 
 			files: {
@@ -218,7 +218,7 @@ module.exports = function(grunt) {
 				startTag: '// STYLES',
 				endTag: '// STYLES END',
 				fileTmpl: 'link(rel="stylesheet", href="%s")',
-				appRoot: '.tmp/public',
+				appRoot: 'dist',
 				relative: true
 			},
 
@@ -232,10 +232,10 @@ module.exports = function(grunt) {
 				startTag: '// STYLES',
 				endTag: '// STYLES END',
 				fileTmpl: 'link(rel="stylesheet", href="%s")',
-				appRoot: '.tmp/public'
+				appRoot: 'dist'
 			},
 			files: {
-				'views/**/*.jade': ['.tmp/public/min/production.min.css']
+				'views/**/*.jade': ['dist/min/production.min.css']
 			}
 		},
 
@@ -244,11 +244,11 @@ module.exports = function(grunt) {
 				startTag: '// STYLES',
 				endTag: '// STYLES END',
 				fileTmpl: 'link(rel="stylesheet", href="%s")',
-				appRoot: '.tmp/public',
+				appRoot: 'dist',
 				relative: true
 			},
 			files: {
-				'views/**/*.jade': ['.tmp/public/min/production.min.css']
+				'views/**/*.jade': ['dist/min/production.min.css']
 			}
 		},
 
@@ -258,10 +258,10 @@ module.exports = function(grunt) {
 				startTag: '// TEMPLATES',
 				endTag: '// TEMPLATES END',
 				fileTmpl: 'script(type="text/javascript", src="%s")',
-				appRoot: '.tmp/public'
+				appRoot: 'dist'
 			},
 			files: {
-				'views/**/*.jade': ['.tmp/public/jst.js']
+				'views/**/*.jade': ['dist/jst.js']
 			}
 		}
 	});

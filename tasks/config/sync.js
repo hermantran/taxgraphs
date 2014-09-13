@@ -4,7 +4,7 @@
  *
  * ---------------------------------------------------------------
  *
- * Synchronize files from the `assets` folder to `.tmp/public`,
+ * Synchronize files from the `assets` folder to `dist`,
  * smashing anything that's already there.
  *
  * For usage docs see:
@@ -18,7 +18,7 @@ module.exports = function(grunt) {
 			files: [{
 				cwd: './assets',
 				src: ['**/*.!(coffee)', '!js/**'],
-				dest: '.tmp/public'
+				dest: 'dist'
 			}]
 		}
 	});
