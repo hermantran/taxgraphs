@@ -18,10 +18,11 @@ module.exports = function(grunt) {
 			options: {
 				startTag: '<!--SCRIPTS-->',
 				endTag: '<!--SCRIPTS END-->',
-				fileTmpl: '<script src="%s"></script>',
+				fileTmpl: '<script src=".tmp/public%s"></script>',
 				appRoot: '.tmp/public'
 			},
 			files: {
+        '*.html': require('../pipeline').jsFilesToInject,
 				'.tmp/public/**/*.html': require('../pipeline').jsFilesToInject,
 				'views/**/*.html': require('../pipeline').jsFilesToInject,
 				'views/**/*.ejs': require('../pipeline').jsFilesToInject
@@ -76,11 +77,12 @@ module.exports = function(grunt) {
 			options: {
 				startTag: '<!--STYLES-->',
 				endTag: '<!--STYLES END-->',
-				fileTmpl: '<link rel="stylesheet" href="%s">',
+				fileTmpl: '<link rel="stylesheet" href=".tmp/public%s">',
 				appRoot: '.tmp/public'
 			},
 
 			files: {
+        '*.html': require('../pipeline').cssFilesToInject,
 				'.tmp/public/**/*.html': require('../pipeline').cssFilesToInject,
 				'views/**/*.html': require('../pipeline').cssFilesToInject,
 				'views/**/*.ejs': require('../pipeline').cssFilesToInject
@@ -137,10 +139,11 @@ module.exports = function(grunt) {
 			options: {
 				startTag: '<!--TEMPLATES-->',
 				endTag: '<!--TEMPLATES END-->',
-				fileTmpl: '<script type="text/javascript" src="%s"></script>',
+				fileTmpl: '<script src=".tmp/public%s"></script>',
 				appRoot: '.tmp/public'
 			},
 			files: {
+        '*.html': ['.tmp/public/jst.js'],
 				'.tmp/public/index.html': ['.tmp/public/jst.js'],
 				'views/**/*.html': ['.tmp/public/jst.js'],
 				'views/**/*.ejs': ['.tmp/public/jst.js']

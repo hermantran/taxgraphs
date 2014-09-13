@@ -1,3 +1,1 @@
-# taxes
-
-a [Sails](http://sailsjs.org) application
+# tax-graphs
