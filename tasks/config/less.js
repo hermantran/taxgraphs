@@ -20,7 +20,11 @@ module.exports = function(grunt) {
         src: ['importer.less'],
         dest: 'dist/styles/',
         ext: '.css'
-      }]
+      }],
+      options: {
+        compress: true,
+        cleancss: true
+      }
     }
   });
 

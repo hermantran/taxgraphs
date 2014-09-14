@@ -5,7 +5,6 @@ module.exports = function (grunt) {
     'less:dev',
     'copy:dev',
     'preprocess-tax:dev',
-    'browserify:dev',
-    'uglify:dist'
+    'compileJs'
   ]);
 };

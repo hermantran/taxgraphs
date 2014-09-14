@@ -1,7 +1,7 @@
 module.exports = function(grunt) {
 
   grunt.config.set('jshint', {
-    dev: ['assets/js/**/*.js', '!assets/js/dependencies/**/*.js'],
+    dev: ['assets/js/**/*.js', '!assets/js/lib/**/*.js'],
     options: {
       jshintrc: 'assets/js/.jshintrc'
     }

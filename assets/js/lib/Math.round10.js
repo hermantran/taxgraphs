@@ -1,8 +1,6 @@
-'use strict';
-
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round#Example%3a_Decimal_rounding
 (function(){
-
+  'use strict';
   /**
    * Decimal adjustment of a number.
    *

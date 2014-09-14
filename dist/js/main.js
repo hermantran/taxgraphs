@@ -4,7 +4,7 @@
 var angular = require('angular');
 
 module.exports = angular.module('taxApp', []);
-},{"angular":9}],2:[function(require,module,exports){
+},{"angular":11}],2:[function(require,module,exports){
 'use strict';
 
 var app = require('../app'),
@@ -13,19 +13,92 @@ var app = require('../app'),
 
 app.value('d3', d3)
   .value('_', lodash);
-},{"../app":1,"d3":11,"lodash":12}],3:[function(require,module,exports){
+},{"../app":1,"d3":13,"lodash":14}],3:[function(require,module,exports){
 'use strict';
 
 var app = require('../app');
 
 },{"../app":1}],4:[function(require,module,exports){
 module.exports=require(3)
-},{"../app":1,"c:\\Users\\herman\\desktop\\taxes\\assets\\js\\controllers\\index.js":3}],5:[function(require,module,exports){
+},{"../app":1,"c:\\Users\\Herman\\Desktop\\taxes\\assets\\js\\controllers\\index.js":3}],5:[function(require,module,exports){
 'use strict';
 
+module.exports = function(d3) {
+  function Graph() {
+    this.xMin = 0;
+    this.xMax = 150000;
+    this.m = [50, 50, 50, 50]; // margins
+    this.w = 1000 - this.m[1] - this.m[3]; // width
+    this.h = 800 - this.m[0] - this.m[2]; // height
+  }
+
+  Graph.prototype.init = function() {
+    this.graph = d3.select('svg')
+      .attr('width', this.w + this.m[1] + this.m[3])
+      .attr('height', this.h + this.m[0] + this.m[2])
+      .append('svg:g')
+      .attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
+
+    this.x = d3.scale.linear()
+      .domain([this.xMin, this.xMax])
+      .range([0, this.w]);
+
+    this.y = d3.scale.linear()
+      .domain([0, 0.5])
+      .range([this.h, 0]);
+
+    this.xAxis = d3.svg.axis()
+      .scale(this.x)
+      .tickSize(-this.h, 0)
+      .tickFormat(d3.format('$0,000'))
+      .tickPadding(7)
+      .orient('bottom');
+
+    this.graph.append('svg:g')
+      .attr('class', 'x axis')
+      .attr('transform', 'translate(0,' + this.h + ')')
+      .call(this.xAxis);
+
+    this.yAxis = d3.svg.axis()
+      .scale(this.y)
+      .ticks(4)
+      .tickSize(-this.w, 0)
+      .tickFormat(d3.format('%'))
+      .tickPadding(7)
+      .orient('left');
+
+    this.graph.append('svg:g')
+      .attr('class', 'y axis')
+      .attr('transform', 'translate(0,0)')
+      .call(this.yAxis)
+      .selectAll('.tick')
+        .filter(function (d) { return d === 0; })
+        .remove();
+  };
+        
+  Graph.prototype.drawLine = function(data) {
+    var line = d3.svg.line()
+      .x(function(d) { return this.x(d.x); })
+      .y(function(d) { return this.y(d.y); });
+
+    this.graph.append('svg:path')
+      .attr('d', line(data));
+  };
+
+  return Graph;
+};
+},{}],6:[function(require,module,exports){
+'use strict';
+
+var app = require('../app'),
+    Graph = require('./Graph');
+
+app.factory('Graph', ['d3', Graph]);
+
+},{"../app":1,"./Graph":5}],7:[function(require,module,exports){
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round#Example%3a_Decimal_rounding
 (function(){
-
+  'use strict';
   /**
    * Decimal adjustment of a number.
    *
@@ -74,15 +147,21 @@ module.exports=require(3)
   }
 
 })();
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
-require('./app');
+var app = require('./app');
 require('./config');
 require('./directives');
+require('./factories');
 require('./services');
 require('./controllers');
-},{"./app":1,"./config":2,"./controllers":3,"./directives":4,"./services":7}],7:[function(require,module,exports){
+
+app.run(['Graph', function(Graph) {
+  var graph = new Graph();
+  graph.init();
+}]);
+},{"./app":1,"./config":2,"./controllers":3,"./directives":4,"./factories":6,"./services":9}],9:[function(require,module,exports){
 'use strict';
 
 var app = require('../app'),
@@ -90,7 +169,7 @@ var app = require('../app'),
 
 app.service('taxService', ['_', taxService]);
 
-},{"../app":1,"./taxService":8}],8:[function(require,module,exports){
+},{"../app":1,"./taxService":10}],10:[function(require,module,exports){
 'use strict';
 
 require('../lib/Math.round10');
@@ -250,12 +329,12 @@ module.exports = function(_) {
   this.createMarginalTaxData = createMarginalTaxData;
   this.createEffectiveTaxData = createEffectiveTaxData;
 };
-},{"../lib/Math.round10":5}],9:[function(require,module,exports){
+},{"../lib/Math.round10":7}],11:[function(require,module,exports){
 require('./lib/angular.js');
 
 module.exports = angular;
 
-},{"./lib/angular.js":10}],10:[function(require,module,exports){
+},{"./lib/angular.js":12}],12:[function(require,module,exports){
 /**
  * @license AngularJS v1.2.23
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -22210,7 +22289,7 @@ var styleDirective = valueFn({
 })(window, document);
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}.ng-animate-block-transitions{transition:0s all!important;-webkit-transition:0s all!important;}.ng-hide-add-active,.ng-hide-remove{display:block!important;}</style>');
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 !function() {
   var d3 = {
     version: "3.4.11"
@@ -31444,7 +31523,7 @@ var styleDirective = valueFn({
   if (typeof define === "function" && define.amd) define(d3); else if (typeof module === "object" && module.exports) module.exports = d3;
   this.d3 = d3;
 }();
-},{}],12:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -38233,4 +38312,4 @@ var styleDirective = valueFn({
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[6]);
+},{}]},{},[8]);
