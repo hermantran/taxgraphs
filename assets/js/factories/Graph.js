@@ -1,12 +1,16 @@
 'use strict';
 
 module.exports = function(d3) {
-  function Graph() {
-    this.xMin = 0;
-    this.xMax = 150000;
+  function Graph(opts) {
+    opts = opts || {};
+
+    this.xMin = opts.xMin || 0;
+    this.xMax = opts.xMax || 150000;
     this.m = [50, 50, 50, 50]; // margins
-    this.w = 1000 - this.m[1] - this.m[3]; // width
-    this.h = 800 - this.m[0] - this.m[2]; // height
+    this.width = opts.width || 1000;
+    this.height = opts.height || 600;
+    this.w = this.width - this.m[1] - this.m[3]; // width
+    this.h = this.height - this.m[0] - this.m[2]; // height
   }
 
   Graph.prototype.init = function() {
@@ -26,9 +30,10 @@ module.exports = function(d3) {
 
     this.xAxis = d3.svg.axis()
       .scale(this.x)
+      .ticks(6)
       .tickSize(-this.h, 0)
       .tickFormat(d3.format('$0,000'))
-      .tickPadding(7)
+      .tickPadding(10)
       .orient('bottom');
 
     this.graph.append('svg:g')
@@ -55,8 +60,8 @@ module.exports = function(d3) {
         
   Graph.prototype.drawLine = function(data) {
     var line = d3.svg.line()
-      .x(function(d) { return this.x(d.x); })
-      .y(function(d) { return this.y(d.y); });
+      .x(function(d) { return this.x(d.x); }.bind(this))
+      .y(function(d) { return this.y(d.y); }.bind(this));
 
     this.graph.append('svg:path')
       .attr('d', line(data));

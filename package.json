@@ -1,13 +1,14 @@
 {
   "name": "tax-graphs",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "",
   "author": "Herman Tran <hermanctran@gmail.com>",
   "license": "",
   "keywords": [],
   "dependencies": {
     "angular": "^1.2.23",
+    "angular-route": "^1.2.17-build.163.1",
     "d3": "^3.4.11",
     "grunt": "0.4.2",
     "grunt-browserify": "^3.0.1",

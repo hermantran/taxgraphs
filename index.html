@@ -11,6 +11,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,300,700,500">
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-min.css">
     <!--STYLES-->
     <link rel="stylesheet" href="dist/styles/importer.css">
     <!--STYLES END-->
@@ -22,11 +24,23 @@
   </head>
 
   <body>
-    <div ng-view></div>Test
-    <svg class="graph"></svg>
+    <header class="pure-g pure-menu pure-menu-open pure-menu-horizontal">
+        <ul class="pure-u-1">
+          <li><a href="#">TaxGraphs</a></li>
+          <li><a href="#">State Comparison</a></li>
+        </ul>
+    </header>
+
+    <div class="pure-g">
+      <div class="pure-u-1 pure-u-md-1-5" ng-view></div>
+
+      <div class="pure-u-1 pure-u-md-4-5">
+        <svg class="graph"></svg>
+      </div>
+    </div>
 
     <!--TEMPLATES-->
-    
+    <script src="dist/jst.js"></script>
     <!--TEMPLATES END-->
 
     <!--SCRIPTS-->

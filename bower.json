@@ -1,0 +1,7 @@
+{
+  "name": "tax-graphs",
+  "version": "0.0.1",
+  "dependencies": {
+    "pure": "~0.5.0"
+  }
+}
