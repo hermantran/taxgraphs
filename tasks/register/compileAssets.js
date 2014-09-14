@@ -4,6 +4,7 @@ module.exports = function (grunt) {
 		'jst:dev',
 		'less:dev',
 		'copy:dev',
+    'preprocess-tax:dev',
 		'browserify:dev',
     'uglify:dist'
 	]);
