@@ -7,14 +7,14 @@
  * sails project.
  *
  * For usage docs see:
- * 		https://github.com/gruntjs/grunt-contrib-clean
+ *    https://github.com/gruntjs/grunt-contrib-clean
  */
 module.exports = function(grunt) {
 
-	grunt.config.set('clean', {
-		dev: ['dist/**'],
-		build: ['www']
-	});
+  grunt.config.set('clean', {
+    dev: ['dist/**'],
+    build: ['www']
+  });
 
-	grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-clean');
 };
