@@ -12,6 +12,7 @@ window._ = lodash;
 app.constant('d3', d3)
   .constant('_', lodash)
   .constant('JST', window.JST)
+  .constant('TAX_API', 'dist/data/taxes.json')
   .config(['$provide', 'JST', templateCache])
   .config(['$routeProvider', routes]);
   

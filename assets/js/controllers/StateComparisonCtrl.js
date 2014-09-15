@@ -1,5 +1,5 @@
 'use strict';
 
-module.exports = function($scope) {
+module.exports = function($scope, $rootScope) {
 
 };

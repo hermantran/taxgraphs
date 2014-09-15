@@ -20,10 +20,14 @@ module.exports = function(grunt) {
       // API files to watch:
       files: ['api/**/*']
     },
+    js: {
+      files: ['assets/**/*.js'],
+      tasks: ['compileJs', 'linkAssets'],
+    },
     assets: {
 
       // Assets to watch:
-      files: ['assets/**/*.(!js)', 'tasks/pipeline.js'],
+      files: ['assets/**/*.*', '!assets/**/*.js', 'tasks/pipeline.js'],
 
       // When assets are changed:
       tasks: ['compileAssets', 'linkAssets'],
@@ -31,10 +35,6 @@ module.exports = function(grunt) {
       options: {
         livereload: true
       }
-    },
-    js: {
-      files: ['assets/**/*.js', 'tasks/pipeline.js'],
-      tasks: ['compileJs', 'linkAssets'],
     }
   });
 

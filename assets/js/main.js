@@ -11,16 +11,21 @@ app.run([
   '$rootScope',
   '$http',
   'Graph', 
-  'taxService', 
-  function($rootScope, $http, Graph, taxService) {
-
-    function testGraph(data) {
-      var t = data;
-      var graph = new Graph({
-        xMax: 1200000
+  'taxService',
+  'TAX_API',
+  function($rootScope, $http, Graph, taxService, TAX_API) {
+    $rootScope.initGraph = function(resp) {
+      $rootScope.data = resp.data;
+      $rootScope.graph = new Graph({
+        xMax: 150000
       });
-      graph.init();
 
+      $rootScope.graph.init();
+      $rootScope.drawGraph();
+    };
+
+    $rootScope.drawGraph = function() {
+      var t = $rootScope.data;
       var a = [
         t.federal.income.rate.single,
         t.federal.social_security.rate,
@@ -33,13 +38,16 @@ app.run([
       window.a = a;
 
       for (var i = 0; i < a.length; i++) {
-        graph.drawLine(taxService.createMarginalTaxData(a[i], graph.xMax));
+        $rootScope.graph.drawLine(
+          taxService.createMarginalTaxData(a[i], $rootScope.graph.xMax
+        ));
       }
-    }
+    };
 
-    $http.get('dist/data/taxes.json').then(function(resp) {
-      $rootScope.data = resp.data;
-      testGraph($rootScope.data);
-    });
+    $rootScope.clearGraph = function() {
+      $rootScope.graph.removeLines();
+    };
+
+    $http.get(TAX_API).then($rootScope.initGraph);
   }
 ]);

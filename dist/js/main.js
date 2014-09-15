@@ -20,6 +20,7 @@ window._ = lodash;
 app.constant('d3', d3)
   .constant('_', lodash)
   .constant('JST', window.JST)
+  .constant('TAX_API', 'dist/data/taxes.json')
   .config(['$provide', 'JST', templateCache])
   .config(['$routeProvider', routes]);
   
@@ -66,7 +67,7 @@ module.exports = function($provide, JST) {
 },{}],5:[function(require,module,exports){
 'use strict';
 
-module.exports = function($scope) {
+module.exports = function($scope, $rootScope) {
 
 };
 },{}],6:[function(require,module,exports){
@@ -75,7 +76,9 @@ module.exports = function($scope) {
 var app = require('../app'),
     StateComparisonCtrl = require('./StateComparisonCtrl');
 
-app.controller('StateComparisonCtrl', ['$scope', StateComparisonCtrl]);
+app.controller('StateComparisonCtrl', [
+  '$scope', '$rootScope', StateComparisonCtrl
+]);
 },{"../app":1,"./StateComparisonCtrl":5}],7:[function(require,module,exports){
 'use strict';
 
@@ -95,6 +98,7 @@ module.exports = function(d3) {
     this.height = opts.height || 600;
     this.w = this.width - this.m[1] - this.m[3]; // width
     this.h = this.height - this.m[0] - this.m[2]; // height
+    this.lineClass = 'tax';
   }
 
   Graph.prototype.init = function() {
@@ -148,7 +152,12 @@ module.exports = function(d3) {
       .y(function(d) { return this.y(d.y); }.bind(this));
 
     this.graph.append('svg:path')
+      .attr('class', this.lineClass)
       .attr('d', line(data));
+  };
+
+  Graph.prototype.removeLines = function() {
+    this.graph.selectAll('.' + this.lineClass).remove();
   };
 
   return Graph;
@@ -227,16 +236,21 @@ app.run([
   '$rootScope',
   '$http',
   'Graph', 
-  'taxService', 
-  function($rootScope, $http, Graph, taxService) {
-
-    function testGraph(data) {
-      var t = data;
-      var graph = new Graph({
-        xMax: 1200000
+  'taxService',
+  'TAX_API',
+  function($rootScope, $http, Graph, taxService, TAX_API) {
+    $rootScope.initGraph = function(resp) {
+      $rootScope.data = resp.data;
+      $rootScope.graph = new Graph({
+        xMax: 150000
       });
-      graph.init();
 
+      $rootScope.graph.init();
+      $rootScope.drawGraph();
+    };
+
+    $rootScope.drawGraph = function() {
+      var t = $rootScope.data;
       var a = [
         t.federal.income.rate.single,
         t.federal.social_security.rate,
@@ -249,14 +263,17 @@ app.run([
       window.a = a;
 
       for (var i = 0; i < a.length; i++) {
-        graph.drawLine(taxService.createMarginalTaxData(a[i], graph.xMax));
+        $rootScope.graph.drawLine(
+          taxService.createMarginalTaxData(a[i], $rootScope.graph.xMax
+        ));
       }
-    }
+    };
 
-    $http.get('dist/data/taxes.json').then(function(resp) {
-      $rootScope.data = resp.data;
-      testGraph($rootScope.data);
-    });
+    $rootScope.clearGraph = function() {
+      $rootScope.graph.removeLines();
+    };
+
+    $http.get(TAX_API).then($rootScope.initGraph);
   }
 ]);
 },{"./app":1,"./config":2,"./controllers":6,"./directives":7,"./factories":9,"./services":12}],12:[function(require,module,exports){

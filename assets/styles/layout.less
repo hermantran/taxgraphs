@@ -1,0 +1,39 @@
+@header-height: 40px;
+
+header {
+  position: fixed;
+  z-index: 3;
+}
+
+.container {
+  position: absolute;
+  width: 100%;
+  min-height: 100%;
+  padding-top: @header-height;
+  -moz-box-sizing: border-box;
+       box-sizing: border-box;
+}
+
+.controls-wrapper {
+  position: relative;
+}
+
+.controls {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  border-right: 1px solid #ccc;
+  overflow: hidden;
+}
+
+@media screen and (max-width: @screen-sm-max) {
+  .container {
+    min-height: 0;
+  }
+
+  .controls {
+    height: auto;
+    width: auto;
+    position: relative;
+  }
+}

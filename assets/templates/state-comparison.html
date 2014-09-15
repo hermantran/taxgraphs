@@ -1,3 +1,9 @@
-<div>
-  Test
+<div ng-repeat="(key, value) in $root.data.state">
+  <input type="checkbox" id="{{ key }}" name="{{ key }}">
+  <label for="{{ key }}">{{ key }}</label>
+</div>
+
+<div class="text-center">
+  <button class="pure-button pure-button-primary" ng-click="drawGraph()">Graph</button>
+  <button class="pure-button" ng-click="clearGraph()">Clear</button>
 </div>

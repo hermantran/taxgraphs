@@ -3,4 +3,6 @@
 var app = require('../app'),
     StateComparisonCtrl = require('./StateComparisonCtrl');
 
-app.controller('StateComparisonCtrl', ['$scope', StateComparisonCtrl]);
+app.controller('StateComparisonCtrl', [
+  '$scope', '$rootScope', StateComparisonCtrl
+]);

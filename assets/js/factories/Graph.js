@@ -11,6 +11,7 @@ module.exports = function(d3) {
     this.height = opts.height || 600;
     this.w = this.width - this.m[1] - this.m[3]; // width
     this.h = this.height - this.m[0] - this.m[2]; // height
+    this.lineClass = 'tax';
   }
 
   Graph.prototype.init = function() {
@@ -64,7 +65,12 @@ module.exports = function(d3) {
       .y(function(d) { return this.y(d.y); }.bind(this));
 
     this.graph.append('svg:path')
+      .attr('class', this.lineClass)
       .attr('d', line(data));
+  };
+
+  Graph.prototype.removeLines = function() {
+    this.graph.selectAll('.' + this.lineClass).remove();
   };
 
   return Graph;
