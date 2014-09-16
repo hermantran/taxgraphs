@@ -1,7 +1,7 @@
 module.exports = function (grunt) {
-  grunt.registerTask('default', [
+  grunt.registerTask('dist', [
     'compileAssets',
     'linkAssets',
-    'watch'
+    'uglify'
   ]);
 };

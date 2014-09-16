@@ -1,5 +1,5 @@
 'use strict';
 
-module.exports = function($scope, $rootScope) {
-
+module.exports = function($scope) {
+  $scope.test = '';
 };

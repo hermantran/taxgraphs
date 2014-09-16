@@ -15,26 +15,24 @@
 module.exports = function(grunt) {
 
   grunt.config.set('watch', {
-    api: {
-
-      // API files to watch:
-      files: ['api/**/*']
-    },
     js: {
-      files: ['assets/**/*.js'],
-      tasks: ['compileJs', 'linkAssets'],
+      files: ['assets/js/**/*.js'],
+      tasks: ['jshint:dev', 'browserify:dev']
     },
-    assets: {
-
-      // Assets to watch:
-      files: ['assets/**/*.*', '!assets/**/*.js', 'tasks/pipeline.js'],
-
-      // When assets are changed:
-      tasks: ['compileAssets', 'linkAssets'],
-
-      options: {
-        livereload: true
-      }
+    styles: {
+      files: ['assets/styles/**/*.less'],
+      tasks: ['less:dev']
+    },
+    tpl: {
+      files: ['assets/templates/**/*.html'],
+      tasks: ['jst:dev']
+    },
+    pipeline: {
+      files: ['tasks/pipeline.js'],
+      tasks: ['linkAssets']
+    },
+    options: {
+      livereload: true
     }
   });
 

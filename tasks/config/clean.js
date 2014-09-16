@@ -12,8 +12,7 @@
 module.exports = function(grunt) {
 
   grunt.config.set('clean', {
-    dev: ['dist/**'],
-    build: ['www']
+    dist: ['dist/**']
   });
 
   grunt.loadNpmTasks('grunt-contrib-clean');

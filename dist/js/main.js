@@ -74,16 +74,12 @@ module.exports = function($provide, JST) {
 },{}],5:[function(require,module,exports){
 'use strict';
 
-module.exports = function($scope, $rootScope) {
-
+module.exports = function($scope) {
+  $scope.test = '';
 };
 },{}],6:[function(require,module,exports){
-'use strict';
-
-module.exports = function($scope, $rootScope) {
-  
-};
-},{}],7:[function(require,module,exports){
+module.exports=require(5)
+},{"c:\\Users\\Herman\\Desktop\\taxes\\assets\\js\\controllers\\StateBreakdownCtrl.js":5}],7:[function(require,module,exports){
 'use strict';
 
 var app = require('../app'),
@@ -98,9 +94,9 @@ app.controller('StateComparisonCtrl', [
 },{"../app":1,"./StateBreakdownCtrl":5,"./StateComparisonCtrl":6}],8:[function(require,module,exports){
 'use strict';
 
-var app = require('../app');
+// var app = require('../app');
 
-},{"../app":1}],9:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 module.exports = function(d3) {

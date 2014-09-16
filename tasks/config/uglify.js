@@ -12,9 +12,13 @@
 module.exports = function(grunt) {
 
   grunt.config.set('uglify', {
-    dist: {
+    js: {
       src: ['dist/js/main.js'],
       dest: 'dist/js/main.min.js'
+    },
+    jst: {
+      src: ['dist/js/jst.js'],
+      dest: 'dist/js/jst.js'
     },
     options: {
       mangle: true
