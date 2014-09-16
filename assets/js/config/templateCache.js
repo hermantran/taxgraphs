@@ -2,7 +2,7 @@
 
 // http://stackoverflow.com/questions/22080981/loading-ng-include-partials-from-local-pre-loaded-jst-template-cache
 module.exports = function($provide, JST) {
-  $provide.decorator('$templateCache', function($delegate) {
+  $provide.decorator('$templateCache', ['$delegate', function($delegate) {
     var originalGet = $delegate.get;
 
     $delegate.get = function(key) {
@@ -20,7 +20,7 @@ module.exports = function($provide, JST) {
     };
 
     return $delegate;
-  });
+  }]);
 
   return this;
 };

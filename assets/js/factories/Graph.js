@@ -14,20 +14,12 @@ module.exports = function(d3) {
     this.lineClass = 'tax';
   }
 
-  Graph.prototype.init = function() {
-    this.graph = d3.select('svg')
-      .attr('width', this.w + this.m[1] + this.m[3])
-      .attr('height', this.h + this.m[0] + this.m[2])
-      .append('svg:g')
-      .attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
+  Graph.prototype.updateXAxis = function(xMax) {
+    this.xMax = xMax;
 
     this.x = d3.scale.linear()
       .domain([this.xMin, this.xMax])
       .range([0, this.w]);
-
-    this.y = d3.scale.linear()
-      .domain([0, 0.5])
-      .range([this.h, 0]);
 
     this.xAxis = d3.svg.axis()
       .scale(this.x)
@@ -37,10 +29,26 @@ module.exports = function(d3) {
       .tickPadding(10)
       .orient('bottom');
 
+    this.graph.selectAll('.x.axis').remove();
+
     this.graph.append('svg:g')
       .attr('class', 'x axis')
       .attr('transform', 'translate(0,' + this.h + ')')
       .call(this.xAxis);
+  };
+
+  Graph.prototype.init = function() {
+    this.graph = d3.select('svg')
+      .attr('width', this.w + this.m[1] + this.m[3])
+      .attr('height', this.h + this.m[0] + this.m[2])
+      .append('svg:g')
+      .attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
+
+    this.updateXAxis(this.xMax);
+
+    this.y = d3.scale.linear()
+      .domain([0, 0.5])
+      .range([this.h, 0]);
 
     this.yAxis = d3.svg.axis()
       .scale(this.y)
@@ -59,14 +67,28 @@ module.exports = function(d3) {
         .remove();
   };
         
-  Graph.prototype.drawLine = function(data) {
+  Graph.prototype.drawLine = function(data, isInterpolated) {
     var line = d3.svg.line()
       .x(function(d) { return this.x(d.x); }.bind(this))
       .y(function(d) { return this.y(d.y); }.bind(this));
 
-    this.graph.append('svg:path')
+    if (isInterpolated) {
+      line.interpolate('basis');
+    }
+
+    var path = this.graph.append('svg:path')
       .attr('class', this.lineClass)
       .attr('d', line(data));
+
+    var length = path.node().getTotalLength();
+
+    path
+      .attr('stroke-dasharray', length + ' ' + length)
+      .attr('stroke-dashoffset', length)
+      .transition()
+      .duration(1000)
+      .ease('linear')
+      .attr('stroke-dashoffset', 0);
   };
 
   Graph.prototype.removeLines = function() {

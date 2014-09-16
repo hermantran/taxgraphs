@@ -5,12 +5,14 @@ var angular = require('angular');
 require('angular-route/angular-route');
 
 module.exports = angular.module('taxApp', ['ngRoute']);
-},{"angular":15,"angular-route/angular-route":14}],2:[function(require,module,exports){
+},{"angular":16,"angular-route/angular-route":15}],2:[function(require,module,exports){
+(function (global){
 'use strict';
 
 var app = require('../app'),
     d3 = require('d3'),
     lodash = require('lodash'),
+    JST = (typeof window !== "undefined" ? window.JST : typeof global !== "undefined" ? global.JST : null),
     routes = require('./routes'),
     templateCache = require('./templateCache');
 
@@ -19,12 +21,13 @@ window._ = lodash;
 
 app.constant('d3', d3)
   .constant('_', lodash)
-  .constant('JST', window.JST)
+  .constant('JST', JST)
   .constant('TAX_API', 'dist/data/taxes.json')
   .config(['$provide', 'JST', templateCache])
   .config(['$routeProvider', routes]);
   
-},{"../app":1,"./routes":3,"./templateCache":4,"d3":17,"lodash":18}],3:[function(require,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"../app":1,"./routes":3,"./templateCache":4,"d3":18,"lodash":19}],3:[function(require,module,exports){
 'use strict';
 
 module.exports = function($routeProvider) {
@@ -32,6 +35,10 @@ module.exports = function($routeProvider) {
     .when('/', {
       templateUrl: 'assets/templates/state-comparison.html',
       controller: 'StateComparisonCtrl'
+    })
+    .when('/state', {
+      templateUrl: 'assets/templates/state-breakdown.html',
+      controller: 'StateBreakdownCtrl'
     })
     .otherwise({
       redirectTo: '/'
@@ -42,7 +49,7 @@ module.exports = function($routeProvider) {
 
 // http://stackoverflow.com/questions/22080981/loading-ng-include-partials-from-local-pre-loaded-jst-template-cache
 module.exports = function($provide, JST) {
-  $provide.decorator('$templateCache', function($delegate) {
+  $provide.decorator('$templateCache', ['$delegate', function($delegate) {
     var originalGet = $delegate.get;
 
     $delegate.get = function(key) {
@@ -60,7 +67,7 @@ module.exports = function($provide, JST) {
     };
 
     return $delegate;
-  });
+  }]);
 
   return this;
 };
@@ -73,18 +80,27 @@ module.exports = function($scope, $rootScope) {
 },{}],6:[function(require,module,exports){
 'use strict';
 
+module.exports = function($scope, $rootScope) {
+  
+};
+},{}],7:[function(require,module,exports){
+'use strict';
+
 var app = require('../app'),
-    StateComparisonCtrl = require('./StateComparisonCtrl');
+    StateComparisonCtrl = require('./StateComparisonCtrl'),
+    StateBreakdownCtrl = require('./StateBreakdownCtrl');
 
 app.controller('StateComparisonCtrl', [
   '$scope', '$rootScope', StateComparisonCtrl
+]).controller('StateBreakdownCtrl', [
+  '$scope', '$rootScope', StateBreakdownCtrl
 ]);
-},{"../app":1,"./StateComparisonCtrl":5}],7:[function(require,module,exports){
+},{"../app":1,"./StateBreakdownCtrl":5,"./StateComparisonCtrl":6}],8:[function(require,module,exports){
 'use strict';
 
 var app = require('../app');
 
-},{"../app":1}],8:[function(require,module,exports){
+},{"../app":1}],9:[function(require,module,exports){
 'use strict';
 
 module.exports = function(d3) {
@@ -101,20 +117,12 @@ module.exports = function(d3) {
     this.lineClass = 'tax';
   }
 
-  Graph.prototype.init = function() {
-    this.graph = d3.select('svg')
-      .attr('width', this.w + this.m[1] + this.m[3])
-      .attr('height', this.h + this.m[0] + this.m[2])
-      .append('svg:g')
-      .attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
+  Graph.prototype.updateXAxis = function(xMax) {
+    this.xMax = xMax;
 
     this.x = d3.scale.linear()
       .domain([this.xMin, this.xMax])
       .range([0, this.w]);
-
-    this.y = d3.scale.linear()
-      .domain([0, 0.5])
-      .range([this.h, 0]);
 
     this.xAxis = d3.svg.axis()
       .scale(this.x)
@@ -124,10 +132,26 @@ module.exports = function(d3) {
       .tickPadding(10)
       .orient('bottom');
 
+    this.graph.selectAll('.x.axis').remove();
+
     this.graph.append('svg:g')
       .attr('class', 'x axis')
       .attr('transform', 'translate(0,' + this.h + ')')
       .call(this.xAxis);
+  };
+
+  Graph.prototype.init = function() {
+    this.graph = d3.select('svg')
+      .attr('width', this.w + this.m[1] + this.m[3])
+      .attr('height', this.h + this.m[0] + this.m[2])
+      .append('svg:g')
+      .attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
+
+    this.updateXAxis(this.xMax);
+
+    this.y = d3.scale.linear()
+      .domain([0, 0.5])
+      .range([this.h, 0]);
 
     this.yAxis = d3.svg.axis()
       .scale(this.y)
@@ -146,14 +170,28 @@ module.exports = function(d3) {
         .remove();
   };
         
-  Graph.prototype.drawLine = function(data) {
+  Graph.prototype.drawLine = function(data, isInterpolated) {
     var line = d3.svg.line()
       .x(function(d) { return this.x(d.x); }.bind(this))
       .y(function(d) { return this.y(d.y); }.bind(this));
 
-    this.graph.append('svg:path')
+    if (isInterpolated) {
+      line.interpolate('basis');
+    }
+
+    var path = this.graph.append('svg:path')
       .attr('class', this.lineClass)
       .attr('d', line(data));
+
+    var length = path.node().getTotalLength();
+
+    path
+      .attr('stroke-dasharray', length + ' ' + length)
+      .attr('stroke-dashoffset', length)
+      .transition()
+      .duration(1000)
+      .ease('linear')
+      .attr('stroke-dashoffset', 0);
   };
 
   Graph.prototype.removeLines = function() {
@@ -162,7 +200,7 @@ module.exports = function(d3) {
 
   return Graph;
 };
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 var app = require('../app'),
@@ -170,7 +208,7 @@ var app = require('../app'),
 
 app.factory('Graph', ['d3', Graph]);
 
-},{"../app":1,"./Graph":8}],10:[function(require,module,exports){
+},{"../app":1,"./Graph":9}],11:[function(require,module,exports){
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round#Example%3a_Decimal_rounding
 (function(){
   'use strict';
@@ -222,7 +260,7 @@ app.factory('Graph', ['d3', Graph]);
   }
 
 })();
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 var app = require('./app');
@@ -241,31 +279,73 @@ app.run([
   function($rootScope, $http, Graph, taxService, TAX_API) {
     $rootScope.initGraph = function(resp) {
       $rootScope.data = resp.data;
+      window.d = $rootScope.data;
+
+      $rootScope.states = [];
+      $rootScope.filingStatuses = [];
+      $rootScope.graphTypes = ['effective', 'marginal'];
+      $rootScope.xMax = 100000;
+
+      for (var state in $rootScope.data.state) {
+        $rootScope.states.push(state);
+      }
+
+      for (var filingStatus in $rootScope.data.federal.income.rate) {
+        $rootScope.filingStatuses.push(filingStatus);
+      }
+
       $rootScope.graph = new Graph({
-        xMax: 150000
+        xMax: $rootScope.xMax
       });
 
+      window.d = resp.data;
+
+      $rootScope.state = 'CA';
+      $rootScope.status = 'single';
+      $rootScope.graphType = 'effective';
+
       $rootScope.graph.init();
-      $rootScope.drawGraph();
+      $rootScope.drawGraph($rootScope.state, $rootScope.status);
     };
 
-    $rootScope.drawGraph = function() {
-      var t = $rootScope.data;
-      var a = [
-        t.federal.income.rate.single,
-        t.federal.social_security.rate,
-        t.federal.medicare.rate,
-        t.state.CA.income.rate.single,
-        t.state.CA.SDI.rate,
-        t.state.CA.mental_health_services.rate
-      ];
+    $rootScope.drawGraph = function(state, filingStatus) {
+      var t = $rootScope.data,
+          taxes = [],
+          tax,
+          data;
 
-      window.a = a;
+      for (tax in t.federal) {
+        taxes.push(t.federal[tax].rate);
+      }
 
-      for (var i = 0; i < a.length; i++) {
-        $rootScope.graph.drawLine(
-          taxService.createMarginalTaxData(a[i], $rootScope.graph.xMax
-        ));
+      for (tax in t.state[state]) {
+        if (t.state[state].hasOwnProperty(tax)) {
+          taxes.push(t.state[state][tax].rate);
+        }
+      }
+
+      $rootScope.graph.updateXAxis($rootScope.xMax);
+      $rootScope.clearGraph();
+
+      console.log($rootScope.graphType);
+
+      for (var i = 0; i < taxes.length; i++) {
+        var args = [
+          taxes[i], 
+          $rootScope.graph.xMax, 
+          filingStatus
+        ];
+
+        if ($rootScope.graphType === 'effective') {
+          data = taxService.createEffectiveTaxData.apply(taxService, args);
+          $rootScope.graph.drawLine(data, true);
+        } else {
+          data = taxService.createMarginalTaxData.apply(taxService, args);
+          $rootScope.graph.drawLine(data);
+        }
+
+        
+        // console.log(taxes[i], data);
       }
     };
 
@@ -276,7 +356,7 @@ app.run([
     $http.get(TAX_API).then($rootScope.initGraph);
   }
 ]);
-},{"./app":1,"./config":2,"./controllers":6,"./directives":7,"./factories":9,"./services":12}],12:[function(require,module,exports){
+},{"./app":1,"./config":2,"./controllers":7,"./directives":8,"./factories":10,"./services":13}],13:[function(require,module,exports){
 'use strict';
 
 var app = require('../app'),
@@ -284,7 +364,7 @@ var app = require('../app'),
 
 app.service('taxService', ['_', taxService]);
 
-},{"../app":1,"./taxService":13}],13:[function(require,module,exports){
+},{"../app":1,"./taxService":14}],14:[function(require,module,exports){
 'use strict';
 
 require('../lib/Math.round10');
@@ -347,7 +427,7 @@ module.exports = function(_) {
   function calcEffectiveTax(tax, income, bracket, balance) {
     var numBrackets = tax.length,
         bracketMin = tax[bracket][MIN],
-        nextBracketMin = 0;
+        nextBracketMin = -1;
 
     bracket = bracket || 0;
     balance = balance || 0;
@@ -360,7 +440,7 @@ module.exports = function(_) {
       nextBracketMin = tax[bracket + 1][MIN];
     }
 
-    if (income - nextBracketMin > 0) {
+    if (nextBracketMin > -1 && income > nextBracketMin) {
       balance = tax[bracket][MAX_TAX];
       return calcEffectiveTax(tax, income, ++bracket, balance);
     } else {
@@ -373,7 +453,7 @@ module.exports = function(_) {
     max = max || 100000;
 
     if (_.isNumber(tax)) {
-      return createMarginalSimpleTaxData(tax, max);
+      return createFlatTaxData(tax, max);
     }
     else if (_.isArray(tax)) {
       return createMarginalBracketTaxData(tax, max);
@@ -383,7 +463,7 @@ module.exports = function(_) {
     }
   }
 
-  function createMarginalSimpleTaxData(tax, max) {
+  function createFlatTaxData(tax, max) {
     var data = [
       {
         x: 0,
@@ -435,8 +515,58 @@ module.exports = function(_) {
     return data;
   }
 
-  function createEffectiveTaxData(tax) {
-    return tax;
+  function createEffectiveTaxData(tax, max, filingStatus) {
+    max = max || 100000;
+
+    if (_.isNumber(tax)) {
+      return createFlatTaxData(tax, max);
+    }
+    else if (_.isArray(tax)) {
+      return createEffectiveBracketTaxData(tax, max);
+    }
+    else if (_.isPlainObject(tax)) {
+      return createEffectiveBracketTaxData(
+        tax[filingStatus], max, filingStatus
+      );
+    }
+  }
+
+  function createEffectiveBracketTaxData(tax, max, filingStatus) {
+    var data = [],
+        bracketMin,
+        effectiveTaxRate;
+
+    var lastPoint = {
+      x: max,
+      y: calcTax(tax, max, filingStatus) / max
+    };
+
+    data.push({
+      x: tax[0][MIN],
+      y: tax[0][RATE]
+    });
+
+    for (var i = 1, len = tax.length; i < len; i++) {
+      bracketMin = tax[i][MIN];
+
+      if (max < bracketMin) {
+        break;
+      }
+
+      effectiveTaxRate = Math.round10(tax[i - 1][MAX_TAX] / bracketMin, -4);
+
+      data.push({
+        x: bracketMin - 1,
+        y: effectiveTaxRate
+      }, {
+        x: bracketMin,
+        y: effectiveTaxRate
+      });
+    }
+
+    data.push(lastPoint);
+
+    return data;
   }
 
   this.preprocessTaxes = preprocessTaxes;
@@ -444,7 +574,7 @@ module.exports = function(_) {
   this.createMarginalTaxData = createMarginalTaxData;
   this.createEffectiveTaxData = createEffectiveTaxData;
 };
-},{"../lib/Math.round10":10}],14:[function(require,module,exports){
+},{"../lib/Math.round10":11}],15:[function(require,module,exports){
 /**
  * @license AngularJS v1.2.17-build.163+sha.fafcd62
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -1373,12 +1503,12 @@ function ngViewFillContentFactory($compile, $controller, $route) {
 
 })(window, window.angular);
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 require('./lib/angular.js');
 
 module.exports = angular;
 
-},{"./lib/angular.js":16}],16:[function(require,module,exports){
+},{"./lib/angular.js":17}],17:[function(require,module,exports){
 /**
  * @license AngularJS v1.2.23
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -23333,7 +23463,7 @@ var styleDirective = valueFn({
 })(window, document);
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}.ng-animate-block-transitions{transition:0s all!important;-webkit-transition:0s all!important;}.ng-hide-add-active,.ng-hide-remove{display:block!important;}</style>');
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 !function() {
   var d3 = {
     version: "3.4.11"
@@ -32567,7 +32697,7 @@ var styleDirective = valueFn({
   if (typeof define === "function" && define.amd) define(d3); else if (typeof module === "object" && module.exports) module.exports = d3;
   this.d3 = d3;
 }();
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -39356,4 +39486,4 @@ var styleDirective = valueFn({
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[11]);
+},{}]},{},[12]);

@@ -60,7 +60,7 @@ module.exports = function(_) {
   function calcEffectiveTax(tax, income, bracket, balance) {
     var numBrackets = tax.length,
         bracketMin = tax[bracket][MIN],
-        nextBracketMin = 0;
+        nextBracketMin = -1;
 
     bracket = bracket || 0;
     balance = balance || 0;
@@ -73,7 +73,7 @@ module.exports = function(_) {
       nextBracketMin = tax[bracket + 1][MIN];
     }
 
-    if (income - nextBracketMin > 0) {
+    if (nextBracketMin > -1 && income > nextBracketMin) {
       balance = tax[bracket][MAX_TAX];
       return calcEffectiveTax(tax, income, ++bracket, balance);
     } else {
@@ -86,7 +86,7 @@ module.exports = function(_) {
     max = max || 100000;
 
     if (_.isNumber(tax)) {
-      return createMarginalSimpleTaxData(tax, max);
+      return createFlatTaxData(tax, max);
     }
     else if (_.isArray(tax)) {
       return createMarginalBracketTaxData(tax, max);
@@ -96,7 +96,7 @@ module.exports = function(_) {
     }
   }
 
-  function createMarginalSimpleTaxData(tax, max) {
+  function createFlatTaxData(tax, max) {
     var data = [
       {
         x: 0,
@@ -148,8 +148,58 @@ module.exports = function(_) {
     return data;
   }
 
-  function createEffectiveTaxData(tax) {
-    return tax;
+  function createEffectiveTaxData(tax, max, filingStatus) {
+    max = max || 100000;
+
+    if (_.isNumber(tax)) {
+      return createFlatTaxData(tax, max);
+    }
+    else if (_.isArray(tax)) {
+      return createEffectiveBracketTaxData(tax, max);
+    }
+    else if (_.isPlainObject(tax)) {
+      return createEffectiveBracketTaxData(
+        tax[filingStatus], max, filingStatus
+      );
+    }
+  }
+
+  function createEffectiveBracketTaxData(tax, max, filingStatus) {
+    var data = [],
+        bracketMin,
+        effectiveTaxRate;
+
+    var lastPoint = {
+      x: max,
+      y: calcTax(tax, max, filingStatus) / max
+    };
+
+    data.push({
+      x: tax[0][MIN],
+      y: tax[0][RATE]
+    });
+
+    for (var i = 1, len = tax.length; i < len; i++) {
+      bracketMin = tax[i][MIN];
+
+      if (max < bracketMin) {
+        break;
+      }
+
+      effectiveTaxRate = Math.round10(tax[i - 1][MAX_TAX] / bracketMin, -4);
+
+      data.push({
+        x: bracketMin - 1,
+        y: effectiveTaxRate
+      }, {
+        x: bracketMin,
+        y: effectiveTaxRate
+      });
+    }
+
+    data.push(lastPoint);
+
+    return data;
   }
 
   this.preprocessTaxes = preprocessTaxes;

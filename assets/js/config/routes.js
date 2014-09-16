@@ -6,6 +6,10 @@ module.exports = function($routeProvider) {
       templateUrl: 'assets/templates/state-comparison.html',
       controller: 'StateComparisonCtrl'
     })
+    .when('/state', {
+      templateUrl: 'assets/templates/state-breakdown.html',
+      controller: 'StateBreakdownCtrl'
+    })
     .otherwise({
       redirectTo: '/'
     });

@@ -15,6 +15,9 @@ module.exports = function(grunt) {
     dist: {
       src: ['dist/js/main.js'],
       dest: 'dist/js/main.min.js'
+    },
+    options: {
+      mangle: true
     }
   });
 

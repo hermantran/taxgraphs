@@ -22,8 +22,7 @@ module.exports = function(grunt) {
         ext: '.css'
       }],
       options: {
-        // compress: true,
-        // cleancss: true
+        cleancss: true
       }
     }
   });
