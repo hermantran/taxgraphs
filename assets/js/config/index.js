@@ -16,4 +16,3 @@ app.constant('d3', d3)
   .constant('TAX_API', 'dist/data/taxes.json')
   .config(['$provide', 'JST', templateCache])
   .config(['$routeProvider', routes]);
-  

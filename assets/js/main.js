@@ -2,6 +2,7 @@
 
 var app = require('./app');
 require('./config');
+require('./filters');
 require('./directives');
 require('./factories');
 require('./services');
@@ -9,62 +10,38 @@ require('./controllers');
 
 app.run([
   '$rootScope',
-  '$http',
   'Graph', 
   'taxService',
-  'TAX_API',
-  function($rootScope, $http, Graph, taxService, TAX_API) {
-    $rootScope.initGraph = function(resp) {
-      $rootScope.data = resp.data;
+  'taxData',
+  function($rootScope, Graph, taxService, taxData) {
+    $rootScope.initGraph = function(data) {
+      $rootScope.data = data;
       window.d = $rootScope.data;
 
-      $rootScope.states = [];
-      $rootScope.filingStatuses = [];
-      $rootScope.graphTypes = ['effective', 'marginal'];
+      $rootScope.states = taxData.states;
+      $rootScope.filingStatuses = taxData.filingStatuses;
+      $rootScope.graphTypes = taxData.taxTypes;
       $rootScope.xMax = 100000;
-
-      for (var state in $rootScope.data.state) {
-        $rootScope.states.push(state);
-      }
-
-      for (var filingStatus in $rootScope.data.federal.income.rate) {
-        $rootScope.filingStatuses.push(filingStatus);
-      }
 
       $rootScope.graph = new Graph({
         xMax: $rootScope.xMax
       });
-
-      window.d = resp.data;
 
       $rootScope.state = 'CA';
       $rootScope.status = 'single';
       $rootScope.graphType = 'effective';
 
       $rootScope.graph.init();
+      $rootScope.taxNames = taxData.getTaxNames($rootScope.state);
       $rootScope.drawGraph($rootScope.state, $rootScope.status);
     };
 
     $rootScope.drawGraph = function(state, filingStatus) {
-      var t = $rootScope.data,
-          taxes = [],
-          tax,
+      var taxes = taxData.getTaxes(state),
           data;
-
-      for (tax in t.federal) {
-        taxes.push(t.federal[tax].rate);
-      }
-
-      for (tax in t.state[state]) {
-        if (t.state[state].hasOwnProperty(tax)) {
-          taxes.push(t.state[state][tax].rate);
-        }
-      }
 
       $rootScope.graph.updateXAxis($rootScope.xMax);
       $rootScope.clearGraph();
-
-      console.log($rootScope.graphType);
 
       for (var i = 0; i < taxes.length; i++) {
         var args = [
@@ -80,9 +57,6 @@ app.run([
           data = taxService.createMarginalTaxData.apply(taxService, args);
           $rootScope.graph.drawLine(data);
         }
-
-        
-        // console.log(taxes[i], data);
       }
     };
 
@@ -90,6 +64,6 @@ app.run([
       $rootScope.graph.removeLines();
     };
 
-    $http.get(TAX_API).then($rootScope.initGraph);
+    taxData.get().then($rootScope.initGraph);
   }
 ]);

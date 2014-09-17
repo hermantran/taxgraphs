@@ -8,22 +8,24 @@
 <div>
   <label for="status">Filing Status:</label>
   <select ng-model="$root.status" id="status" name="status" 
-   ng-options="v for v in $root.filingStatuses">
+   ng-options="v as (v | capitalize) for v in $root.filingStatuses">
   </select>
 </div>
 
 <div>
   <label for="graphType">Tax Type:</label>
   <select ng-model="$root.graphType" id="graphType" name="graphType" 
-   ng-options="v for v in $root.graphTypes">
+   ng-options="v as (v | capitalize) for v in $root.graphTypes">
   </select>
 </div>
-
-{{ $root.graphType }}
 
 <div>
   <label for="max">Income Max:</label>
   <input type="text" id="max" name="max" ng-model="$root.xMax">
+</div>
+
+<div ng-repeat="taxName in taxNames">
+  {{ taxName}}
 </div>
 
 <div class="text-center">

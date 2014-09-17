@@ -7,5 +7,5 @@ var app = require('../app'),
 app.controller('StateComparisonCtrl', [
   '$scope', '$rootScope', StateComparisonCtrl
 ]).controller('StateBreakdownCtrl', [
-  '$scope', '$rootScope', StateBreakdownCtrl
+  '$scope', '$rootScope', 'taxData', StateBreakdownCtrl
 ]);

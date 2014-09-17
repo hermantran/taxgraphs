@@ -5,7 +5,7 @@ var angular = require('angular');
 require('angular-route/angular-route');
 
 module.exports = angular.module('taxApp', ['ngRoute']);
-},{"angular":16,"angular-route/angular-route":15}],2:[function(require,module,exports){
+},{"angular":19,"angular-route/angular-route":18}],2:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -25,9 +25,8 @@ app.constant('d3', d3)
   .constant('TAX_API', 'dist/data/taxes.json')
   .config(['$provide', 'JST', templateCache])
   .config(['$routeProvider', routes]);
-  
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../app":1,"./routes":3,"./templateCache":4,"d3":18,"lodash":19}],3:[function(require,module,exports){
+},{"../app":1,"./routes":3,"./templateCache":4,"d3":21,"lodash":22}],3:[function(require,module,exports){
 'use strict';
 
 module.exports = function($routeProvider) {
@@ -74,12 +73,20 @@ module.exports = function($provide, JST) {
 },{}],5:[function(require,module,exports){
 'use strict';
 
+module.exports = function($scope, $rootScope, taxData) {
+  $scope.$watch('state', function() {
+    if ($scope.state) {
+      $scope.taxNames = taxData.getTaxNames($scope.state);
+    }
+  });
+};
+},{}],6:[function(require,module,exports){
+'use strict';
+
 module.exports = function($scope) {
   $scope.test = '';
 };
-},{}],6:[function(require,module,exports){
-module.exports=require(5)
-},{"c:\\Users\\Herman\\Desktop\\taxes\\assets\\js\\controllers\\StateBreakdownCtrl.js":5}],7:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 var app = require('../app'),
@@ -89,7 +96,7 @@ var app = require('../app'),
 app.controller('StateComparisonCtrl', [
   '$scope', '$rootScope', StateComparisonCtrl
 ]).controller('StateBreakdownCtrl', [
-  '$scope', '$rootScope', StateBreakdownCtrl
+  '$scope', '$rootScope', 'taxData', StateBreakdownCtrl
 ]);
 },{"../app":1,"./StateBreakdownCtrl":5,"./StateComparisonCtrl":6}],8:[function(require,module,exports){
 'use strict';
@@ -205,6 +212,24 @@ var app = require('../app'),
 app.factory('Graph', ['d3', Graph]);
 
 },{"../app":1,"./Graph":9}],11:[function(require,module,exports){
+'use strict';
+
+// http://codepen.io/WinterJoey/pen/sfFaK
+module.exports = function() {
+  return function(input) {
+    return (!!input) ? input.replace(/([^\W_]+[^\s-]*) */g, function(txt) {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    }) : '';
+  };
+};
+},{}],12:[function(require,module,exports){
+'use strict';
+
+var app = require('../app'),
+    capitalize = require('./capitalize');
+
+app.filter('capitalize', capitalize);
+},{"../app":1,"./capitalize":11}],13:[function(require,module,exports){
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round#Example%3a_Decimal_rounding
 (function(){
   'use strict';
@@ -256,11 +281,12 @@ app.factory('Graph', ['d3', Graph]);
   }
 
 })();
-},{}],12:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 var app = require('./app');
 require('./config');
+require('./filters');
 require('./directives');
 require('./factories');
 require('./services');
@@ -268,62 +294,38 @@ require('./controllers');
 
 app.run([
   '$rootScope',
-  '$http',
   'Graph', 
   'taxService',
-  'TAX_API',
-  function($rootScope, $http, Graph, taxService, TAX_API) {
-    $rootScope.initGraph = function(resp) {
-      $rootScope.data = resp.data;
+  'taxData',
+  function($rootScope, Graph, taxService, taxData) {
+    $rootScope.initGraph = function(data) {
+      $rootScope.data = data;
       window.d = $rootScope.data;
 
-      $rootScope.states = [];
-      $rootScope.filingStatuses = [];
-      $rootScope.graphTypes = ['effective', 'marginal'];
+      $rootScope.states = taxData.states;
+      $rootScope.filingStatuses = taxData.filingStatuses;
+      $rootScope.graphTypes = taxData.taxTypes;
       $rootScope.xMax = 100000;
-
-      for (var state in $rootScope.data.state) {
-        $rootScope.states.push(state);
-      }
-
-      for (var filingStatus in $rootScope.data.federal.income.rate) {
-        $rootScope.filingStatuses.push(filingStatus);
-      }
 
       $rootScope.graph = new Graph({
         xMax: $rootScope.xMax
       });
-
-      window.d = resp.data;
 
       $rootScope.state = 'CA';
       $rootScope.status = 'single';
       $rootScope.graphType = 'effective';
 
       $rootScope.graph.init();
+      $rootScope.taxNames = taxData.getTaxNames($rootScope.state);
       $rootScope.drawGraph($rootScope.state, $rootScope.status);
     };
 
     $rootScope.drawGraph = function(state, filingStatus) {
-      var t = $rootScope.data,
-          taxes = [],
-          tax,
+      var taxes = taxData.getTaxes(state),
           data;
-
-      for (tax in t.federal) {
-        taxes.push(t.federal[tax].rate);
-      }
-
-      for (tax in t.state[state]) {
-        if (t.state[state].hasOwnProperty(tax)) {
-          taxes.push(t.state[state][tax].rate);
-        }
-      }
 
       $rootScope.graph.updateXAxis($rootScope.xMax);
       $rootScope.clearGraph();
-
-      console.log($rootScope.graphType);
 
       for (var i = 0; i < taxes.length; i++) {
         var args = [
@@ -339,9 +341,6 @@ app.run([
           data = taxService.createMarginalTaxData.apply(taxService, args);
           $rootScope.graph.drawLine(data);
         }
-
-        
-        // console.log(taxes[i], data);
       }
     };
 
@@ -349,18 +348,91 @@ app.run([
       $rootScope.graph.removeLines();
     };
 
-    $http.get(TAX_API).then($rootScope.initGraph);
+    taxData.get().then($rootScope.initGraph);
   }
 ]);
-},{"./app":1,"./config":2,"./controllers":7,"./directives":8,"./factories":10,"./services":13}],13:[function(require,module,exports){
+},{"./app":1,"./config":2,"./controllers":7,"./directives":8,"./factories":10,"./filters":12,"./services":15}],15:[function(require,module,exports){
 'use strict';
 
 var app = require('../app'),
-    taxService = require('./taxService');
+    taxService = require('./taxService'),
+    taxData = require('./taxData');
 
-app.service('taxService', ['_', taxService]);
+app.service('taxService', ['_', taxService])
+  .service('taxData', ['$http', '$q', 'TAX_API', taxData]);
 
-},{"../app":1,"./taxService":14}],14:[function(require,module,exports){
+},{"../app":1,"./taxData":16,"./taxService":17}],16:[function(require,module,exports){
+'use strict';
+
+module.exports = function($http, $q, TAX_API) {
+  var deferred = $q.defer(),
+      hasResolved = false;
+
+  this.data = {};
+  this.states = [];
+  this.filingStatuses = [];
+  this.taxTypes = ['effective', 'marginal'];
+
+  this.get = function() {
+    if (!hasResolved) {
+      this.fetch(TAX_API);
+    }
+
+    return deferred.promise;
+  };
+
+  this.fetch = function(url) {
+    $http.get(url).then(function(resp) {
+      this.data = resp.data;
+      this.fillMetadata(this.data);
+      deferred.resolve(this.data);
+      hasResolved = true;
+    }.bind(this));
+  };
+
+  this.fillMetadata = function(data) {
+    for (var state in data.state) {
+      this.states.push(state);
+    }
+
+    for (var filingStatus in data.federal.income.rate) {
+      this.filingStatuses.push(filingStatus);
+    }
+  };
+
+  this.getTaxes = function(state) {
+    var taxes = [];
+
+    for (var tax in this.data.federal) {
+      taxes.push(this.data.federal[tax].rate);
+    }
+
+    for (tax in this.data.state[state]) {
+      if (this.data.state[state].hasOwnProperty(tax)) {
+        taxes.push(this.data.state[state][tax].rate);
+      }
+    }
+
+    return taxes;
+  };
+
+  this.getTaxNames = function(state) {
+    var taxes = [];
+
+    for (var tax in this.data.federal) {
+      taxes.push('federal ' + tax);
+    }
+
+    for (tax in this.data.state[state]) {
+      if (this.data.state[state].hasOwnProperty(tax)) {
+        taxes.push(state + ' ' + tax);
+      }
+    }
+
+    return taxes;
+  };
+};
+},{}],17:[function(require,module,exports){
 'use strict';
 
 require('../lib/Math.round10');
@@ -570,7 +642,7 @@ module.exports = function(_) {
   this.createMarginalTaxData = createMarginalTaxData;
   this.createEffectiveTaxData = createEffectiveTaxData;
 };
-},{"../lib/Math.round10":11}],15:[function(require,module,exports){
+},{"../lib/Math.round10":13}],18:[function(require,module,exports){
 /**
  * @license AngularJS v1.2.17-build.163+sha.fafcd62
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -1499,12 +1571,12 @@ function ngViewFillContentFactory($compile, $controller, $route) {
 
 })(window, window.angular);
 
-},{}],16:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 require('./lib/angular.js');
 
 module.exports = angular;
 
-},{"./lib/angular.js":17}],17:[function(require,module,exports){
+},{"./lib/angular.js":20}],20:[function(require,module,exports){
 /**
  * @license AngularJS v1.2.23
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -23459,7 +23531,7 @@ var styleDirective = valueFn({
 })(window, document);
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}.ng-animate-block-transitions{transition:0s all!important;-webkit-transition:0s all!important;}.ng-hide-add-active,.ng-hide-remove{display:block!important;}</style>');
-},{}],18:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 !function() {
   var d3 = {
     version: "3.4.11"
@@ -32693,7 +32765,7 @@ var styleDirective = valueFn({
   if (typeof define === "function" && define.amd) define(d3); else if (typeof module === "object" && module.exports) module.exports = d3;
   this.d3 = d3;
 }();
-},{}],19:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -39482,4 +39554,4 @@ var styleDirective = valueFn({
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[12]);
+},{}]},{},[14]);
