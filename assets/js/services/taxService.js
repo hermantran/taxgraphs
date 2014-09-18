@@ -82,6 +82,22 @@ module.exports = function(_) {
     }
   }
 
+  function calcMarginalTax(tax, income) {
+    if (_.isNumber(tax)) {
+      return tax * income;
+    }
+    /*
+    else if (_.isArray(tax)) {
+      return calcMarginalBracketTax(tax, income);
+    }
+    else if (_.isPlainObject(tax)) {
+      return calcMarginalBracketTax(tax[filingStatus], income);
+    }
+    */
+  }
+
+
+
   function createMarginalTaxData(tax, max, filingStatus) {
     max = max || 100000;
 
@@ -202,8 +218,65 @@ module.exports = function(_) {
     return data;
   }
 
+  function calcTotalMarginalTaxBrackets(taxes, max, filingStatus) {
+    var brackets = [];
+
+    _(taxes).forEach(function(tax) {
+      var copy;
+
+      if (_.isArray(tax)) {
+        copy = _.cloneDeep(tax);
+      }
+      else if (_.isPlainObject(tax)) {
+        copy = _.cloneDeep(tax[filingStatus]);
+      }
+
+      brackets.push.apply(brackets, copy);
+    });
+
+    brackets.sort(function(a, b) {
+      return a[MIN] - b[MIN];
+    });
+
+    brackets = _.uniq(brackets, function(bracket) {
+      return bracket[MIN];
+    });
+
+    brackets = _.map(brackets, function(bracket) {
+      var totalRate = 0;
+
+      for (var i = 0, len = taxes.length; i < len; i++) {
+        totalRate += calcMarginalTaxRate(taxes[i], bracket[MIN], filingStatus);
+      }
+
+      return [bracket[MIN], totalRate];
+    });
+
+    precalcBracketTaxes(brackets);
+    return brackets;
+  }
+
+  function calcMarginalTaxRate(tax, income, filingStatus) {
+    if (_.isNumber(tax)) {
+      return tax;
+    }
+    else if (_.isPlainObject(tax)) {
+      tax = tax[filingStatus];
+    }
+
+    for (var i = 0, len = tax.length; i < len - 1; i++) {
+      if (income >= tax[i][MIN] && income < tax[i + 1][MIN]) {
+        return tax[i][RATE];
+      }  
+    }
+
+    return tax[len - 1][RATE];
+  }
+
   this.preprocessTaxes = preprocessTaxes;
   this.calcTax = calcTax;
+  this.calcMarginalTax = calcMarginalTax;
   this.createMarginalTaxData = createMarginalTaxData;
   this.createEffectiveTaxData = createEffectiveTaxData;
+  this.calcTotalMarginalTaxBrackets = calcTotalMarginalTaxBrackets;
 };

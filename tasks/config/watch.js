@@ -27,6 +27,10 @@ module.exports = function(grunt) {
       files: ['assets/templates/**/*.html'],
       tasks: ['jst:dev']
     },
+    json: {
+      files: ['assets/data/**/*.json'],
+      tasks: ['preprocessTax:dist']
+    },
     pipeline: {
       files: ['tasks/pipeline.js'],
       tasks: ['linkAssets']

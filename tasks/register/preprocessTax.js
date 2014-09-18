@@ -11,7 +11,7 @@ module.exports = function(grunt) {
       TaxService = require('../../assets/js/services/taxService'),
       taxService = new TaxService(lodash);
 
-  grunt.registerMultiTask('preprocess-tax', 'Preprocess tax data', function() {
+  grunt.registerMultiTask('preprocessTax', 'Preprocess tax data', function() {
     this.files.forEach(function(file) {
       var dest = path.normalize(file.dest),
           srcFiles = grunt.file.expand(file.src),

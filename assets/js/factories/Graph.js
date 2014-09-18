@@ -12,6 +12,8 @@ module.exports = function(d3) {
     this.w = this.width - this.m[1] - this.m[3]; // width
     this.h = this.height - this.m[0] - this.m[2]; // height
     this.lineClass = 'tax';
+    this.xAxisClass = 'x axis';
+    this.yAxisClass = 'y axis';
   }
 
   Graph.prototype.updateXAxis = function(xMax) {
@@ -29,10 +31,10 @@ module.exports = function(d3) {
       .tickPadding(10)
       .orient('bottom');
 
-    this.graph.selectAll('.x.axis').remove();
+    this.graph.selectAll('.' + this.xAxisClass.split(' ').join('.')).remove();
 
     this.graph.append('svg:g')
-      .attr('class', 'x axis')
+      .attr('class', this.xAxisClass)
       .attr('transform', 'translate(0,' + this.h + ')')
       .call(this.xAxis);
   };
@@ -47,7 +49,7 @@ module.exports = function(d3) {
     this.updateXAxis(this.xMax);
 
     this.y = d3.scale.linear()
-      .domain([0, 0.5])
+      .domain([0, 0.65])
       .range([this.h, 0]);
 
     this.yAxis = d3.svg.axis()
@@ -59,7 +61,7 @@ module.exports = function(d3) {
       .orient('left');
 
     this.graph.append('svg:g')
-      .attr('class', 'y axis')
+      .attr('class', this.yAxisClass)
       .attr('transform', 'translate(0,0)')
       .call(this.yAxis)
       .selectAll('.tick')
@@ -86,7 +88,7 @@ module.exports = function(d3) {
       .attr('stroke-dasharray', length + ' ' + length)
       .attr('stroke-dashoffset', length)
       .transition()
-      .duration(1000)
+      .duration(1500)
       .ease('linear')
       .attr('stroke-dashoffset', 0);
   };

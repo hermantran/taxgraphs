@@ -6,6 +6,6 @@ module.exports = function (grunt) {
     'less:dev',
     'jshint:dev',
     'browserify:dev',
-    'preprocess-tax:dist'
+    'preprocessTax:dist'
   ]);
 };

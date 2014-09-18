@@ -56,12 +56,18 @@ module.exports = function($http, $q, TAX_API) {
     var taxes = [];
 
     for (var tax in this.data.federal) {
-      taxes.push('federal ' + tax);
+      taxes.push({
+        type: 'Federal',
+        name: tax
+      });
     }
 
     for (tax in this.data.state[state]) {
       if (this.data.state[state].hasOwnProperty(tax)) {
-        taxes.push(state + ' ' + tax);
+        taxes.push({
+          type: state,
+          name: tax
+        });
       }
     }
 

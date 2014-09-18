@@ -38,10 +38,22 @@ app.run([
 
     $rootScope.drawGraph = function(state, filingStatus) {
       var taxes = taxData.getTaxes(state),
-          data;
+          data,
+          total;
+
+      total = taxService.calcTotalMarginalTaxBrackets(
+        taxes, $rootScope.xMax, filingStatus
+      );
 
       $rootScope.graph.updateXAxis($rootScope.xMax);
       $rootScope.clearGraph();
+      $rootScope.graph.drawLine(
+        taxService.createMarginalTaxData(total, $rootScope.xMax)
+      );
+
+      $rootScope.graph.drawLine(
+        taxService.createEffectiveTaxData(total, $rootScope.xMax), true
+      );
 
       for (var i = 0; i < taxes.length; i++) {
         var args = [
@@ -57,6 +69,7 @@ app.run([
           data = taxService.createMarginalTaxData.apply(taxService, args);
           $rootScope.graph.drawLine(data);
         }
+
       }
     };
 

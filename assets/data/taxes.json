@@ -48,7 +48,7 @@
   },
   "state": {
     "CA": {
-      "SDI": {
+      "stateDisabilityInsurance": {
         "rate": [
           [0, 0.01],
           [101636, 0]

@@ -5,7 +5,7 @@ var angular = require('angular');
 require('angular-route/angular-route');
 
 module.exports = angular.module('taxApp', ['ngRoute']);
-},{"angular":19,"angular-route/angular-route":18}],2:[function(require,module,exports){
+},{"angular":20,"angular-route/angular-route":19}],2:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -26,7 +26,7 @@ app.constant('d3', d3)
   .config(['$provide', 'JST', templateCache])
   .config(['$routeProvider', routes]);
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../app":1,"./routes":3,"./templateCache":4,"d3":21,"lodash":22}],3:[function(require,module,exports){
+},{"../app":1,"./routes":3,"./templateCache":4,"d3":22,"lodash":23}],3:[function(require,module,exports){
 'use strict';
 
 module.exports = function($routeProvider) {
@@ -118,6 +118,8 @@ module.exports = function(d3) {
     this.w = this.width - this.m[1] - this.m[3]; // width
     this.h = this.height - this.m[0] - this.m[2]; // height
     this.lineClass = 'tax';
+    this.xAxisClass = 'x axis';
+    this.yAxisClass = 'y axis';
   }
 
   Graph.prototype.updateXAxis = function(xMax) {
@@ -135,10 +137,10 @@ module.exports = function(d3) {
       .tickPadding(10)
       .orient('bottom');
 
-    this.graph.selectAll('.x.axis').remove();
+    this.graph.selectAll('.' + this.xAxisClass.split(' ').join('.')).remove();
 
     this.graph.append('svg:g')
-      .attr('class', 'x axis')
+      .attr('class', this.xAxisClass)
       .attr('transform', 'translate(0,' + this.h + ')')
       .call(this.xAxis);
   };
@@ -153,7 +155,7 @@ module.exports = function(d3) {
     this.updateXAxis(this.xMax);
 
     this.y = d3.scale.linear()
-      .domain([0, 0.5])
+      .domain([0, 0.65])
       .range([this.h, 0]);
 
     this.yAxis = d3.svg.axis()
@@ -165,7 +167,7 @@ module.exports = function(d3) {
       .orient('left');
 
     this.graph.append('svg:g')
-      .attr('class', 'y axis')
+      .attr('class', this.yAxisClass)
       .attr('transform', 'translate(0,0)')
       .call(this.yAxis)
       .selectAll('.tick')
@@ -192,7 +194,7 @@ module.exports = function(d3) {
       .attr('stroke-dasharray', length + ' ' + length)
       .attr('stroke-dashoffset', length)
       .transition()
-      .duration(1000)
+      .duration(1500)
       .ease('linear')
       .attr('stroke-dashoffset', 0);
   };
@@ -226,10 +228,24 @@ module.exports = function() {
 'use strict';
 
 var app = require('../app'),
-    capitalize = require('./capitalize');
+    capitalize = require('./capitalize'),
+    splitCamelCase = require('./splitCamelCase');
 
-app.filter('capitalize', capitalize);
-},{"../app":1,"./capitalize":11}],13:[function(require,module,exports){
+app.filter('capitalize', capitalize)
+  .filter('splitCamelCase', splitCamelCase);
+},{"../app":1,"./capitalize":11,"./splitCamelCase":13}],13:[function(require,module,exports){
+'use strict';
+
+// http://stackoverflow.com/questions/4149276/javascript-camelcase-to-regular-form
+module.exports = function() {
+  return function(input) {
+    return input
+      .replace(/([A-Z])/g, ' $1')
+      // uppercase the first character
+      .replace(/^./, function(str) { return str.toUpperCase(); });
+  };
+};
+},{}],14:[function(require,module,exports){
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round#Example%3a_Decimal_rounding
 (function(){
   'use strict';
@@ -281,7 +297,7 @@ app.filter('capitalize', capitalize);
   }
 
 })();
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 var app = require('./app');
@@ -322,10 +338,22 @@ app.run([
 
     $rootScope.drawGraph = function(state, filingStatus) {
       var taxes = taxData.getTaxes(state),
-          data;
+          data,
+          total;
+
+      total = taxService.calcTotalMarginalTaxBrackets(
+        taxes, $rootScope.xMax, filingStatus
+      );
 
       $rootScope.graph.updateXAxis($rootScope.xMax);
       $rootScope.clearGraph();
+      $rootScope.graph.drawLine(
+        taxService.createMarginalTaxData(total, $rootScope.xMax)
+      );
+
+      $rootScope.graph.drawLine(
+        taxService.createEffectiveTaxData(total, $rootScope.xMax), true
+      );
 
       for (var i = 0; i < taxes.length; i++) {
         var args = [
@@ -341,6 +369,7 @@ app.run([
           data = taxService.createMarginalTaxData.apply(taxService, args);
           $rootScope.graph.drawLine(data);
         }
+
       }
     };
 
@@ -351,7 +380,7 @@ app.run([
     taxData.get().then($rootScope.initGraph);
   }
 ]);
-},{"./app":1,"./config":2,"./controllers":7,"./directives":8,"./factories":10,"./filters":12,"./services":15}],15:[function(require,module,exports){
+},{"./app":1,"./config":2,"./controllers":7,"./directives":8,"./factories":10,"./filters":12,"./services":16}],16:[function(require,module,exports){
 'use strict';
 
 var app = require('../app'),
@@ -361,7 +390,7 @@ var app = require('../app'),
 app.service('taxService', ['_', taxService])
   .service('taxData', ['$http', '$q', 'TAX_API', taxData]);
 
-},{"../app":1,"./taxData":16,"./taxService":17}],16:[function(require,module,exports){
+},{"../app":1,"./taxData":17,"./taxService":18}],17:[function(require,module,exports){
 'use strict';
 
 module.exports = function($http, $q, TAX_API) {
@@ -420,19 +449,25 @@ module.exports = function($http, $q, TAX_API) {
     var taxes = [];
 
     for (var tax in this.data.federal) {
-      taxes.push('federal ' + tax);
+      taxes.push({
+        type: 'Federal',
+        name: tax
+      });
     }
 
     for (tax in this.data.state[state]) {
       if (this.data.state[state].hasOwnProperty(tax)) {
-        taxes.push(state + ' ' + tax);
+        taxes.push({
+          type: state,
+          name: tax
+        });
       }
     }
 
     return taxes;
   };
 };
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 require('../lib/Math.round10');
@@ -516,6 +551,22 @@ module.exports = function(_) {
       return Math.round10(balance, -2);
     }
   }
+
+  function calcMarginalTax(tax, income) {
+    if (_.isNumber(tax)) {
+      return tax * income;
+    }
+    /*
+    else if (_.isArray(tax)) {
+      return calcMarginalBracketTax(tax, income);
+    }
+    else if (_.isPlainObject(tax)) {
+      return calcMarginalBracketTax(tax[filingStatus], income);
+    }
+    */
+  }
+
+
 
   function createMarginalTaxData(tax, max, filingStatus) {
     max = max || 100000;
@@ -637,12 +688,69 @@ module.exports = function(_) {
     return data;
   }
 
+  function calcTotalMarginalTaxBrackets(taxes, max, filingStatus) {
+    var brackets = [];
+
+    _(taxes).forEach(function(tax) {
+      var copy;
+
+      if (_.isArray(tax)) {
+        copy = _.cloneDeep(tax);
+      }
+      else if (_.isPlainObject(tax)) {
+        copy = _.cloneDeep(tax[filingStatus]);
+      }
+
+      brackets.push.apply(brackets, copy);
+    });
+
+    brackets.sort(function(a, b) {
+      return a[MIN] - b[MIN];
+    });
+
+    brackets = _.uniq(brackets, function(bracket) {
+      return bracket[MIN];
+    });
+
+    brackets = _.map(brackets, function(bracket) {
+      var totalRate = 0;
+
+      for (var i = 0, len = taxes.length; i < len; i++) {
+        totalRate += calcMarginalTaxRate(taxes[i], bracket[MIN], filingStatus);
+      }
+
+      return [bracket[MIN], totalRate];
+    });
+
+    precalcBracketTaxes(brackets);
+    return brackets;
+  }
+
+  function calcMarginalTaxRate(tax, income, filingStatus) {
+    if (_.isNumber(tax)) {
+      return tax;
+    }
+    else if (_.isPlainObject(tax)) {
+      tax = tax[filingStatus];
+    }
+
+    for (var i = 0, len = tax.length; i < len - 1; i++) {
+      if (income >= tax[i][MIN] && income < tax[i + 1][MIN]) {
+        return tax[i][RATE];
+      }  
+    }
+
+    return tax[len - 1][RATE];
+  }
+
   this.preprocessTaxes = preprocessTaxes;
   this.calcTax = calcTax;
+  this.calcMarginalTax = calcMarginalTax;
   this.createMarginalTaxData = createMarginalTaxData;
   this.createEffectiveTaxData = createEffectiveTaxData;
+  this.calcTotalMarginalTaxBrackets = calcTotalMarginalTaxBrackets;
 };
-},{"../lib/Math.round10":13}],18:[function(require,module,exports){
+},{"../lib/Math.round10":14}],19:[function(require,module,exports){
 /**
  * @license AngularJS v1.2.17-build.163+sha.fafcd62
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -1571,12 +1679,12 @@ function ngViewFillContentFactory($compile, $controller, $route) {
 
 })(window, window.angular);
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 require('./lib/angular.js');
 
 module.exports = angular;
 
-},{"./lib/angular.js":20}],20:[function(require,module,exports){
+},{"./lib/angular.js":21}],21:[function(require,module,exports){
 /**
  * @license AngularJS v1.2.23
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -23531,7 +23639,7 @@ var styleDirective = valueFn({
 })(window, document);
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}.ng-animate-block-transitions{transition:0s all!important;-webkit-transition:0s all!important;}.ng-hide-add-active,.ng-hide-remove{display:block!important;}</style>');
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 !function() {
   var d3 = {
     version: "3.4.11"
@@ -32765,7 +32873,7 @@ var styleDirective = valueFn({
   if (typeof define === "function" && define.amd) define(d3); else if (typeof module === "object" && module.exports) module.exports = d3;
   this.d3 = d3;
 }();
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -39554,4 +39662,4 @@ var styleDirective = valueFn({
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[14]);
+},{}]},{},[15]);

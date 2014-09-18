@@ -24,8 +24,8 @@
   <input type="text" id="max" name="max" ng-model="$root.xMax">
 </div>
 
-<div ng-repeat="taxName in taxNames">
-  {{ taxName}}
+<div ng-repeat="tax in taxNames">
+  {{ tax.type }} {{ tax.name | splitCamelCase }}
 </div>
 
 <div class="text-center">

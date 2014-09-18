@@ -1,6 +1,8 @@
 'use strict';
 
 var app = require('../app'),
-    capitalize = require('./capitalize');
+    capitalize = require('./capitalize'),
+    splitCamelCase = require('./splitCamelCase');
 
-app.filter('capitalize', capitalize);
+app.filter('capitalize', capitalize)
+  .filter('splitCamelCase', splitCamelCase);
