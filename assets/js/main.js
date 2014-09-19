@@ -21,7 +21,9 @@ app.run([
       $rootScope.states = taxData.states;
       $rootScope.filingStatuses = taxData.filingStatuses;
       $rootScope.graphTypes = taxData.taxTypes;
-      $rootScope.xMax = 100000;
+      $rootScope.xMax = 250000;
+      $rootScope.yMax = 0.5;
+      $rootScope.animationTime = 2500;
 
       $rootScope.graph = new Graph({
         xMax: $rootScope.xMax
@@ -36,6 +38,33 @@ app.run([
       $rootScope.drawGraph($rootScope.state, $rootScope.status);
     };
 
+    $rootScope.drawComparisonGraph = function(states, filingStatus) {
+      var total = [];
+
+      for (var state in states) {
+        if (states[state]) {
+          total.push(taxService.calcTotalMarginalTaxBrackets(
+            taxData.getTaxes(state), $rootScope.xMax, filingStatus
+          ));
+        }
+      }
+
+      $rootScope.graph.updateXAxis($rootScope.xMax);
+      $rootScope.graph.updateYAxis($rootScope.yMax);
+      $rootScope.graph.updateAnimationTime($rootScope.animationTime);
+      $rootScope.clearGraph();
+
+      for (var i = 0, len = total.length; i < len; i++) {
+        $rootScope.graph.drawLine(
+          taxService.createEffectiveTaxData(total[i], $rootScope.xMax), true
+        );
+
+        // $rootScope.graph.drawLine(
+        //   taxService.createMarginalTaxData(total[i], $rootScope.xMax)
+        // );
+      }
+    };
+
     $rootScope.drawGraph = function(state, filingStatus) {
       var taxes = taxData.getTaxes(state),
           data,
@@ -46,6 +75,8 @@ app.run([
       );
 
       $rootScope.graph.updateXAxis($rootScope.xMax);
+      $rootScope.graph.updateYAxis($rootScope.yMax);
+      $rootScope.graph.updateAnimationTime($rootScope.animationTime);
       $rootScope.clearGraph();
       $rootScope.graph.drawLine(
         taxService.createMarginalTaxData(total, $rootScope.xMax)

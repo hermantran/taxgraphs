@@ -84,7 +84,7 @@ module.exports = function($scope, $rootScope, taxData) {
 'use strict';
 
 module.exports = function($scope) {
-  $scope.test = '';
+  $scope.selectedStates = {};
 };
 },{}],7:[function(require,module,exports){
 'use strict';
@@ -112,6 +112,9 @@ module.exports = function(d3) {
 
     this.xMin = opts.xMin || 0;
     this.xMax = opts.xMax || 150000;
+    this.yMin = opts.yMin || 0;
+    this.yMax = opts.yMax || 0.6;
+    this.animationTime = opts.animationime || 1000;
     this.m = [50, 50, 50, 50]; // margins
     this.width = opts.width || 1000;
     this.height = opts.height || 600;
@@ -145,17 +148,11 @@ module.exports = function(d3) {
       .call(this.xAxis);
   };
 
-  Graph.prototype.init = function() {
-    this.graph = d3.select('svg')
-      .attr('width', this.w + this.m[1] + this.m[3])
-      .attr('height', this.h + this.m[0] + this.m[2])
-      .append('svg:g')
-      .attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
-
-    this.updateXAxis(this.xMax);
+  Graph.prototype.updateYAxis = function(yMax) {
+    this.yMax = yMax;
 
     this.y = d3.scale.linear()
-      .domain([0, 0.65])
+      .domain([this.yMin, this.yMax])
       .range([this.h, 0]);
 
     this.yAxis = d3.svg.axis()
@@ -166,6 +163,8 @@ module.exports = function(d3) {
       .tickPadding(7)
       .orient('left');
 
+    this.graph.selectAll('.' + this.yAxisClass.split(' ').join('.')).remove();
+
     this.graph.append('svg:g')
       .attr('class', this.yAxisClass)
       .attr('transform', 'translate(0,0)')
@@ -173,6 +172,21 @@ module.exports = function(d3) {
       .selectAll('.tick')
         .filter(function (d) { return d === 0; })
         .remove();
+  };
+
+  Graph.prototype.updateAnimationTime = function(time) {
+    this.animationTime = time;
+  };
+
+  Graph.prototype.init = function() {
+    this.graph = d3.select('svg')
+      .attr('width', this.w + this.m[1] + this.m[3])
+      .attr('height', this.h + this.m[0] + this.m[2])
+      .append('svg:g')
+      .attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
+
+    this.updateXAxis(this.xMax);
+    this.updateYAxis(this.yMax);
   };
         
   Graph.prototype.drawLine = function(data, isInterpolated) {
@@ -194,7 +208,7 @@ module.exports = function(d3) {
       .attr('stroke-dasharray', length + ' ' + length)
       .attr('stroke-dashoffset', length)
       .transition()
-      .duration(1500)
+      .duration(this.animationTime)
       .ease('linear')
       .attr('stroke-dashoffset', 0);
   };
@@ -321,7 +335,9 @@ app.run([
       $rootScope.states = taxData.states;
       $rootScope.filingStatuses = taxData.filingStatuses;
       $rootScope.graphTypes = taxData.taxTypes;
-      $rootScope.xMax = 100000;
+      $rootScope.xMax = 250000;
+      $rootScope.yMax = 0.5;
+      $rootScope.animationTime = 2500;
 
       $rootScope.graph = new Graph({
         xMax: $rootScope.xMax
@@ -336,6 +352,33 @@ app.run([
       $rootScope.drawGraph($rootScope.state, $rootScope.status);
     };
 
+    $rootScope.drawComparisonGraph = function(states, filingStatus) {
+      var total = [];
+
+      for (var state in states) {
+        if (states[state]) {
+          total.push(taxService.calcTotalMarginalTaxBrackets(
+            taxData.getTaxes(state), $rootScope.xMax, filingStatus
+          ));
+        }
+      }
+
+      $rootScope.graph.updateXAxis($rootScope.xMax);
+      $rootScope.graph.updateYAxis($rootScope.yMax);
+      $rootScope.graph.updateAnimationTime($rootScope.animationTime);
+      $rootScope.clearGraph();
+
+      for (var i = 0, len = total.length; i < len; i++) {
+        $rootScope.graph.drawLine(
+          taxService.createEffectiveTaxData(total[i], $rootScope.xMax), true
+        );
+
+        // $rootScope.graph.drawLine(
+        //   taxService.createMarginalTaxData(total[i], $rootScope.xMax)
+        // );
+      }
+    };
+
     $rootScope.drawGraph = function(state, filingStatus) {
       var taxes = taxData.getTaxes(state),
           data,
@@ -346,6 +389,8 @@ app.run([
       );
 
       $rootScope.graph.updateXAxis($rootScope.xMax);
+      $rootScope.graph.updateYAxis($rootScope.yMax);
+      $rootScope.graph.updateAnimationTime($rootScope.animationTime);
       $rootScope.clearGraph();
       $rootScope.graph.drawLine(
         taxService.createMarginalTaxData(total, $rootScope.xMax)

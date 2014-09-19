@@ -1,32 +1,52 @@
-<div>
-  <label for="state">State:</label>
-  <select ng-model="$root.state" id="state" name="state"
-   ng-options="v for v in $root.states">
-  </select>
-</div>
+<fieldset>
+  <legend>Graph Data</legend>
 
-<div>
-  <label for="status">Filing Status:</label>
-  <select ng-model="$root.status" id="status" name="status" 
-   ng-options="v as (v | capitalize) for v in $root.filingStatuses">
-  </select>
-</div>
+  <div>
+    <label for="state">State:</label>
+    <select ng-model="$root.state" id="state" name="state"
+     ng-options="v for v in $root.states">
+    </select>
+  </div>
 
-<div>
-  <label for="graphType">Tax Type:</label>
-  <select ng-model="$root.graphType" id="graphType" name="graphType" 
-   ng-options="v as (v | capitalize) for v in $root.graphTypes">
-  </select>
-</div>
+  <div>
+    <label for="status">Filing Status:</label>
+    <select ng-model="$root.status" id="status" name="status" 
+     ng-options="v as (v | capitalize) for v in $root.filingStatuses">
+    </select>
+  </div>
 
-<div>
-  <label for="max">Income Max:</label>
-  <input type="text" id="max" name="max" ng-model="$root.xMax">
-</div>
+  <div>
+    <div ng-repeat="tax in taxNames">
+      {{ tax.type }} {{ tax.name | splitCamelCase }}
+    </div>
+  </div>
 
-<div ng-repeat="tax in taxNames">
-  {{ tax.type }} {{ tax.name | splitCamelCase }}
-</div>
+  <div>
+    <label for="graphType">Tax Type:</label>
+    <select ng-model="$root.graphType" id="graphType" name="graphType" 
+     ng-options="v as (v | capitalize) for v in $root.graphTypes">
+    </select>
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>Graph Settings</legend>
+
+  <div>
+    <label for="y-max">Y Axis Max (%)</label>
+    <input type="text" id="y-max" name="y-max" ng-model="$root.yMax">
+  </div>
+
+  <div>
+    <label for="x-max">X Axis Max ($)</label>
+    <input type="text" id="x-max" name="x-max" ng-model="$root.xMax">
+  </div>
+
+  <div>
+    <label for="animation-time">Animation Time</label>
+    <input type="text" id="animation-time" name="animation-time" ng-model="$root.animationTime">
+  </div>
+</fieldset>
 
 <div class="text-center">
   <button class="pure-button pure-button-primary" ng-click="drawGraph(state, status)">Graph</button>

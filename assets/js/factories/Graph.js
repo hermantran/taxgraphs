@@ -6,6 +6,9 @@ module.exports = function(d3) {
 
     this.xMin = opts.xMin || 0;
     this.xMax = opts.xMax || 150000;
+    this.yMin = opts.yMin || 0;
+    this.yMax = opts.yMax || 0.6;
+    this.animationTime = opts.animationime || 1000;
     this.m = [50, 50, 50, 50]; // margins
     this.width = opts.width || 1000;
     this.height = opts.height || 600;
@@ -39,17 +42,11 @@ module.exports = function(d3) {
       .call(this.xAxis);
   };
 
-  Graph.prototype.init = function() {
-    this.graph = d3.select('svg')
-      .attr('width', this.w + this.m[1] + this.m[3])
-      .attr('height', this.h + this.m[0] + this.m[2])
-      .append('svg:g')
-      .attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
-
-    this.updateXAxis(this.xMax);
+  Graph.prototype.updateYAxis = function(yMax) {
+    this.yMax = yMax;
 
     this.y = d3.scale.linear()
-      .domain([0, 0.65])
+      .domain([this.yMin, this.yMax])
       .range([this.h, 0]);
 
     this.yAxis = d3.svg.axis()
@@ -60,6 +57,8 @@ module.exports = function(d3) {
       .tickPadding(7)
       .orient('left');
 
+    this.graph.selectAll('.' + this.yAxisClass.split(' ').join('.')).remove();
+
     this.graph.append('svg:g')
       .attr('class', this.yAxisClass)
       .attr('transform', 'translate(0,0)')
@@ -67,6 +66,21 @@ module.exports = function(d3) {
       .selectAll('.tick')
         .filter(function (d) { return d === 0; })
         .remove();
+  };
+
+  Graph.prototype.updateAnimationTime = function(time) {
+    this.animationTime = time;
+  };
+
+  Graph.prototype.init = function() {
+    this.graph = d3.select('svg')
+      .attr('width', this.w + this.m[1] + this.m[3])
+      .attr('height', this.h + this.m[0] + this.m[2])
+      .append('svg:g')
+      .attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
+
+    this.updateXAxis(this.xMax);
+    this.updateYAxis(this.yMax);
   };
         
   Graph.prototype.drawLine = function(data, isInterpolated) {
@@ -88,7 +102,7 @@ module.exports = function(d3) {
       .attr('stroke-dasharray', length + ' ' + length)
       .attr('stroke-dashoffset', length)
       .transition()
-      .duration(1500)
+      .duration(this.animationTime)
       .ease('linear')
       .attr('stroke-dashoffset', 0);
   };
