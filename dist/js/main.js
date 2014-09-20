@@ -83,42 +83,58 @@ module.exports = function($scope, taxData, taxService, graph) {
   $scope.data = {
     state: 'CA',
     status: 'single',
-    graphType: 'effective'
+    graphLines: {
+      effective: true,
+      marginal: false,
+      totalEffective: true,
+      totalMarginal: true
+    }
   };
 
   $scope.drawGraph = function() {
     var state = $scope.data.state,
         filingStatus = $scope.data.status,
-        income = $scope.settings.xMax,
-        yMax = $scope.settings.yMax,
-        animationTime = $scope.settings.animationTime,
+        xMax = $scope.settings.xMax,
+        graphLines = $scope.data.graphLines,
         taxes = taxData.getTaxes(state),
         data,
         total,
         args;
 
-    total = taxService.calcTotalMarginalTaxBrackets(
-      taxes, income, filingStatus
-    );
+    if (graphLines.totalEffective || graphLines.totalMarginal) {
+      total = taxService.calcTotalMarginalTaxBrackets(
+        taxes, xMax, filingStatus
+      );
+    }
 
     graph.clear();
-    graph.updateXAxis(income);
-    graph.updateYAxis(yMax);
-    graph.updateAnimationTime(animationTime);
-    graph.drawLine(taxService.createMarginalTaxData(total, income));
-    graph.drawLine(taxService.createEffectiveTaxData(total, income), true);
+    graph.update($scope.settings);
 
     for (var i = 0; i < taxes.length; i++) {
-      args = [taxes[i], income, filingStatus];
+      args = [taxes[i], xMax, filingStatus];
 
-      if ($scope.data.graphType === 'effective') {
+      if (graphLines.effective) {
         data = taxService.createEffectiveTaxData.apply(taxService, args);
         graph.drawLine(data, true);
-      } else {
+      }
+
+      if (graphLines.marginal) {
         data = taxService.createMarginalTaxData.apply(taxService, args);
         graph.drawLine(data);
       }
     }
+
+    if (graphLines.totalMarginal) {
+      graph.drawLine(taxService.createMarginalTaxData(total, xMax));
+    }
+
+    if (graphLines.totalEffective) {
+      graph.drawLine(taxService.createEffectiveTaxData(total, xMax), true);
+    }
+  };
+
+  $scope.displayTooltip = function(eventData) {
+    console.log(eventData);
   };
 
   $scope.init = function() {
@@ -138,23 +154,27 @@ module.exports = function($scope, taxData, taxService, graph) {
   $scope.settings = graph.settings;
   $scope.states = taxData.states;
   $scope.filingStatuses = taxData.filingStatuses;
-  $scope.graphTypes = taxData.taxTypes;
+  $scope.graphLines = taxData.taxTypes;
 
   $scope.data = {
     states: {
       CA: true,
-      NY: true
+      NY: true,
+      TX: true
     },
     status: 'single',
-    graphType: 'effective'
+    graphLines: {
+      effective: true,
+      marginal: false
+    }
   };
 
   $scope.drawGraph = function() {
     var filingStatus = $scope.data.status,
         xMax = $scope.settings.xMax,
-        yMax = $scope.settings.yMax,
-        animationTime = $scope.settings.animationTime,
-        total = [];
+        graphLines = $scope.data.graphLines,
+        total = [],
+        data;
 
     for (var state in $scope.data.states) {
       if ($scope.data.states[state]) {
@@ -165,18 +185,18 @@ module.exports = function($scope, taxData, taxService, graph) {
     }
 
     graph.clear();
-    graph.updateXAxis(xMax);
-    graph.updateYAxis(yMax);
-    graph.updateAnimationTime(animationTime);
+    graph.update($scope.settings);
 
     for (var i = 0, len = total.length; i < len; i++) {
-      graph.drawLine(
-        taxService.createEffectiveTaxData(total[i], xMax), true
-      );
+      if (graphLines.effective) {
+        data = taxService.createEffectiveTaxData(total[i], xMax);
+        graph.drawLine(data, true);
+      }
 
-      // graph.drawLine(
-      //   taxService.createMarginalTaxData(total[i], $rootScope.xMax)
-      // );
+      if (graphLines.marginal) {
+        data = taxService.createMarginalTaxData(total[i], xMax);
+        graph.drawLine(data);
+      }
     }
   };
 
@@ -335,18 +355,25 @@ module.exports = function(d3) {
     this.xAxisClass = 'x axis';
     this.yAxisClass = 'y axis';
 
-    this.lineSelector = '.' + this.lineClass.split(' ').join('.');
-    this.xAxisSelector = '.' + this.xAxisClass.split(' ').join('.');
-    this.yAxisSelector = '.' + this.yAxisClass.split(' ').join('.');
+    this.lineSelector = createSelector(this.lineClass);
+    this.xAxisSelector = createSelector(this.xAxisClass);
+    this.yAxisSelector = createSelector(this.yAxisClass);
 
     this.createGraph();
+    this.setupEventHandlers();
     this.hasInited = true;
   };
 
+  function createSelector(string) {
+    return '.' + string.split(' ').join('.');
+  }
+
   this.createGraph = function() {
-    this.graph = d3.select('svg')
+    this.svg = d3.select('svg')
       .attr('width', this.w + this.m[1] + this.m[3])
-      .attr('height', this.h + this.m[0] + this.m[2])
+      .attr('height', this.h + this.m[0] + this.m[2]);
+
+    this.graph = this.svg
       .append('svg:g')
       .attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
 
@@ -354,11 +381,31 @@ module.exports = function(d3) {
     this.updateYAxis(this.settings.yMax);
   };
 
+  this.setupEventHandlers = function() {
+    var self = this;
+
+    this.svg.on('mousemove', function() {
+      var xPixel = d3.mouse(this)[0];
+      self.processXPixel(xPixel);
+    });
+  };
+
+  this.processXPixel = function(xPixel) {
+    var xScale = this.xMax / this.w,
+        xValue = Math.round((xPixel - this.m[3]) * xScale);
+
+    console.log(xValue);
+  };
+
   this.updateXAxis = function(xMax) {
-    this.settings.xMax = xMax;
+    if (this.xMax === xMax) {
+      return;
+    }
+
+    this.xMax = xMax;
 
     this.x = d3.scale.linear()
-      .domain([this.settings.xMin, this.settings.xMax])
+      .domain([this.settings.xMin, this.xMax])
       .range([0, this.w]);
 
     this.xAxis = d3.svg.axis()
@@ -378,10 +425,14 @@ module.exports = function(d3) {
   };
 
   this.updateYAxis = function(yMax) {
-    this.settings.yMax = yMax;
+    if (this.yMax === yMax) {
+      return;
+    }
+
+    this.yMax = yMax;
 
     this.y = d3.scale.linear()
-      .domain([this.settings.yMin / 100, this.settings.yMax / 100])
+      .domain([this.settings.yMin / 100, this.yMax / 100])
       .range([this.h, 0]);
 
     this.yAxis = d3.svg.axis()
@@ -405,6 +456,20 @@ module.exports = function(d3) {
 
   this.updateAnimationTime = function(time) {
     this.settings.animationTime = time;
+  };
+
+  this.update = function(settings) {
+    if (settings.xMax) {
+      this.updateXAxis(settings.xMax);
+    }
+
+    if (settings.yMax) {
+      this.updateYAxis(settings.yMax);
+    }
+
+    if (settings.animationTime) {
+      this.updateAnimationTime(settings.animationTime);
+    }
   };
         
   this.drawLine = function(data, isInterpolated) {

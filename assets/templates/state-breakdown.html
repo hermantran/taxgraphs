@@ -19,20 +19,24 @@
     <label class="valign-top">Graph Lines:</label>
     <div class="inline-block">
       <div>
-        <input type="checkbox" name="effective-taxes" id="effective-taxes"> 
+        <input type="checkbox" name="effective-taxes" id="effective-taxes"
+         ng-model="data.graphLines.effective"> 
         <label for="effective-taxes">Effective Taxes</label>
       </div>
       <div>
-        <input type="checkbox" name="marginal-taxes" id="marginal-taxes"> 
+        <input type="checkbox" name="marginal-taxes" id="marginal-taxes"
+         ng-model="data.graphLines.marginal"> 
         <label for="marginal-taxes">Marginal Taxes</label>
       </div>
       <div>
-        <input type="checkbox" name="marginal-taxes" id="marginal-taxes"> 
-        <label for="marginal-taxes">Total Effective Tax</label>
+        <input type="checkbox" name="total-effective" id="total-effective"
+         ng-model="data.graphLines.totalEffective"> 
+        <label for="total-effective">Total Effective Tax</label>
       </div>
       <div>
-        <input type="checkbox" name="marginal-taxes" id="marginal-taxes"> 
-        <label for="marginal-taxes">Total Marginal Tax</label>
+        <input type="checkbox" name="total-marginal" id="total-marginal"
+         ng-model="data.graphLines.totalMarginal"> 
+        <label for="total-marginal">Total Marginal Tax</label>
       </div>
     </div>
   </div>

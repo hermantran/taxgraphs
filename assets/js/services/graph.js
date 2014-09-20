@@ -28,18 +28,25 @@ module.exports = function(d3) {
     this.xAxisClass = 'x axis';
     this.yAxisClass = 'y axis';
 
-    this.lineSelector = '.' + this.lineClass.split(' ').join('.');
-    this.xAxisSelector = '.' + this.xAxisClass.split(' ').join('.');
-    this.yAxisSelector = '.' + this.yAxisClass.split(' ').join('.');
+    this.lineSelector = createSelector(this.lineClass);
+    this.xAxisSelector = createSelector(this.xAxisClass);
+    this.yAxisSelector = createSelector(this.yAxisClass);
 
     this.createGraph();
+    this.setupEventHandlers();
     this.hasInited = true;
   };
 
+  function createSelector(string) {
+    return '.' + string.split(' ').join('.');
+  }
+
   this.createGraph = function() {
-    this.graph = d3.select('svg')
+    this.svg = d3.select('svg')
       .attr('width', this.w + this.m[1] + this.m[3])
-      .attr('height', this.h + this.m[0] + this.m[2])
+      .attr('height', this.h + this.m[0] + this.m[2]);
+
+    this.graph = this.svg
       .append('svg:g')
       .attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
 
@@ -47,11 +54,31 @@ module.exports = function(d3) {
     this.updateYAxis(this.settings.yMax);
   };
 
+  this.setupEventHandlers = function() {
+    var self = this;
+
+    this.svg.on('mousemove', function() {
+      var xPixel = d3.mouse(this)[0];
+      self.processXPixel(xPixel);
+    });
+  };
+
+  this.processXPixel = function(xPixel) {
+    var xScale = this.xMax / this.w,
+        xValue = Math.round((xPixel - this.m[3]) * xScale);
+
+    console.log(xValue);
+  };
+
   this.updateXAxis = function(xMax) {
-    this.settings.xMax = xMax;
+    if (this.xMax === xMax) {
+      return;
+    }
+
+    this.xMax = xMax;
 
     this.x = d3.scale.linear()
-      .domain([this.settings.xMin, this.settings.xMax])
+      .domain([this.settings.xMin, this.xMax])
       .range([0, this.w]);
 
     this.xAxis = d3.svg.axis()
@@ -71,10 +98,14 @@ module.exports = function(d3) {
   };
 
   this.updateYAxis = function(yMax) {
-    this.settings.yMax = yMax;
+    if (this.yMax === yMax) {
+      return;
+    }
+
+    this.yMax = yMax;
 
     this.y = d3.scale.linear()
-      .domain([this.settings.yMin / 100, this.settings.yMax / 100])
+      .domain([this.settings.yMin / 100, this.yMax / 100])
       .range([this.h, 0]);
 
     this.yAxis = d3.svg.axis()
@@ -98,6 +129,20 @@ module.exports = function(d3) {
 
   this.updateAnimationTime = function(time) {
     this.settings.animationTime = time;
+  };
+
+  this.update = function(settings) {
+    if (settings.xMax) {
+      this.updateXAxis(settings.xMax);
+    }
+
+    if (settings.yMax) {
+      this.updateYAxis(settings.yMax);
+    }
+
+    if (settings.animationTime) {
+      this.updateAnimationTime(settings.animationTime);
+    }
   };
         
   this.drawLine = function(data, isInterpolated) {

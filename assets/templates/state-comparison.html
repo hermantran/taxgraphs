@@ -23,11 +23,13 @@
     <label class="valign-top">Graph Lines:</label>
     <div class="inline-block">
       <div>
-        <input type="checkbox" name="marginal-taxes" id="marginal-taxes"> 
-        <label for="marginal-taxes">Total Effective Tax</label>
+        <input type="checkbox" name="effective-taxes" id="effective-taxes" 
+         ng-model="data.graphLines.effective"> 
+        <label for="effective-taxes">Total Effective Tax</label>
       </div>
       <div>
-        <input type="checkbox" name="marginal-taxes" id="marginal-taxes"> 
+        <input type="checkbox" name="marginal-taxes" id="marginal-taxes"
+         ng-model="data.graphLines.marginal"> 
         <label for="marginal-taxes">Total Marginal Tax</label>
       </div>
     </div>

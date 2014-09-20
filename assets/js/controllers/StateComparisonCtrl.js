@@ -5,23 +5,27 @@ module.exports = function($scope, taxData, taxService, graph) {
   $scope.settings = graph.settings;
   $scope.states = taxData.states;
   $scope.filingStatuses = taxData.filingStatuses;
-  $scope.graphTypes = taxData.taxTypes;
+  $scope.graphLines = taxData.taxTypes;
 
   $scope.data = {
     states: {
       CA: true,
-      NY: true
+      NY: true,
+      TX: true
     },
     status: 'single',
-    graphType: 'effective'
+    graphLines: {
+      effective: true,
+      marginal: false
+    }
   };
 
   $scope.drawGraph = function() {
     var filingStatus = $scope.data.status,
         xMax = $scope.settings.xMax,
-        yMax = $scope.settings.yMax,
-        animationTime = $scope.settings.animationTime,
-        total = [];
+        graphLines = $scope.data.graphLines,
+        total = [],
+        data;
 
     for (var state in $scope.data.states) {
       if ($scope.data.states[state]) {
@@ -32,18 +36,18 @@ module.exports = function($scope, taxData, taxService, graph) {
     }
 
     graph.clear();
-    graph.updateXAxis(xMax);
-    graph.updateYAxis(yMax);
-    graph.updateAnimationTime(animationTime);
+    graph.update($scope.settings);
 
     for (var i = 0, len = total.length; i < len; i++) {
-      graph.drawLine(
-        taxService.createEffectiveTaxData(total[i], xMax), true
-      );
+      if (graphLines.effective) {
+        data = taxService.createEffectiveTaxData(total[i], xMax);
+        graph.drawLine(data, true);
+      }
 
-      // graph.drawLine(
-      //   taxService.createMarginalTaxData(total[i], $rootScope.xMax)
-      // );
+      if (graphLines.marginal) {
+        data = taxService.createMarginalTaxData(total[i], xMax);
+        graph.drawLine(data);
+      }
     }
   };
 
