@@ -1,8 +1,7 @@
 'use strict';
 
 module.exports = function($http, $q, TAX_API) {
-  var deferred = $q.defer(),
-      hasResolved = false;
+  var hasResolved = false;
 
   this.data = {};
   this.states = [];
@@ -10,14 +9,18 @@ module.exports = function($http, $q, TAX_API) {
   this.taxTypes = ['effective', 'marginal'];
 
   this.get = function() {
+    var deferred = $q.defer();
+
     if (!hasResolved) {
-      this.fetch(TAX_API);
+      this.fetch(TAX_API, deferred);
+    } else {
+      deferred.resolve(this.data);
     }
 
     return deferred.promise;
   };
 
-  this.fetch = function(url) {
+  this.fetch = function(url, deferred) {
     $http.get(url).then(function(resp) {
       this.data = resp.data;
       this.fillMetadata(this.data);

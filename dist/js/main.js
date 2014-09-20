@@ -73,18 +73,121 @@ module.exports = function($provide, JST) {
 },{}],5:[function(require,module,exports){
 'use strict';
 
-module.exports = function($scope, $rootScope, taxData) {
-  $scope.$watch('state', function() {
-    if ($scope.state) {
-      $scope.taxNames = taxData.getTaxNames($scope.state);
+module.exports = function($scope, taxData, taxService, graph) {
+  $scope.clearGraph = graph.clear.bind(graph);
+  $scope.settings = graph.settings;
+  $scope.states = taxData.states;
+  $scope.filingStatuses = taxData.filingStatuses;
+  $scope.graphTypes = taxData.taxTypes;
+
+  $scope.data = {
+    state: 'CA',
+    status: 'single',
+    graphType: 'effective'
+  };
+
+  $scope.drawGraph = function() {
+    var state = $scope.data.state,
+        filingStatus = $scope.data.status,
+        income = $scope.settings.xMax,
+        yMax = $scope.settings.yMax,
+        animationTime = $scope.settings.animationTime,
+        taxes = taxData.getTaxes(state),
+        data,
+        total,
+        args;
+
+    total = taxService.calcTotalMarginalTaxBrackets(
+      taxes, income, filingStatus
+    );
+
+    graph.clear();
+    graph.updateXAxis(income);
+    graph.updateYAxis(yMax);
+    graph.updateAnimationTime(animationTime);
+    graph.drawLine(taxService.createMarginalTaxData(total, income));
+    graph.drawLine(taxService.createEffectiveTaxData(total, income), true);
+
+    for (var i = 0; i < taxes.length; i++) {
+      args = [taxes[i], income, filingStatus];
+
+      if ($scope.data.graphType === 'effective') {
+        data = taxService.createEffectiveTaxData.apply(taxService, args);
+        graph.drawLine(data, true);
+      } else {
+        data = taxService.createMarginalTaxData.apply(taxService, args);
+        graph.drawLine(data);
+      }
     }
-  });
+  };
+
+  $scope.init = function() {
+    taxData.get().then(function() {
+      graph.init();
+      $scope.drawGraph();
+    });
+  };
+
+  $scope.init();
 };
 },{}],6:[function(require,module,exports){
 'use strict';
 
-module.exports = function($scope) {
-  $scope.selectedStates = {};
+module.exports = function($scope, taxData, taxService, graph) {
+  $scope.clearGraph = graph.clear.bind(graph);
+  $scope.settings = graph.settings;
+  $scope.states = taxData.states;
+  $scope.filingStatuses = taxData.filingStatuses;
+  $scope.graphTypes = taxData.taxTypes;
+
+  $scope.data = {
+    states: {
+      CA: true,
+      NY: true
+    },
+    status: 'single',
+    graphType: 'effective'
+  };
+
+  $scope.drawGraph = function() {
+    var filingStatus = $scope.data.status,
+        xMax = $scope.settings.xMax,
+        yMax = $scope.settings.yMax,
+        animationTime = $scope.settings.animationTime,
+        total = [];
+
+    for (var state in $scope.data.states) {
+      if ($scope.data.states[state]) {
+        total.push(taxService.calcTotalMarginalTaxBrackets(
+          taxData.getTaxes(state), xMax, filingStatus
+        ));
+      }
+    }
+
+    graph.clear();
+    graph.updateXAxis(xMax);
+    graph.updateYAxis(yMax);
+    graph.updateAnimationTime(animationTime);
+
+    for (var i = 0, len = total.length; i < len; i++) {
+      graph.drawLine(
+        taxService.createEffectiveTaxData(total[i], xMax), true
+      );
+
+      // graph.drawLine(
+      //   taxService.createMarginalTaxData(total[i], $rootScope.xMax)
+      // );
+    }
+  };
+
+  $scope.init = function() {
+    taxData.get().then(function() {
+      graph.init();
+      $scope.drawGraph();
+    });
+  };
+
+  $scope.init();
 };
 },{}],7:[function(require,module,exports){
 'use strict';
@@ -94,9 +197,9 @@ var app = require('../app'),
     StateBreakdownCtrl = require('./StateBreakdownCtrl');
 
 app.controller('StateComparisonCtrl', [
-  '$scope', '$rootScope', StateComparisonCtrl
+  '$scope', 'taxData', 'taxService', 'graph', StateComparisonCtrl
 ]).controller('StateBreakdownCtrl', [
-  '$scope', '$rootScope', 'taxData', StateBreakdownCtrl
+  '$scope', 'taxData', 'taxService', 'graph', StateBreakdownCtrl
 ]);
 },{"../app":1,"./StateBreakdownCtrl":5,"./StateComparisonCtrl":6}],8:[function(require,module,exports){
 'use strict';
@@ -106,128 +209,8 @@ app.controller('StateComparisonCtrl', [
 },{}],9:[function(require,module,exports){
 'use strict';
 
-module.exports = function(d3) {
-  function Graph(opts) {
-    opts = opts || {};
-
-    this.xMin = opts.xMin || 0;
-    this.xMax = opts.xMax || 150000;
-    this.yMin = opts.yMin || 0;
-    this.yMax = opts.yMax || 0.6;
-    this.animationTime = opts.animationime || 1000;
-    this.m = [50, 50, 50, 50]; // margins
-    this.width = opts.width || 1000;
-    this.height = opts.height || 600;
-    this.w = this.width - this.m[1] - this.m[3]; // width
-    this.h = this.height - this.m[0] - this.m[2]; // height
-    this.lineClass = 'tax';
-    this.xAxisClass = 'x axis';
-    this.yAxisClass = 'y axis';
-  }
-
-  Graph.prototype.updateXAxis = function(xMax) {
-    this.xMax = xMax;
-
-    this.x = d3.scale.linear()
-      .domain([this.xMin, this.xMax])
-      .range([0, this.w]);
-
-    this.xAxis = d3.svg.axis()
-      .scale(this.x)
-      .ticks(6)
-      .tickSize(-this.h, 0)
-      .tickFormat(d3.format('$0,000'))
-      .tickPadding(10)
-      .orient('bottom');
-
-    this.graph.selectAll('.' + this.xAxisClass.split(' ').join('.')).remove();
-
-    this.graph.append('svg:g')
-      .attr('class', this.xAxisClass)
-      .attr('transform', 'translate(0,' + this.h + ')')
-      .call(this.xAxis);
-  };
-
-  Graph.prototype.updateYAxis = function(yMax) {
-    this.yMax = yMax;
-
-    this.y = d3.scale.linear()
-      .domain([this.yMin, this.yMax])
-      .range([this.h, 0]);
-
-    this.yAxis = d3.svg.axis()
-      .scale(this.y)
-      .ticks(4)
-      .tickSize(-this.w, 0)
-      .tickFormat(d3.format('%'))
-      .tickPadding(7)
-      .orient('left');
-
-    this.graph.selectAll('.' + this.yAxisClass.split(' ').join('.')).remove();
-
-    this.graph.append('svg:g')
-      .attr('class', this.yAxisClass)
-      .attr('transform', 'translate(0,0)')
-      .call(this.yAxis)
-      .selectAll('.tick')
-        .filter(function (d) { return d === 0; })
-        .remove();
-  };
-
-  Graph.prototype.updateAnimationTime = function(time) {
-    this.animationTime = time;
-  };
-
-  Graph.prototype.init = function() {
-    this.graph = d3.select('svg')
-      .attr('width', this.w + this.m[1] + this.m[3])
-      .attr('height', this.h + this.m[0] + this.m[2])
-      .append('svg:g')
-      .attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
-
-    this.updateXAxis(this.xMax);
-    this.updateYAxis(this.yMax);
-  };
-        
-  Graph.prototype.drawLine = function(data, isInterpolated) {
-    var line = d3.svg.line()
-      .x(function(d) { return this.x(d.x); }.bind(this))
-      .y(function(d) { return this.y(d.y); }.bind(this));
-
-    if (isInterpolated) {
-      line.interpolate('basis');
-    }
-
-    var path = this.graph.append('svg:path')
-      .attr('class', this.lineClass)
-      .attr('d', line(data));
-
-    var length = path.node().getTotalLength();
-
-    path
-      .attr('stroke-dasharray', length + ' ' + length)
-      .attr('stroke-dashoffset', length)
-      .transition()
-      .duration(this.animationTime)
-      .ease('linear')
-      .attr('stroke-dashoffset', 0);
-  };
-
-  Graph.prototype.removeLines = function() {
-    this.graph.selectAll('.' + this.lineClass).remove();
-  };
-
-  return Graph;
-};
+// var app = require('../app');
 },{}],10:[function(require,module,exports){
-'use strict';
-
-var app = require('../app'),
-    Graph = require('./Graph');
-
-app.factory('Graph', ['d3', Graph]);
-
-},{"../app":1,"./Graph":9}],11:[function(require,module,exports){
 'use strict';
 
 // http://codepen.io/WinterJoey/pen/sfFaK
@@ -238,7 +221,7 @@ module.exports = function() {
     }) : '';
   };
 };
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 var app = require('../app'),
@@ -247,7 +230,7 @@ var app = require('../app'),
 
 app.filter('capitalize', capitalize)
   .filter('splitCamelCase', splitCamelCase);
-},{"../app":1,"./capitalize":11,"./splitCamelCase":13}],13:[function(require,module,exports){
+},{"../app":1,"./capitalize":10,"./splitCamelCase":12}],12:[function(require,module,exports){
 'use strict';
 
 // http://stackoverflow.com/questions/4149276/javascript-camelcase-to-regular-form
@@ -259,7 +242,7 @@ module.exports = function() {
       .replace(/^./, function(str) { return str.toUpperCase(); });
   };
 };
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round#Example%3a_Decimal_rounding
 (function(){
   'use strict';
@@ -311,136 +294,169 @@ module.exports = function() {
   }
 
 })();
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
-var app = require('./app');
+require('./app');
 require('./config');
 require('./filters');
 require('./directives');
 require('./factories');
 require('./services');
 require('./controllers');
+},{"./app":1,"./config":2,"./controllers":7,"./directives":8,"./factories":9,"./filters":11,"./services":16}],15:[function(require,module,exports){
+'use strict';
 
-app.run([
-  '$rootScope',
-  'Graph', 
-  'taxService',
-  'taxData',
-  function($rootScope, Graph, taxService, taxData) {
-    $rootScope.initGraph = function(data) {
-      $rootScope.data = data;
-      window.d = $rootScope.data;
+module.exports = function(d3) {
+  this.hasInited = false;
 
-      $rootScope.states = taxData.states;
-      $rootScope.filingStatuses = taxData.filingStatuses;
-      $rootScope.graphTypes = taxData.taxTypes;
-      $rootScope.xMax = 250000;
-      $rootScope.yMax = 0.5;
-      $rootScope.animationTime = 2500;
+  this.settings = {
+    xMin: 0,
+    xMax: 250000,
+    yMin: 0,
+    yMax: 50,
+    animationTime: 2500,
+    width: 1000,
+    height: 600
+  };
 
-      $rootScope.graph = new Graph({
-        xMax: $rootScope.xMax
-      });
+  this.init = function(settings) {
+    if (this.hasInited) {
+      return;
+    }
+    
+    this.settings = settings || this.settings;
 
-      $rootScope.state = 'CA';
-      $rootScope.status = 'single';
-      $rootScope.graphType = 'effective';
+    this.m = [50, 50, 50, 50];
+    this.w = this.settings.width - this.m[1] - this.m[3]; 
+    this.h = this.settings.height - this.m[0] - this.m[2];
 
-      $rootScope.graph.init();
-      $rootScope.taxNames = taxData.getTaxNames($rootScope.state);
-      $rootScope.drawGraph($rootScope.state, $rootScope.status);
-    };
+    this.lineClass = 'tax';
+    this.xAxisClass = 'x axis';
+    this.yAxisClass = 'y axis';
 
-    $rootScope.drawComparisonGraph = function(states, filingStatus) {
-      var total = [];
+    this.lineSelector = '.' + this.lineClass.split(' ').join('.');
+    this.xAxisSelector = '.' + this.xAxisClass.split(' ').join('.');
+    this.yAxisSelector = '.' + this.yAxisClass.split(' ').join('.');
 
-      for (var state in states) {
-        if (states[state]) {
-          total.push(taxService.calcTotalMarginalTaxBrackets(
-            taxData.getTaxes(state), $rootScope.xMax, filingStatus
-          ));
-        }
-      }
+    this.createGraph();
+    this.hasInited = true;
+  };
 
-      $rootScope.graph.updateXAxis($rootScope.xMax);
-      $rootScope.graph.updateYAxis($rootScope.yMax);
-      $rootScope.graph.updateAnimationTime($rootScope.animationTime);
-      $rootScope.clearGraph();
+  this.createGraph = function() {
+    this.graph = d3.select('svg')
+      .attr('width', this.w + this.m[1] + this.m[3])
+      .attr('height', this.h + this.m[0] + this.m[2])
+      .append('svg:g')
+      .attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
 
-      for (var i = 0, len = total.length; i < len; i++) {
-        $rootScope.graph.drawLine(
-          taxService.createEffectiveTaxData(total[i], $rootScope.xMax), true
-        );
+    this.updateXAxis(this.settings.xMax);
+    this.updateYAxis(this.settings.yMax);
+  };
 
-        // $rootScope.graph.drawLine(
-        //   taxService.createMarginalTaxData(total[i], $rootScope.xMax)
-        // );
-      }
-    };
+  this.updateXAxis = function(xMax) {
+    this.settings.xMax = xMax;
 
-    $rootScope.drawGraph = function(state, filingStatus) {
-      var taxes = taxData.getTaxes(state),
-          data,
-          total;
+    this.x = d3.scale.linear()
+      .domain([this.settings.xMin, this.settings.xMax])
+      .range([0, this.w]);
 
-      total = taxService.calcTotalMarginalTaxBrackets(
-        taxes, $rootScope.xMax, filingStatus
-      );
+    this.xAxis = d3.svg.axis()
+      .scale(this.x)
+      .ticks(6)
+      .tickSize(-this.h, 0)
+      .tickFormat(d3.format('$0,000'))
+      .tickPadding(10)
+      .orient('bottom');
 
-      $rootScope.graph.updateXAxis($rootScope.xMax);
-      $rootScope.graph.updateYAxis($rootScope.yMax);
-      $rootScope.graph.updateAnimationTime($rootScope.animationTime);
-      $rootScope.clearGraph();
-      $rootScope.graph.drawLine(
-        taxService.createMarginalTaxData(total, $rootScope.xMax)
-      );
+    this.graph.selectAll(this.xAxisSelector).remove();
 
-      $rootScope.graph.drawLine(
-        taxService.createEffectiveTaxData(total, $rootScope.xMax), true
-      );
+    this.graph.append('svg:g')
+      .attr('class', this.xAxisClass)
+      .attr('transform', 'translate(0,' + this.h + ')')
+      .call(this.xAxis);
+  };
 
-      for (var i = 0; i < taxes.length; i++) {
-        var args = [
-          taxes[i], 
-          $rootScope.graph.xMax, 
-          filingStatus
-        ];
+  this.updateYAxis = function(yMax) {
+    this.settings.yMax = yMax;
 
-        if ($rootScope.graphType === 'effective') {
-          data = taxService.createEffectiveTaxData.apply(taxService, args);
-          $rootScope.graph.drawLine(data, true);
-        } else {
-          data = taxService.createMarginalTaxData.apply(taxService, args);
-          $rootScope.graph.drawLine(data);
-        }
+    this.y = d3.scale.linear()
+      .domain([this.settings.yMin / 100, this.settings.yMax / 100])
+      .range([this.h, 0]);
 
-      }
-    };
+    this.yAxis = d3.svg.axis()
+      .scale(this.y)
+      .ticks(4)
+      .tickSize(-this.w, 0)
+      .tickFormat(d3.format('%'))
+      .tickPadding(7)
+      .orient('left');
 
-    $rootScope.clearGraph = function() {
-      $rootScope.graph.removeLines();
-    };
+    this.graph.selectAll(this.yAxisSelector).remove();
 
-    taxData.get().then($rootScope.initGraph);
-  }
-]);
-},{"./app":1,"./config":2,"./controllers":7,"./directives":8,"./factories":10,"./filters":12,"./services":16}],16:[function(require,module,exports){
+    this.graph.append('svg:g')
+      .attr('class', this.yAxisClass)
+      .attr('transform', 'translate(0,0)')
+      .call(this.yAxis)
+      .selectAll('.tick')
+        .filter(function (d) { return d === 0; })
+        .remove();
+  };
+
+  this.updateAnimationTime = function(time) {
+    this.settings.animationTime = time;
+  };
+        
+  this.drawLine = function(data, isInterpolated) {
+    var line = d3.svg.line()
+      .x(function(d) { return this.x(d.x); }.bind(this))
+      .y(function(d) { return this.y(d.y); }.bind(this));
+
+    if (isInterpolated) {
+      line.interpolate('basis');
+    }
+
+    var path = this.graph.append('svg:path')
+      .attr('class', this.lineClass)
+      .attr('d', line(data));
+
+    if (this.settings.animationTime > 100) {
+      this.animatePath(path);
+    }
+  };
+
+  this.animatePath = function(path) {
+    var length = path.node().getTotalLength();
+
+    path.attr('stroke-dasharray', length + ' ' + length)
+      .attr('stroke-dashoffset', length)
+      .transition()
+      .duration(this.settings.animationTime)
+      .ease('linear')
+      .attr('stroke-dashoffset', 0);
+  };
+
+  this.clear = function() {
+    this.graph.selectAll(this.lineSelector).remove();
+  };
+};
+},{}],16:[function(require,module,exports){
 'use strict';
 
 var app = require('../app'),
     taxService = require('./taxService'),
-    taxData = require('./taxData');
+    taxData = require('./taxData'),
+    graph = require('./graph');
 
 app.service('taxService', ['_', taxService])
-  .service('taxData', ['$http', '$q', 'TAX_API', taxData]);
+  .service('taxData', ['$http', '$q', 'TAX_API', taxData])
+  .service('graph', ['d3', graph]);
 
-},{"../app":1,"./taxData":17,"./taxService":18}],17:[function(require,module,exports){
+},{"../app":1,"./graph":15,"./taxData":17,"./taxService":18}],17:[function(require,module,exports){
 'use strict';
 
 module.exports = function($http, $q, TAX_API) {
-  var deferred = $q.defer(),
-      hasResolved = false;
+  var hasResolved = false;
 
   this.data = {};
   this.states = [];
@@ -448,14 +464,18 @@ module.exports = function($http, $q, TAX_API) {
   this.taxTypes = ['effective', 'marginal'];
 
   this.get = function() {
+    var deferred = $q.defer();
+
     if (!hasResolved) {
-      this.fetch(TAX_API);
+      this.fetch(TAX_API, deferred);
+    } else {
+      deferred.resolve(this.data);
     }
 
     return deferred.promise;
   };
 
-  this.fetch = function(url) {
+  this.fetch = function(url, deferred) {
     $http.get(url).then(function(resp) {
       this.data = resp.data;
       this.fillMetadata(this.data);
@@ -795,7 +815,7 @@ module.exports = function(_) {
   this.createEffectiveTaxData = createEffectiveTaxData;
   this.calcTotalMarginalTaxBrackets = calcTotalMarginalTaxBrackets;
 };
-},{"../lib/Math.round10":14}],19:[function(require,module,exports){
+},{"../lib/Math.round10":13}],19:[function(require,module,exports){
 /**
  * @license AngularJS v1.2.17-build.163+sha.fafcd62
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -39707,4 +39727,4 @@ var styleDirective = valueFn({
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[15]);
+},{}]},{},[14]);
