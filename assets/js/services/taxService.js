@@ -183,6 +183,9 @@ module.exports = function(_) {
   function createEffectiveBracketTaxData(tax, max, filingStatus) {
     var data = [],
         bracketMin,
+        prevBracketMin,
+        thirdPoint,
+        twoThirdPoint,
         effectiveTaxRate;
 
     var lastPoint = {
@@ -197,6 +200,9 @@ module.exports = function(_) {
 
     for (var i = 1, len = tax.length; i < len; i++) {
       bracketMin = tax[i][MIN];
+      prevBracketMin = tax[i - 1][MIN];
+      thirdPoint = prevBracketMin + ((bracketMin - prevBracketMin) / 3);
+      twoThirdPoint = prevBracketMin + ((bracketMin - prevBracketMin) * 2 / 3);
 
       if (max < bracketMin) {
         break;
@@ -205,6 +211,12 @@ module.exports = function(_) {
       effectiveTaxRate = Math.round10(tax[i - 1][MAX_TAX] / bracketMin, -4);
 
       data.push({
+        x: thirdPoint,
+        y: calcEffectiveTaxRate(tax, thirdPoint, filingStatus)
+      }, {
+        x: twoThirdPoint,
+        y: calcEffectiveTaxRate(tax, twoThirdPoint, filingStatus)
+      }, {
         x: bracketMin - 1,
         y: effectiveTaxRate
       }, {
@@ -273,10 +285,16 @@ module.exports = function(_) {
     return tax[len - 1][RATE];
   }
 
+  function calcEffectiveTaxRate(tax, income, filingStatus) {
+    return calcTax(tax, income, filingStatus) / income;
+  }
+
   this.preprocessTaxes = preprocessTaxes;
   this.calcTax = calcTax;
   this.calcMarginalTax = calcMarginalTax;
   this.createMarginalTaxData = createMarginalTaxData;
   this.createEffectiveTaxData = createEffectiveTaxData;
   this.calcTotalMarginalTaxBrackets = calcTotalMarginalTaxBrackets;
+  this.calcMarginalTaxRate = calcMarginalTaxRate;
+  this.calcEffectiveTaxRate = calcEffectiveTaxRate;
 };

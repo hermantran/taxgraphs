@@ -91,12 +91,23 @@ module.exports = function($scope, taxData, taxService, graph) {
     }
   };
 
+  $scope.createTaxRateFn = function(tax, filingStatus, isEffective) {
+    return function(income) {
+      if (isEffective) {
+        return taxService.calcEffectiveTaxRate(tax, income, filingStatus);
+      } else {
+        return taxService.calcMarginalTaxRate(tax, income, filingStatus);
+      }
+    };
+  };
+
   $scope.drawGraph = function() {
     var state = $scope.data.state,
         filingStatus = $scope.data.status,
         xMax = $scope.settings.xMax,
         graphLines = $scope.data.graphLines,
         taxes = taxData.getTaxes(state),
+        tooltipFn,
         data,
         total,
         args;
@@ -115,26 +126,28 @@ module.exports = function($scope, taxData, taxService, graph) {
 
       if (graphLines.effective) {
         data = taxService.createEffectiveTaxData.apply(taxService, args);
-        graph.drawLine(data, true);
+        tooltipFn = $scope.createTaxRateFn(taxes[i], filingStatus, true);
+        graph.drawLine(data, tooltipFn, true);
       }
 
       if (graphLines.marginal) {
         data = taxService.createMarginalTaxData.apply(taxService, args);
-        graph.drawLine(data);
+        tooltipFn = $scope.createTaxRateFn(taxes[i], filingStatus);
+        graph.drawLine(data, tooltipFn);
       }
     }
 
     if (graphLines.totalMarginal) {
-      graph.drawLine(taxService.createMarginalTaxData(total, xMax));
+      data = taxService.createMarginalTaxData(total, xMax);
+      tooltipFn = $scope.createTaxRateFn(total, filingStatus);
+      graph.drawLine(data, tooltipFn);
     }
 
     if (graphLines.totalEffective) {
-      graph.drawLine(taxService.createEffectiveTaxData(total, xMax), true);
+      data = taxService.createEffectiveTaxData(total, xMax);
+      tooltipFn = $scope.createTaxRateFn(total, filingStatus, true);
+      graph.drawLine(data, tooltipFn, true);
     }
-  };
-
-  $scope.displayTooltip = function(eventData) {
-    console.log(eventData);
   };
 
   $scope.init = function() {
@@ -169,10 +182,21 @@ module.exports = function($scope, taxData, taxService, graph) {
     }
   };
 
+  $scope.createTaxRateFn = function(tax, filingStatus, isEffective) {
+    return function(income) {
+      if (isEffective) {
+        return taxService.calcEffectiveTaxRate(tax, income, filingStatus);
+      } else {
+        return taxService.calcMarginalTaxRate(tax, income, filingStatus);
+      }
+    };
+  };
+
   $scope.drawGraph = function() {
     var filingStatus = $scope.data.status,
         xMax = $scope.settings.xMax,
         graphLines = $scope.data.graphLines,
+        tooltipFn,
         total = [],
         data;
 
@@ -190,12 +214,14 @@ module.exports = function($scope, taxData, taxService, graph) {
     for (var i = 0, len = total.length; i < len; i++) {
       if (graphLines.effective) {
         data = taxService.createEffectiveTaxData(total[i], xMax);
-        graph.drawLine(data, true);
+        tooltipFn = $scope.createTaxRateFn(total[i], filingStatus, true);
+        graph.drawLine(data, tooltipFn, true);
       }
 
       if (graphLines.marginal) {
         data = taxService.createMarginalTaxData(total[i], xMax);
-        graph.drawLine(data);
+        tooltipFn = $scope.createTaxRateFn(total[i], filingStatus);
+        graph.drawLine(data, tooltipFn);
       }
     }
   };
@@ -340,6 +366,12 @@ module.exports = function(d3) {
     height: 600
   };
 
+  function createSelector(string) {
+    return '.' + string.split(' ').join('.');
+  }
+
+  function noop() {}
+
   this.init = function(settings) {
     if (this.hasInited) {
       return;
@@ -347,15 +379,24 @@ module.exports = function(d3) {
     
     this.settings = settings || this.settings;
 
-    this.m = [50, 50, 50, 50];
+    this.m = [50, 70, 50, 70];
     this.w = this.settings.width - this.m[1] - this.m[3]; 
     this.h = this.settings.height - this.m[0] - this.m[2];
 
+    this.tooltips = [];
+    this.tooltipFns = [];
+
     this.lineClass = 'tax';
+    this.hoverLineClass = 'hover';
+    this.tooltipClass = 'tooltip';
+    this.circleClass = 'point';
     this.xAxisClass = 'x axis';
     this.yAxisClass = 'y axis';
+    this.hideClass = 'hide';
 
     this.lineSelector = createSelector(this.lineClass);
+    this.hoverLineSelector = createSelector(this.hoverLineClass);
+    this.tooltipSelector = createSelector(this.tooltipClass);
     this.xAxisSelector = createSelector(this.xAxisClass);
     this.yAxisSelector = createSelector(this.yAxisClass);
 
@@ -363,10 +404,6 @@ module.exports = function(d3) {
     this.setupEventHandlers();
     this.hasInited = true;
   };
-
-  function createSelector(string) {
-    return '.' + string.split(' ').join('.');
-  }
 
   this.createGraph = function() {
     this.svg = d3.select('svg')
@@ -379,22 +416,68 @@ module.exports = function(d3) {
 
     this.updateXAxis(this.settings.xMax);
     this.updateYAxis(this.settings.yMax);
+    this.drawHoverLine();
   };
 
   this.setupEventHandlers = function() {
     var self = this;
 
     this.svg.on('mousemove', function() {
-      var xPixel = d3.mouse(this)[0];
-      self.processXPixel(xPixel);
+      var xPos = d3.mouse(this)[0] - self.m[3];
+      self.updateHoverLine(xPos);
     });
   };
 
-  this.processXPixel = function(xPixel) {
-    var xScale = this.xMax / this.w,
-        xValue = Math.round((xPixel - this.m[3]) * xScale);
+  this.updateHoverLine = function(xPos) {
+    if (xPos < 0 || xPos > this.w) {
+      this.hoverLine.classed(this.hideClass, true);
+    } else {
+      this.hoverLine.classed(this.hideClass, false)
+        .attr('x1', xPos).attr('x2', xPos);
+    }
 
-    console.log(xValue);
+    this.updateTooltips(xPos);
+  };
+
+  this.updateTooltips = function(xPos) {
+    var xScale = this.xMax / this.w,
+        yScale = this.yMax / this.h,
+        xValue = Math.round(xPos * xScale),
+        prevYPos = 0,
+        yValue,
+        yPos,
+        text;
+
+    for (var i = 0, len = this.tooltips.length; i < len; i++) {
+      if (xPos < 0 || xPos > this.w) {
+        this.tooltips[i].classed(this.hideClass, true);
+      } else {
+        this.tooltips[i].classed(this.hideClass, false);
+      }
+
+      yValue = this.tooltipFns[i](xValue);
+
+      if (!yValue) {
+        yValue = 0;
+      }
+
+      yPos = this.h - (yValue / yScale * 100);
+
+      // Prevent text collision for two lines that are too closre
+      // if (Math.abs(yPos - prevYPos) < 20) {
+      //   console.log(yPos, prevYPos);
+      //   yPos -= 20;
+      // }
+
+      prevYPos = yPos;
+
+      text = Math.round10(yValue * 100, -2) + '%';
+
+      this.tooltips[i]
+        .attr('transform', 'translate(' + xPos + ',' + yPos + ')')
+        .select('text')
+        .text(text);
+    }
   };
 
   this.updateXAxis = function(xMax) {
@@ -471,8 +554,17 @@ module.exports = function(d3) {
       this.updateAnimationTime(settings.animationTime);
     }
   };
+
+  this.drawHoverLine = function() {
+    // http://bl.ocks.org/benjchristensen/2657838
+    this.hoverLine = this.graph.append('svg:line')
+      .attr('x1', 0).attr('x2', 0)
+      .attr('y1', 0).attr('y2', this.h)
+      .attr('class', this.hoverLineClass)
+      .classed(this.hideClass, true);
+  };
         
-  this.drawLine = function(data, isInterpolated) {
+  this.drawLine = function(data, tooltipFn, isInterpolated) {
     var line = d3.svg.line()
       .x(function(d) { return this.x(d.x); }.bind(this))
       .y(function(d) { return this.y(d.y); }.bind(this));
@@ -488,6 +580,14 @@ module.exports = function(d3) {
     if (this.settings.animationTime > 100) {
       this.animatePath(path);
     }
+
+    this.drawPoint();
+
+    if (tooltipFn) {
+      this.tooltipFns.push(tooltipFn);
+    } else {
+      this.tooltipFns.push(noop);
+    }
   };
 
   this.animatePath = function(path) {
@@ -501,7 +601,27 @@ module.exports = function(d3) {
       .attr('stroke-dashoffset', 0);
   };
 
+  this.drawPoint = function() {
+    // http://bl.ocks.org/mbostock/3902569
+    var tooltip = this.graph.append('g')
+      .attr('class', this.tooltipClass)
+      .classed(this.hideClass, true);
+
+    tooltip.append('circle')
+      .attr('class', this.circleClass)
+      .attr('r', 5);
+
+    tooltip.append('text')
+      .attr('x', 5)
+      .attr('y', -5);
+
+    this.tooltips.push(tooltip);
+  };
+
   this.clear = function() {
+    this.tooltips.length = 0;
+    this.tooltipFns.length = 0;
+    this.graph.selectAll(this.tooltipSelector).remove();
     this.graph.selectAll(this.lineSelector).remove();
   };
 };
@@ -783,6 +903,9 @@ module.exports = function(_) {
   function createEffectiveBracketTaxData(tax, max, filingStatus) {
     var data = [],
         bracketMin,
+        prevBracketMin,
+        thirdPoint,
+        twoThirdPoint,
         effectiveTaxRate;
 
     var lastPoint = {
@@ -797,6 +920,9 @@ module.exports = function(_) {
 
     for (var i = 1, len = tax.length; i < len; i++) {
       bracketMin = tax[i][MIN];
+      prevBracketMin = tax[i - 1][MIN];
+      thirdPoint = prevBracketMin + ((bracketMin - prevBracketMin) / 3);
+      twoThirdPoint = prevBracketMin + ((bracketMin - prevBracketMin) * 2 / 3);
 
       if (max < bracketMin) {
         break;
@@ -805,6 +931,12 @@ module.exports = function(_) {
       effectiveTaxRate = Math.round10(tax[i - 1][MAX_TAX] / bracketMin, -4);
 
       data.push({
+        x: thirdPoint,
+        y: calcEffectiveTaxRate(tax, thirdPoint, filingStatus)
+      }, {
+        x: twoThirdPoint,
+        y: calcEffectiveTaxRate(tax, twoThirdPoint, filingStatus)
+      }, {
         x: bracketMin - 1,
         y: effectiveTaxRate
       }, {
@@ -873,12 +1005,18 @@ module.exports = function(_) {
     return tax[len - 1][RATE];
   }
 
+  function calcEffectiveTaxRate(tax, income, filingStatus) {
+    return calcTax(tax, income, filingStatus) / income;
+  }
+
   this.preprocessTaxes = preprocessTaxes;
   this.calcTax = calcTax;
   this.calcMarginalTax = calcMarginalTax;
   this.createMarginalTaxData = createMarginalTaxData;
   this.createEffectiveTaxData = createEffectiveTaxData;
   this.calcTotalMarginalTaxBrackets = calcTotalMarginalTaxBrackets;
+  this.calcMarginalTaxRate = calcMarginalTaxRate;
+  this.calcEffectiveTaxRate = calcEffectiveTaxRate;
 };
 },{"../lib/Math.round10":13}],19:[function(require,module,exports){
 /**

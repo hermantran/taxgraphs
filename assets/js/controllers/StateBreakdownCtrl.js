@@ -18,12 +18,23 @@ module.exports = function($scope, taxData, taxService, graph) {
     }
   };
 
+  $scope.createTaxRateFn = function(tax, filingStatus, isEffective) {
+    return function(income) {
+      if (isEffective) {
+        return taxService.calcEffectiveTaxRate(tax, income, filingStatus);
+      } else {
+        return taxService.calcMarginalTaxRate(tax, income, filingStatus);
+      }
+    };
+  };
+
   $scope.drawGraph = function() {
     var state = $scope.data.state,
         filingStatus = $scope.data.status,
         xMax = $scope.settings.xMax,
         graphLines = $scope.data.graphLines,
         taxes = taxData.getTaxes(state),
+        tooltipFn,
         data,
         total,
         args;
@@ -42,26 +53,28 @@ module.exports = function($scope, taxData, taxService, graph) {
 
       if (graphLines.effective) {
         data = taxService.createEffectiveTaxData.apply(taxService, args);
-        graph.drawLine(data, true);
+        tooltipFn = $scope.createTaxRateFn(taxes[i], filingStatus, true);
+        graph.drawLine(data, tooltipFn, true);
       }
 
       if (graphLines.marginal) {
         data = taxService.createMarginalTaxData.apply(taxService, args);
-        graph.drawLine(data);
+        tooltipFn = $scope.createTaxRateFn(taxes[i], filingStatus);
+        graph.drawLine(data, tooltipFn);
       }
     }
 
     if (graphLines.totalMarginal) {
-      graph.drawLine(taxService.createMarginalTaxData(total, xMax));
+      data = taxService.createMarginalTaxData(total, xMax);
+      tooltipFn = $scope.createTaxRateFn(total, filingStatus);
+      graph.drawLine(data, tooltipFn);
     }
 
     if (graphLines.totalEffective) {
-      graph.drawLine(taxService.createEffectiveTaxData(total, xMax), true);
+      data = taxService.createEffectiveTaxData(total, xMax);
+      tooltipFn = $scope.createTaxRateFn(total, filingStatus, true);
+      graph.drawLine(data, tooltipFn, true);
     }
-  };
-
-  $scope.displayTooltip = function(eventData) {
-    console.log(eventData);
   };
 
   $scope.init = function() {

@@ -20,10 +20,21 @@ module.exports = function($scope, taxData, taxService, graph) {
     }
   };
 
+  $scope.createTaxRateFn = function(tax, filingStatus, isEffective) {
+    return function(income) {
+      if (isEffective) {
+        return taxService.calcEffectiveTaxRate(tax, income, filingStatus);
+      } else {
+        return taxService.calcMarginalTaxRate(tax, income, filingStatus);
+      }
+    };
+  };
+
   $scope.drawGraph = function() {
     var filingStatus = $scope.data.status,
         xMax = $scope.settings.xMax,
         graphLines = $scope.data.graphLines,
+        tooltipFn,
         total = [],
         data;
 
@@ -41,12 +52,14 @@ module.exports = function($scope, taxData, taxService, graph) {
     for (var i = 0, len = total.length; i < len; i++) {
       if (graphLines.effective) {
         data = taxService.createEffectiveTaxData(total[i], xMax);
-        graph.drawLine(data, true);
+        tooltipFn = $scope.createTaxRateFn(total[i], filingStatus, true);
+        graph.drawLine(data, tooltipFn, true);
       }
 
       if (graphLines.marginal) {
         data = taxService.createMarginalTaxData(total[i], xMax);
-        graph.drawLine(data);
+        tooltipFn = $scope.createTaxRateFn(total[i], filingStatus);
+        graph.drawLine(data, tooltipFn);
       }
     }
   };
