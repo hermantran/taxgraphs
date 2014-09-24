@@ -366,6 +366,27 @@ module.exports = function(d3) {
     height: 600
   };
 
+  this.colors = [
+    'rgb(57, 106, 177)',
+    'rgb(218, 124, 48',
+    'rgb(62, 150, 81)',
+    'rgb(204, 37, 41)',
+    'rgb(83, 81, 84)',
+    'rgb(107, 76, 154)',
+    'rgb(146, 36, 40)',
+    'rgb(148, 139, 61)'
+  ];
+
+  this.colors = [
+    'rgb(198,219,239)',
+    'rgb(158,202,225)',
+    'rgb(107,174,214)',
+    'rgb(66,146,198)',
+    'rgb(33,113,181)',
+    'rgb(8,81,156)',
+    'rgb(8,48,107)'
+  ].reverse();
+
   function createSelector(string) {
     return '.' + string.split(' ').join('.');
   }
@@ -385,6 +406,7 @@ module.exports = function(d3) {
 
     this.tooltips = [];
     this.tooltipFns = [];
+    this.colorIndex = 0;
 
     this.lineClass = 'tax';
     this.hoverLineClass = 'hover';
@@ -429,8 +451,14 @@ module.exports = function(d3) {
   };
 
   this.updateHoverLine = function(xPos) {
-    if (xPos < 0 || xPos > this.w) {
-      this.hoverLine.classed(this.hideClass, true);
+    var xChange = Math.abs(xPos - this.hoverLine.attr('x1'));
+    if (xChange < 0.5 || xPos > this.w) {
+      return;
+    }
+
+    if (xPos < 0) {
+      this.hoverLine.classed(this.hideClass, true)
+        .attr('x1', -1).attr('x2', -1);
     } else {
       this.hoverLine.classed(this.hideClass, false)
         .attr('x1', xPos).attr('x2', xPos);
@@ -448,10 +476,14 @@ module.exports = function(d3) {
         yPos,
         text;
 
+    if (xPos > this.w) {
+      return;
+    }
+
     for (var i = 0, len = this.tooltips.length; i < len; i++) {
-      if (xPos < 0 || xPos > this.w) {
+      if (xPos < 0) {
         this.tooltips[i].classed(this.hideClass, true);
-      } else {
+      }  else {
         this.tooltips[i].classed(this.hideClass, false);
       }
 
@@ -463,14 +495,13 @@ module.exports = function(d3) {
 
       yPos = this.h - (yValue / yScale * 100);
 
-      // Prevent text collision for two lines that are too closre
+      // Prevent text collision for two lines that are too close
       // if (Math.abs(yPos - prevYPos) < 20) {
       //   console.log(yPos, prevYPos);
       //   yPos -= 20;
       // }
 
       prevYPos = yPos;
-
       text = Math.round10(yValue * 100, -2) + '%';
 
       this.tooltips[i]
@@ -575,7 +606,10 @@ module.exports = function(d3) {
 
     var path = this.graph.append('svg:path')
       .attr('class', this.lineClass)
+      .attr('stroke', this.colors[this.colorIndex])
       .attr('d', line(data));
+
+    this.colorIndex = (this.colorIndex + 1) % this.colors.length;
 
     if (this.settings.animationTime > 100) {
       this.animatePath(path);
@@ -598,7 +632,8 @@ module.exports = function(d3) {
       .transition()
       .duration(this.settings.animationTime)
       .ease('linear')
-      .attr('stroke-dashoffset', 0);
+      .attr('stroke-dashoffset', 0)
+      .each('end', this.updateHoverLine.bind(this, this.w));
   };
 
   this.drawPoint = function() {
@@ -619,8 +654,10 @@ module.exports = function(d3) {
   };
 
   this.clear = function() {
+    this.updateHoverLine(-1);
     this.tooltips.length = 0;
     this.tooltipFns.length = 0;
+    this.colorIndex = 0;
     this.graph.selectAll(this.tooltipSelector).remove();
     this.graph.selectAll(this.lineSelector).remove();
   };
@@ -945,7 +982,16 @@ module.exports = function(_) {
       });
     }
 
-    data.push(lastPoint);
+    prevBracketMin = tax[i - 1][MIN];
+    thirdPoint = prevBracketMin + ((max - prevBracketMin) / 3);
+    twoThirdPoint = prevBracketMin + ((max - prevBracketMin) * 2 / 3);
+    data.push({
+      x: thirdPoint,
+      y: calcEffectiveTaxRate(tax, thirdPoint, filingStatus)
+    }, {
+      x: twoThirdPoint,
+      y: calcEffectiveTaxRate(tax, twoThirdPoint, filingStatus)
+    }, lastPoint);
 
     return data;
   }

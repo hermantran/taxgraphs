@@ -225,7 +225,16 @@ module.exports = function(_) {
       });
     }
 
-    data.push(lastPoint);
+    prevBracketMin = tax[i - 1][MIN];
+    thirdPoint = prevBracketMin + ((max - prevBracketMin) / 3);
+    twoThirdPoint = prevBracketMin + ((max - prevBracketMin) * 2 / 3);
+    data.push({
+      x: thirdPoint,
+      y: calcEffectiveTaxRate(tax, thirdPoint, filingStatus)
+    }, {
+      x: twoThirdPoint,
+      y: calcEffectiveTaxRate(tax, twoThirdPoint, filingStatus)
+    }, lastPoint);
 
     return data;
   }

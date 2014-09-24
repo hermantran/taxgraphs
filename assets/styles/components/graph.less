@@ -1,6 +1,5 @@
 .graph {
   path {
-    stroke: steelblue;
     stroke-width: 2;
     fill: none;
   }
@@ -19,12 +18,16 @@
 
   text {
     fill: @text-color;
-    font-weight: 400;
-    z-index: 3;
   }
 
-  line.hover {
+  .hover {
     stroke: #aaa;
+  }
+
+  .tooltip {
+    text {
+      font-weight: 400;
+    }
   }
 
   .point {

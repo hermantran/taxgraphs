@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "angular": "^1.2.23",
+    "angular-local-storage": "git+https://git@github.com/grevory/angular-local-storage.git",
     "angular-route": "^1.2.17-build.163.1",
     "browserify": "^5.11.2",
     "browserify-shim": "^3.7.0",
