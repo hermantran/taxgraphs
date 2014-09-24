@@ -377,15 +377,15 @@ module.exports = function(d3) {
     'rgb(148, 139, 61)'
   ];
 
-  this.colors = [
-    'rgb(198,219,239)',
-    'rgb(158,202,225)',
-    'rgb(107,174,214)',
-    'rgb(66,146,198)',
-    'rgb(33,113,181)',
-    'rgb(8,81,156)',
-    'rgb(8,48,107)'
-  ].reverse();
+  // this.colors = [
+  //   'rgb(198,219,239)',
+  //   'rgb(158,202,225)',
+  //   'rgb(107,174,214)',
+  //   'rgb(66,146,198)',
+  //   'rgb(33,113,181)',
+  //   'rgb(8,81,156)',
+  //   'rgb(8,48,107)'
+  // ].reverse();
 
   function createSelector(string) {
     return '.' + string.split(' ').join('.');
@@ -609,13 +609,12 @@ module.exports = function(d3) {
       .attr('stroke', this.colors[this.colorIndex])
       .attr('d', line(data));
 
-    this.colorIndex = (this.colorIndex + 1) % this.colors.length;
-
     if (this.settings.animationTime > 100) {
       this.animatePath(path);
     }
 
     this.drawPoint();
+    this.colorIndex = (this.colorIndex + 1) % this.colors.length;
 
     if (tooltipFn) {
       this.tooltipFns.push(tooltipFn);
@@ -644,7 +643,8 @@ module.exports = function(d3) {
 
     tooltip.append('circle')
       .attr('class', this.circleClass)
-      .attr('r', 5);
+      .attr('fill', this.colors[this.colorIndex])
+      .attr('r', 3);
 
     tooltip.append('text')
       .attr('x', 5)
@@ -653,11 +653,15 @@ module.exports = function(d3) {
     this.tooltips.push(tooltip);
   };
 
-  this.clear = function() {
+  this.resetTooltips = function() {
     this.updateHoverLine(-1);
     this.tooltips.length = 0;
     this.tooltipFns.length = 0;
     this.colorIndex = 0;
+  };
+
+  this.clear = function() {
+    this.resetTooltips();
     this.graph.selectAll(this.tooltipSelector).remove();
     this.graph.selectAll(this.lineSelector).remove();
   };

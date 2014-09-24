@@ -1,14 +1,14 @@
 {
-  "name": "tax-graphs",
+  "name": "taxgraphs",
   "private": true,
   "version": "0.0.5",
   "description": "",
   "author": "Herman Tran <hermanctran@gmail.com>",
-  "license": "CC-BY",
+  "license": "MIT",
   "keywords": [],
   "repository": {
     "type": "git",
-    "url": "git@github.com:hermantran/taxes.git"
+    "url": "git@github.com:hermantran/taxgraphs.git"
   },
   "dependencies": {
     "angular": "^1.2.23",
