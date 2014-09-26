@@ -3,7 +3,7 @@ module.exports = function(grunt) {
   grunt.config.set('preprocessTax', {
     dist: {
       files: {
-        'dist/data/taxes.json': ['assets/data/taxes.json']
+        'data/2014.json': ['data/2014.json']
       }
     }
   });

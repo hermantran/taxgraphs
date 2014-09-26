@@ -1,0 +1,17 @@
+{
+  "federal": "{{2014/federal.json}}",
+  "state": {
+    "AL": "{{2014/state/AL.json}}",
+    "AK": "{{2014/state/AK.json}}",
+    "AZ": "{{2014/state/AZ.json}}",
+    "AR": "{{2014/state/AR.json}}",
+    "CA": "{{2014/state/CA.json}}",
+    "CO": "{{2014/state/CO.json}}",
+    "FL": "{{2014/state/FL.json}}",
+    "NY": "{{2014/state/NY.json}}",
+    "PA": "{{2014/state/PA.json}}",
+    "TX": "{{2014/state/TX.json}}",
+    "WA": "{{2014/state/WA.json}}",
+    "WY": "{{2014/state/WY.json}}"
+  }
+}

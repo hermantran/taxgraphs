@@ -22,7 +22,7 @@ window._ = lodash;
 app.constant('d3', d3)
   .constant('_', lodash)
   .constant('JST', JST)
-  .constant('TAX_API', 'dist/data/taxes.json')
+  .constant('TAX_API', 'data/2014.json')
   .config(['$provide', 'JST', templateCache])
   .config(['$routeProvider', routes]);
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
@@ -677,7 +677,6 @@ var app = require('../app'),
 app.service('taxService', ['_', taxService])
   .service('taxData', ['$http', '$q', 'TAX_API', taxData])
   .service('graph', ['d3', graph]);
-
 },{"../app":1,"./graph":15,"./taxData":17,"./taxService":18}],17:[function(require,module,exports){
 'use strict';
 

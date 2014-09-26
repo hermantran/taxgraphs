@@ -1,0 +1,9 @@
+{
+  "income": {
+    "rate": 0,
+    "source": {
+      "name": "Washington State Department of Revenue",
+      "url": "//dor.wa.gov/content/findtaxesandrates/incometax/"
+    }
+  }
+}

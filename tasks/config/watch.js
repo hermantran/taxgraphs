@@ -28,8 +28,8 @@ module.exports = function(grunt) {
       tasks: ['jst:dev']
     },
     json: {
-      files: ['assets/data/**/*.json'],
-      tasks: ['preprocessTax:dist']
+      files: ['data/**/*.json', '!data/2014.json'],
+      tasks: ['json_bake:dist', 'preprocessTax:dist']
     },
     pipeline: {
       files: ['tasks/pipeline.js'],

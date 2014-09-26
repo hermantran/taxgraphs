@@ -1,0 +1,50 @@
+{
+  "income": {
+    "rate": {
+      "single": [
+        [0, 0.04],
+        [8200, 0.045],
+        [11300, 0.0525],
+        [13350, 0.059],
+        [20550, 0.0645],
+        [77150, 0.0665],
+        [205850, 0.0685],
+        [1029250, 0.0882]
+      ],
+      "married": [
+        [0, 0.04],
+        [16450, 0.045],
+        [22600, 0.0525],
+        [26750, 0.059],
+        [41150, 0.0645],
+        [154350, 0.0665],
+        [308750, 0.0685],
+        [2058550, 0.0882]
+      ],
+      "headOfHousehold": [
+        [0, 0.04],
+        [12350, 0.045],
+        [16950, 0.0525],
+        [20050, 0.059],
+        [30850, 0.0645],
+        [102900, 0.0665],
+        [257300, 0.0685],
+        [1543900, 0.0882]
+      ]
+    },
+    "source": {
+      "name": "IT-201-I, NYS tax rate schedule",
+      "url": "//www.tax.ny.gov/pdf/current_forms/it/it201i_tax_rate_schedule.pdf"
+    }
+  },
+  "stateDisabilityInsurance": {
+    "rate": [
+      [0, 0.005],
+      [6240, 0]
+    ],
+    "source": {
+      "name": "Payroll Taxes - New York State Tax Information",
+      "url": "//www.payroll-taxes.com/state-tax/new-york"
+    }
+  }
+}

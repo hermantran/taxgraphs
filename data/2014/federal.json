@@ -1,0 +1,47 @@
+{
+  "medicare": {
+    "rate": 0.0145,
+    "source": {
+      "name": "IRS Publication 15, Employer's Tax Guide - Page 1",
+      "url": "//www.irs.gov/pub/irs-pdf/p15.pdf"
+    }
+  },
+  "socialSecurity": {
+    "rate": [
+      [0, 0.062],
+      [117000, 0]
+    ],
+    "source": {
+      "name": "IRS Publication 15, Employer's Tax Guide - Page 1",
+      "url": "//www.irs.gov/pub/irs-pdf/p15.pdf"
+    }
+  },
+  "income": {
+    "rate": {
+      "single": [
+        [0, 0],
+        [2250, 0.1],
+        [11325, 0.15],
+        [39150, 0.25],
+        [91600, 0.28],
+        [188600, 0.33],
+        [407350, 0.35],
+        [409000, 0.396]
+      ],
+      "married": [
+        [0, 0],
+        [8450, 0.1],
+        [26600, 0.15],
+        [82250, 0.25],
+        [157300, 0.28],
+        [235300, 0.33],
+        [413550, 0.35],
+        [466050, 0.396]
+      ]
+    },
+    "source": {
+      "name": "IRS Publication 15, Employer's Tax Guide - Table 7",
+      "url": "//www.irs.gov/pub/irs-pdf/p15.pdf"
+    }
+  }
+}

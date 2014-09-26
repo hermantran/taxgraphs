@@ -1,0 +1,19 @@
+{
+  "income": {
+    "rate": 0,
+    "source": {
+      "name": "Alaska Department of Revenue - Tax Division",
+      "url": "//www.tax.alaska.gov/programs/programs/index.aspx?10001"
+    }
+  },
+  "employmentSecurity": {
+    "rate": [
+      [0, 0.0062],
+      [37400, 0]
+    ],
+    "source": {
+      "name": "Alaska Department of Labor",
+      "url": "//labor.alaska.gov/estax/faq/w1.htm"
+    }
+  }
+}
