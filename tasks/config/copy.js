@@ -17,12 +17,26 @@ module.exports = function(grunt) {
 
   grunt.config.set('copy', {
     dev: {
-      files: [{
-        expand: true,
-        cwd: './assets',
-        src: ['**/*.!(coffee|less|json|html)', '!js/**'],
-        dest: 'dist'
-      }]
+      files: [
+        {
+          expand: true,
+          cwd: './assets/bower_components',
+          src: [
+            'pure/pure-min.css',
+            'pure/grids-responsive-min.css'
+          ],
+          dest: 'dist/styles'
+        }, {
+          expand: true,
+          cwd: './assets',
+          src: [
+            '**/*.!(coffee|less|json|html)',
+            '!js/**',
+            '!bower_components/**/*'
+          ],
+          dest: 'dist'
+        }
+      ]
     }
   });
 

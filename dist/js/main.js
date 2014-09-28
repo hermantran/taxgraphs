@@ -367,25 +367,17 @@ module.exports = function(d3) {
   };
 
   this.colors = [
-    'rgb(57, 106, 177)',
-    'rgb(218, 124, 48',
-    'rgb(62, 150, 81)',
-    'rgb(204, 37, 41)',
-    'rgb(83, 81, 84)',
-    'rgb(107, 76, 154)',
-    'rgb(146, 36, 40)',
-    'rgb(148, 139, 61)'
+    '#654B6B',
+    '#6EAE41',
+    '#C950CA',
+    '#BE4C3B',
+    '#4CA086',
+    '#55612C',
+    '#C28D39',
+    '#C65583',
+    '#7597C2',
+    '#856EC7'
   ];
-
-  // this.colors = [
-  //   'rgb(198,219,239)',
-  //   'rgb(158,202,225)',
-  //   'rgb(107,174,214)',
-  //   'rgb(66,146,198)',
-  //   'rgb(33,113,181)',
-  //   'rgb(8,81,156)',
-  //   'rgb(8,48,107)'
-  // ].reverse();
 
   function createSelector(string) {
     return '.' + string.split(' ').join('.');
@@ -842,21 +834,17 @@ module.exports = function(_) {
     }
   }
 
-  function calcMarginalTax(tax, income) {
+  function calcMarginalTax(tax, income, filingStatus) {
     if (_.isNumber(tax)) {
       return tax * income;
     }
-    /*
     else if (_.isArray(tax)) {
-      return calcMarginalBracketTax(tax, income);
+      return calcMarginalTaxRate(tax, income, filingStatus) * income;
     }
     else if (_.isPlainObject(tax)) {
-      return calcMarginalBracketTax(tax[filingStatus], income);
+      return calcMarginalTaxRate(tax, income, filingStatus) * income;
     }
-    */
   }
-
-
 
   function createMarginalTaxData(tax, max, filingStatus) {
     max = max || 100000;

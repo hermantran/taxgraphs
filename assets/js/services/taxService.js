@@ -82,21 +82,17 @@ module.exports = function(_) {
     }
   }
 
-  function calcMarginalTax(tax, income) {
+  function calcMarginalTax(tax, income, filingStatus) {
     if (_.isNumber(tax)) {
       return tax * income;
     }
-    /*
     else if (_.isArray(tax)) {
-      return calcMarginalBracketTax(tax, income);
+      return calcMarginalTaxRate(tax, income, filingStatus) * income;
     }
     else if (_.isPlainObject(tax)) {
-      return calcMarginalBracketTax(tax[filingStatus], income);
+      return calcMarginalTaxRate(tax, income, filingStatus) * income;
     }
-    */
   }
-
-
 
   function createMarginalTaxData(tax, max, filingStatus) {
     max = max || 100000;

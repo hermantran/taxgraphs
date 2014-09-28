@@ -15,6 +15,8 @@
 // (if you're using LESS with the built-in default config, you'll want
 //  to change `assets/styles/importer.less` instead.)
 var cssFilesToInject = [
+  'styles/pure/pure-min.css',
+  'styles/pure/grids-responsive-min.css',
   'styles/**/*.css'
 ];
 
