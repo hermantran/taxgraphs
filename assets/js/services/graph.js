@@ -3,6 +3,24 @@
 module.exports = function(d3) {
   this.hasInited = false;
 
+  this.colors = {
+    blue: [
+      'steelblue'
+    ],
+    multi: [
+      '#654B6B',
+      '#6EAE41',
+      '#C950CA',
+      '#BE4C3B',
+      '#4CA086',
+      '#55612C',
+      '#C28D39',
+      '#C65583',
+      '#7597C2',
+      '#856EC7'
+    ]
+  };
+
   this.settings = {
     xMin: 0,
     xMax: 250000,
@@ -10,21 +28,9 @@ module.exports = function(d3) {
     yMax: 50,
     animationTime: 2500,
     width: 1000,
-    height: 600
+    height: 600,
+    colors: this.colors.multi
   };
-
-  this.colors = [
-    '#654B6B',
-    '#6EAE41',
-    '#C950CA',
-    '#BE4C3B',
-    '#4CA086',
-    '#55612C',
-    '#C28D39',
-    '#C65583',
-    '#7597C2',
-    '#856EC7'
-  ];
 
   function createSelector(string) {
     return '.' + string.split(' ').join('.');
@@ -245,7 +251,7 @@ module.exports = function(d3) {
 
     var path = this.graph.append('svg:path')
       .attr('class', this.lineClass)
-      .attr('stroke', this.colors[this.colorIndex])
+      .attr('stroke', this.settings.colors[this.colorIndex])
       .attr('d', line(data));
 
     if (this.settings.animationTime > 100) {
@@ -253,7 +259,7 @@ module.exports = function(d3) {
     }
 
     this.drawPoint();
-    this.colorIndex = (this.colorIndex + 1) % this.colors.length;
+    this.colorIndex = (this.colorIndex + 1) % this.settings.colors.length;
 
     if (tooltipFn) {
       this.tooltipFns.push(tooltipFn);
@@ -282,7 +288,7 @@ module.exports = function(d3) {
 
     tooltip.append('circle')
       .attr('class', this.circleClass)
-      .attr('fill', this.colors[this.colorIndex])
+      .attr('fill', this.settings.colors[this.colorIndex])
       .attr('r', 3);
 
     tooltip.append('text')

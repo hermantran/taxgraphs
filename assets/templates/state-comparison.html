@@ -1,5 +1,5 @@
 <fieldset>
-  <legend>Data</legend>
+  <h3>Data</h3>
 
   <div>
     <label>States</label>
@@ -37,7 +37,7 @@
 </fieldset>
 
 <fieldset>
-  <legend>Settings</legend>
+  <h3>Settings</h3>
 
   <div>
     <label for="y-max">Y Axis Max (%):</label>
@@ -52,6 +52,11 @@
   <div>
     <label for="animation-time">Animation Time:</label>
     <input type="text" id="animation-time" name="animation-time" ng-model="settings.animationTime">
+  </div>
+
+  <div>
+    <label for="colors">Color Scheme:</label>
+    <select id="colors" name="colors" ng-model="settings.colors" ng-options="(key | capitalize) for (key, val) in colors"></select>
   </div>
 </fieldset>
 

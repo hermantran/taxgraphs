@@ -3,6 +3,7 @@
 module.exports = function($scope, taxData, taxService, graph) {
   $scope.clearGraph = graph.clear.bind(graph);
   $scope.settings = graph.settings;
+  $scope.colors = graph.colors;
   $scope.states = taxData.states;
   $scope.filingStatuses = taxData.filingStatuses;
   $scope.graphTypes = taxData.taxTypes;

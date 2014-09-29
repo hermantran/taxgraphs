@@ -1,9 +1,19 @@
-header {
-  .box-shadow(0 3px 3px -2px #aaa);
+header.pure-menu.pure-menu-horizontal {
+  background: @blue;
+  
+  * {
+    color: @white;
+  }
 
   .logo {
-    font-weight: 500;
+    font-weight: 400;
     font-size: 1em;
     padding: 0 20px;
+  }
+
+  li a {
+    &:hover {
+      background: darken(@blue, 5%);
+    }
   }
 }
