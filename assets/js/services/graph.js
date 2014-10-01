@@ -27,8 +27,8 @@ module.exports = function(d3) {
     yMin: 0,
     yMax: 50,
     animationTime: 2500,
-    width: 1000,
-    height: 600,
+    width: 1100,
+    height: 700,
     colors: this.colors.multi
   };
 
@@ -45,7 +45,7 @@ module.exports = function(d3) {
     
     this.settings = settings || this.settings;
 
-    this.m = [50, 70, 50, 70];
+    this.m = [70, 70, 70, 70];
     this.w = this.settings.width - this.m[1] - this.m[3]; 
     this.h = this.settings.height - this.m[0] - this.m[2];
 
@@ -84,6 +84,7 @@ module.exports = function(d3) {
     this.updateXAxis(this.settings.xMax);
     this.updateYAxis(this.settings.yMax);
     this.drawHoverLine();
+    this.drawHoverLabel();
   };
 
   this.setupEventHandlers = function() {
@@ -92,6 +93,7 @@ module.exports = function(d3) {
     this.svg.on('mousemove', function() {
       var xPos = d3.mouse(this)[0] - self.m[3];
       self.updateHoverLine(xPos);
+      self.updateHoverLabel(xPos);
     });
   };
 
@@ -110,6 +112,25 @@ module.exports = function(d3) {
     }
 
     this.updateTooltips(xPos);
+  };
+
+  this.updateHoverLabel = function(xPos) {
+    var xChange = Math.abs(xPos - this.hoverLabel.attr('x')),
+        xScale = this.xMax / this.w,
+        xValue = Math.round(xPos * xScale);
+
+    if (xChange < 0.5 || xPos > this.w) {
+      return;
+    }
+
+    if (xPos < 0) {
+      this.hoverLabel.classed(this.hideClass, true)
+        .attr('x', -1);
+    } else {
+      this.hoverLabel.classed(this.hideClass, false)
+        .attr('x', xPos - 35)
+        .text(d3.format('$0,000')(xValue));
+    }
   };
 
   this.updateTooltips = function(xPos) {
@@ -239,6 +260,13 @@ module.exports = function(d3) {
       .attr('class', this.hoverLineClass)
       .classed(this.hideClass, true);
   };
+
+  this.drawHoverLabel = function() {
+    this.hoverLabel = this.graph.append('svg:text')
+      .attr('x', 0)
+      .attr('y', this.h + 50)
+      .classed(this.hideClass, true);
+  };
         
   this.drawLine = function(data, tooltipFn, isInterpolated) {
     var line = d3.svg.line()
@@ -259,7 +287,6 @@ module.exports = function(d3) {
     }
 
     this.drawPoint();
-    this.colorIndex = (this.colorIndex + 1) % this.settings.colors.length;
 
     if (tooltipFn) {
       this.tooltipFns.push(tooltipFn);
@@ -296,9 +323,11 @@ module.exports = function(d3) {
       .attr('y', -5);
 
     this.tooltips.push(tooltip);
+    this.colorIndex = (this.colorIndex + 1) % this.settings.colors.length;
   };
 
   this.resetTooltips = function() {
+    this.graph.selectAll(this.lineSelector).transition().duration(0);
     this.updateHoverLine(-1);
     this.tooltips.length = 0;
     this.tooltipFns.length = 0;

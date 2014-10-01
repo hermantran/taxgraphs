@@ -51,6 +51,32 @@ module.exports = function(grunt) {
       files: {
         '*.html': ['dist/jst.js'],
       }
+    },
+
+    livereload: {
+      options: {
+        startTag: '<!--LIVERELOAD-->',
+        endTag: '<!--LIVERELOAD END-->',
+        fileTmpl: '<script src="//localhost:35729/livereload.js"></script><!--%s-->',
+        appRoot: 'dist'
+      },
+
+      files: {
+        '*.html': require('../pipeline').livereloadFilesToInject
+      }
+    },
+
+    livereloadDist: {
+      options: {
+        startTag: '<!--LIVERELOAD-->',
+        endTag: '<!--LIVERELOAD END-->',
+        fileTmpl: '<script src="//localhost:35729/livereload.js"></script>',
+        appRoot: 'dist'
+      },
+
+      files: {
+        '*.html': []
+      }
     }
   });
 

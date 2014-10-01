@@ -61,3 +61,4 @@ module.exports.jsFilesToInject = jsFilesToInject.map(function(path) {
 module.exports.templateFilesToInject = templateFilesToInject.map(function(path) {
   return 'assets/' + path;
 });
+module.exports.livereloadFilesToInject = module.exports.jsFilesToInject;

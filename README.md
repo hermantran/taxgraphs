@@ -9,9 +9,7 @@ npm install -g grunt-cli bower
 npm install
 bower install
 ```
-To view locally, run `grunt connect`, and then browse to `localhost:1337`.
-
-To set up background tasks for development, run `grunt`.
+To set up background tasks and view locally for development, run `grunt`, and then browse to `localhost:1337`.
 
 To prepare the app for distribution, run `grunt dist`.
 

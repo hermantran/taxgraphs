@@ -1,12 +1,17 @@
 module.exports = function(grunt) {
 
   grunt.config.set('connect', {
+    options: {
+      port: 1337,
+      hostname: 'localhost',
+      directory: './'
+    },
     dev: {
+      
+    },
+    dist: {
       options: {
-        port: 1337,
-        hostname: 'localhost',
-        keepalive: true,
-        directory: './'
+        keepalive: true
       }
     }
   });
