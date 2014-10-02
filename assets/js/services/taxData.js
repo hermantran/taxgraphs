@@ -1,7 +1,8 @@
 'use strict';
 
-module.exports = function($http, $q, TAX_API) {
-  var hasResolved = false;
+module.exports = function($http, $q, $filter, TAX_API) {
+  var hasResolved = false,
+      splitCamelCase = $filter('splitCamelCase');
 
   this.data = {};
   this.states = [];
@@ -59,18 +60,12 @@ module.exports = function($http, $q, TAX_API) {
     var taxes = [];
 
     for (var tax in this.data.federal) {
-      taxes.push({
-        type: 'Federal',
-        name: tax
-      });
+      taxes.push('Federal ' + splitCamelCase(tax));
     }
 
     for (tax in this.data.state[state]) {
       if (this.data.state[state].hasOwnProperty(tax)) {
-        taxes.push({
-          type: state,
-          name: tax
-        });
+        taxes.push(state + ' ' + splitCamelCase(tax));
       }
     }
 

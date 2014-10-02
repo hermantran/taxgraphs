@@ -35,6 +35,7 @@ module.exports = function($scope, taxData, taxService, graph) {
         xMax = $scope.settings.xMax,
         graphLines = $scope.data.graphLines,
         taxes = taxData.getTaxes(state),
+        taxNames = taxData.getTaxNames(state),
         tooltipFn,
         data,
         total,
@@ -55,26 +56,26 @@ module.exports = function($scope, taxData, taxService, graph) {
       if (graphLines.effective) {
         data = taxService.createEffectiveTaxData.apply(taxService, args);
         tooltipFn = $scope.createTaxRateFn(taxes[i], filingStatus, true);
-        graph.drawLine(data, tooltipFn, true);
+        graph.drawLine(data, taxNames[i], tooltipFn, true);
       }
 
       if (graphLines.marginal) {
         data = taxService.createMarginalTaxData.apply(taxService, args);
         tooltipFn = $scope.createTaxRateFn(taxes[i], filingStatus);
-        graph.drawLine(data, tooltipFn);
+        graph.drawLine(data, taxNames[i], tooltipFn);
       }
     }
 
     if (graphLines.totalMarginal) {
       data = taxService.createMarginalTaxData(total, xMax);
       tooltipFn = $scope.createTaxRateFn(total, filingStatus);
-      graph.drawLine(data, tooltipFn);
+      graph.drawLine(data, 'Total Marginal', tooltipFn);
     }
 
     if (graphLines.totalEffective) {
       data = taxService.createEffectiveTaxData(total, xMax);
       tooltipFn = $scope.createTaxRateFn(total, filingStatus, true);
-      graph.drawLine(data, tooltipFn, true);
+      graph.drawLine(data, 'Total Effective', tooltipFn, true);
     }
   };
 

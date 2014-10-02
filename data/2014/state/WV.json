@@ -1,0 +1,15 @@
+{
+  "income": {
+    "rate": [
+      [0, 0.03],
+      [10000, 0.04],
+      [25000, 0.045],
+      [40000, 0.06],
+      [60000, 0.065]
+    ],
+    "source": {
+      "name": "Tax Foundation - State Individual Income Tax Rates",
+      "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
+    }
+  }
+}

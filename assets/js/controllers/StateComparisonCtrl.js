@@ -37,10 +37,12 @@ module.exports = function($scope, taxData, taxService, graph) {
         graphLines = $scope.data.graphLines,
         tooltipFn,
         total = [],
+        stateNames = [],
         data;
 
     for (var state in $scope.data.states) {
       if ($scope.data.states[state]) {
+        stateNames.push(state);
         total.push(taxService.calcTotalMarginalTaxBrackets(
           taxData.getTaxes(state), xMax, filingStatus
         ));
@@ -54,13 +56,13 @@ module.exports = function($scope, taxData, taxService, graph) {
       if (graphLines.effective) {
         data = taxService.createEffectiveTaxData(total[i], xMax);
         tooltipFn = $scope.createTaxRateFn(total[i], filingStatus, true);
-        graph.drawLine(data, tooltipFn, true);
+        graph.drawLine(data, stateNames[i] + ' Effective', tooltipFn, true);
       }
 
       if (graphLines.marginal) {
         data = taxService.createMarginalTaxData(total[i], xMax);
         tooltipFn = $scope.createTaxRateFn(total[i], filingStatus);
-        graph.drawLine(data, tooltipFn);
+        graph.drawLine(data, stateNames[i] + ' Marginal', tooltipFn);
       }
     }
   };

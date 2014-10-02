@@ -1,6 +1,6 @@
 # TaxGraphs
 
-TaxGraphs is a web app that graphs marginal and effective tax rates against income for each US state. Graphs include a comparison between state taxes and a detailed breakdown of each state tax into its individual components. Data for the taxes is collected from each state's official website and checked with tax rates provided by the [Tax Foundation](http://taxfoundation.org/article/state-individual-income-tax-rates).
+TaxGraphs is a web app that graphs marginal and effective tax rates against income for each US state. Graphs include a comparison between state taxes and a detailed breakdown of each state tax into its individual components. Tax data is collected from each state's official website and the [Tax Foundation](http://taxfoundation.org/article/state-individual-income-tax-rates).
 
 Setup
 ---
@@ -8,7 +8,7 @@ Setup
 npm install -g grunt-cli
 npm install
 ```
-To set up background tasks and view locally for development, run `grunt`, and then browse to `localhost:1337`.
+To set up background tasks and view locally for development, run `grunt` and then browse to `localhost:1337`.
 
 To prepare the app for distribution, run `grunt dist`.
 

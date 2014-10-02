@@ -27,8 +27,6 @@ module.exports = function(d3) {
     yMin: 0,
     yMax: 50,
     animationTime: 2500,
-    width: 1100,
-    height: 700,
     colors: this.colors.multi
   };
 
@@ -39,15 +37,26 @@ module.exports = function(d3) {
   function noop() {}
 
   this.init = function(settings) {
+    var width, height;
+
     if (this.hasInited) {
       return;
     }
     
     this.settings = settings || this.settings;
 
-    this.m = [70, 70, 70, 70];
-    this.w = this.settings.width - this.m[1] - this.m[3]; 
-    this.h = this.settings.height - this.m[0] - this.m[2];
+    this.svg = d3.select('svg');
+
+    this.parent = this.svg.select(function() { 
+      return this.parentNode; 
+    });
+
+    width = parseInt(this.parent.style('width'), 10) - 10;
+    height = parseInt(this.parent.style('height'), 10) - 10;
+
+    this.m = [50, 300, 150, 100];
+    this.w = width - this.m[1] - this.m[3]; 
+    this.h = height - this.m[0] - this.m[2];
 
     this.tooltips = [];
     this.tooltipFns = [];
@@ -56,6 +65,7 @@ module.exports = function(d3) {
     this.lineClass = 'tax';
     this.hoverLineClass = 'hover';
     this.tooltipClass = 'tooltip';
+    this.labelClass = 'label';
     this.circleClass = 'point';
     this.xAxisClass = 'x axis';
     this.yAxisClass = 'y axis';
@@ -64,6 +74,7 @@ module.exports = function(d3) {
     this.lineSelector = createSelector(this.lineClass);
     this.hoverLineSelector = createSelector(this.hoverLineClass);
     this.tooltipSelector = createSelector(this.tooltipClass);
+    this.labelSelector = createSelector(this.labelClass);
     this.xAxisSelector = createSelector(this.xAxisClass);
     this.yAxisSelector = createSelector(this.yAxisClass);
 
@@ -73,7 +84,7 @@ module.exports = function(d3) {
   };
 
   this.createGraph = function() {
-    this.svg = d3.select('svg')
+    this.svg
       .attr('width', this.w + this.m[1] + this.m[3])
       .attr('height', this.h + this.m[0] + this.m[2]);
 
@@ -265,10 +276,11 @@ module.exports = function(d3) {
     this.hoverLabel = this.graph.append('svg:text')
       .attr('x', 0)
       .attr('y', this.h + 50)
+      .attr('class', this.labelClass)
       .classed(this.hideClass, true);
   };
         
-  this.drawLine = function(data, tooltipFn, isInterpolated) {
+  this.drawLine = function(data, label, tooltipFn, isInterpolated) {
     var line = d3.svg.line()
       .x(function(d) { return this.x(d.x); }.bind(this))
       .y(function(d) { return this.y(d.y); }.bind(this));
@@ -286,13 +298,8 @@ module.exports = function(d3) {
       this.animatePath(path);
     }
 
-    this.drawPoint();
-
-    if (tooltipFn) {
-      this.tooltipFns.push(tooltipFn);
-    } else {
-      this.tooltipFns.push(noop);
-    }
+    this.drawLabel(data, label);
+    this.drawPoint(tooltipFn);
   };
 
   this.animatePath = function(path) {
@@ -307,7 +314,22 @@ module.exports = function(d3) {
       .each('end', this.updateHoverLine.bind(this, this.w));
   };
 
-  this.drawPoint = function() {
+  this.drawLabel = function(data, text) {
+    var lastPoint = data[data.length - 1],
+        yScale = 100 * this.h / this.yMax,
+        yPos = this.h - (lastPoint.y * yScale);
+
+    var label = this.graph.append('g')
+      .attr('transform', 'translate(' + this.w + ',' + yPos + ')')
+      .attr('class', this.tooltipClass);
+      
+    label.append('text')
+      .attr('x', 60)
+      .attr('y', -5)
+      .text(text);
+  };
+
+  this.drawPoint = function(tooltipFn) {
     // http://bl.ocks.org/mbostock/3902569
     var tooltip = this.graph.append('g')
       .attr('class', this.tooltipClass)
@@ -324,6 +346,12 @@ module.exports = function(d3) {
 
     this.tooltips.push(tooltip);
     this.colorIndex = (this.colorIndex + 1) % this.settings.colors.length;
+
+    if (tooltipFn) {
+      this.tooltipFns.push(tooltipFn);
+    } else {
+      this.tooltipFns.push(noop);
+    }
   };
 
   this.resetTooltips = function() {

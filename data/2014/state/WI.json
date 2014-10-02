@@ -1,0 +1,22 @@
+{
+  "income": {
+    "rate": {
+      "single": [
+        [0, 0.04],
+        [10910, 0.0584],
+        [21820, 0.0627],
+        [240190, 0.0765]
+      ],
+      "married": [
+        [0, 0.04],
+        [14540, 0.0584],
+        [29090, 0.0627],
+        [320250, 0.0765]
+      ]
+    },
+    "source": {
+      "name": "Wisconsin Department of Revenue",
+      "url": "//www.revenue.wi.gov/taxpro/calctbls.html"
+    }
+  }
+}

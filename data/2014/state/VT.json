@@ -1,0 +1,24 @@
+{
+  "income": {
+    "rate": {
+      "single": [
+        [0, 0.0355],
+        [36900, 0.068],
+        [89350, 0.078],
+        [186350, 0.088],
+        [405100, 0.0895]
+      ],
+      "married": [
+        [0, 0.0355],
+        [73800, 0.068],
+        [148850, 0.078],
+        [226850, 0.088],
+        [405100, 0.0895]
+      ]
+    },
+    "source": {
+      "name": "Tax Foundation - State Individual Income Tax Rates",
+      "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
+    }
+  }
+}

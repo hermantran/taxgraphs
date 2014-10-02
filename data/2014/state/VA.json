@@ -1,0 +1,14 @@
+{
+  "income": {
+    "rate": [
+      [0, 0.02],
+      [3000, 0.03],
+      [5000, 0.05],
+      [17000, 0.0575]
+    ],
+    "source": {
+      "name": "Virginia Department of Taxation",
+      "url": "//www.tax.virginia.gov/site.cfm?alias=TaxCalculator"
+    }
+  }
+}
