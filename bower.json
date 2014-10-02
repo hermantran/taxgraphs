@@ -1,7 +1,0 @@
-{
-  "name": "taxgraphs",
-  "version": "0.0.6",
-  "dependencies": {
-    "pure": "~0.5.0"
-  }
-}

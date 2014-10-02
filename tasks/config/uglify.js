@@ -16,7 +16,7 @@ module.exports = function(grunt) {
   grunt.config.set('uglify', {
     js: {
       src: ['dist/js/main.js'],
-      dest: 'dist/js/main.js',
+      dest: 'dist/js/main.min.js',
       options: {
         banner: [
           '/*!',

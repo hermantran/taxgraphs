@@ -5,9 +5,8 @@ TaxGraphs is a web app that graphs marginal and effective tax rates against inco
 Setup
 ---
 ```
-npm install -g grunt-cli bower
+npm install -g grunt-cli
 npm install
-bower install
 ```
 To set up background tasks and view locally for development, run `grunt`, and then browse to `localhost:1337`.
 

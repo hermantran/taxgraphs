@@ -20,19 +20,18 @@ module.exports = function(grunt) {
       files: [
         {
           expand: true,
-          cwd: './assets/bower_components',
+          cwd: './node_modules/purecss',
           src: [
-            'pure/pure-min.css',
-            'pure/grids-responsive-min.css'
+            'pure-min.css',
+            'grids-responsive-min.css'
           ],
-          dest: 'dist/styles'
+          dest: 'dist/styles/pure'
         }, {
           expand: true,
           cwd: './assets',
           src: [
             '**/*.!(coffee|less|json|html)',
             '!js/**',
-            '!bower_components/**/*'
           ],
           dest: 'dist'
         }

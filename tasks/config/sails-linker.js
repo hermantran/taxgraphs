@@ -14,7 +14,7 @@
 module.exports = function(grunt) {
 
   grunt.config.set('sails-linker', {
-    js: {
+    jsDev: {
       options: {
         startTag: '<!--SCRIPTS-->',
         endTag: '<!--SCRIPTS END-->',
@@ -27,7 +27,20 @@ module.exports = function(grunt) {
       }
     },
 
-    styles: {
+    jsDist: {
+      options: {
+        startTag: '<!--SCRIPTS-->',
+        endTag: '<!--SCRIPTS END-->',
+        fileTmpl: '<script src="dist%s"></script>',
+        appRoot: 'dist'
+      },
+
+      files: {
+        '*.html': 'dist/js/main.min.js'
+      }
+    },
+
+    stylesDev: {
       options: {
         startTag: '<!--STYLES-->',
         endTag: '<!--STYLES END-->',
@@ -37,6 +50,19 @@ module.exports = function(grunt) {
 
       files: {
         '*.html': require('../pipeline').cssFilesToInject,
+      }
+    },
+
+    stylesDist: {
+      options: {
+        startTag: '<!--STYLES-->',
+        endTag: '<!--STYLES END-->',
+        fileTmpl: '<link rel="stylesheet" href="dist%s">',
+        appRoot: 'dist'
+      },
+
+      files: {
+        '*.html': 'dist/styles/main.min.css',
       }
     },
 
@@ -53,7 +79,7 @@ module.exports = function(grunt) {
       }
     },
 
-    livereload: {
+    livereloadDev: {
       options: {
         startTag: '<!--LIVERELOAD-->',
         endTag: '<!--LIVERELOAD END-->',
@@ -70,7 +96,7 @@ module.exports = function(grunt) {
       options: {
         startTag: '<!--LIVERELOAD-->',
         endTag: '<!--LIVERELOAD END-->',
-        fileTmpl: '<script src="//localhost:35729/livereload.js"></script>',
+        fileTmpl: '',
         appRoot: 'dist'
       },
 

@@ -1,6 +1,6 @@
 module.exports = function (grunt) {
   grunt.registerTask('compileAssets', [
-    'clean:dist',
+    'clean:dev',
     'copy:dev',
     'jst:dev',
     'less:dev',
