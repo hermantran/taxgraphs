@@ -1,6 +1,6 @@
 # TaxGraphs
 
-TaxGraphs is a web app that graphs marginal and effective tax rates against income for each US state. Graphs include a comparison between state taxes and a detailed breakdown of each state tax into its individual components. Tax data is collected from each state's official website and the [Tax Foundation](http://taxfoundation.org/article/state-individual-income-tax-rates).
+TaxGraphs is a web app that graphs marginal and effective tax rates against income for each US state. Graphs include a comparison between overall state tax rates and a detailed breakdown of each state's tax rate into its individual components. Tax data is collected from each state's official website and the [Tax Foundation](http://taxfoundation.org/article/state-individual-income-tax-rates).
 
 Setup
 ---

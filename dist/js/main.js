@@ -129,27 +129,29 @@ module.exports = function($scope, taxData, taxService, graph) {
       if (graphLines.effective) {
         data = taxService.createEffectiveTaxData.apply(taxService, args);
         tooltipFn = $scope.createTaxRateFn(taxes[i], filingStatus, true);
-        graph.drawLine(data, taxNames[i], tooltipFn, true);
+        graph.addLine(data, taxNames[i], tooltipFn, true);
       }
 
       if (graphLines.marginal) {
         data = taxService.createMarginalTaxData.apply(taxService, args);
         tooltipFn = $scope.createTaxRateFn(taxes[i], filingStatus);
-        graph.drawLine(data, taxNames[i], tooltipFn);
+        graph.addLine(data, taxNames[i], tooltipFn);
       }
     }
 
     if (graphLines.totalMarginal) {
       data = taxService.createMarginalTaxData(total, xMax);
       tooltipFn = $scope.createTaxRateFn(total, filingStatus);
-      graph.drawLine(data, 'Total Marginal', tooltipFn);
+      graph.addLine(data, 'Total Marginal', tooltipFn);
     }
 
     if (graphLines.totalEffective) {
       data = taxService.createEffectiveTaxData(total, xMax);
       tooltipFn = $scope.createTaxRateFn(total, filingStatus, true);
-      graph.drawLine(data, 'Total Effective', tooltipFn, true);
+      graph.addLine(data, 'Total Effective', tooltipFn, true);
     }
+
+    graph.drawLines();
   };
 
   $scope.init = function() {
@@ -220,15 +222,17 @@ module.exports = function($scope, taxData, taxService, graph) {
       if (graphLines.effective) {
         data = taxService.createEffectiveTaxData(total[i], xMax);
         tooltipFn = $scope.createTaxRateFn(total[i], filingStatus, true);
-        graph.drawLine(data, stateNames[i] + ' Effective', tooltipFn, true);
+        graph.addLine(data, stateNames[i] + ' Effective', tooltipFn, true);
       }
 
       if (graphLines.marginal) {
         data = taxService.createMarginalTaxData(total[i], xMax);
         tooltipFn = $scope.createTaxRateFn(total[i], filingStatus);
-        graph.drawLine(data, stateNames[i] + ' Marginal', tooltipFn);
+        graph.addLine(data, stateNames[i] + ' Marginal', tooltipFn);
       }
     }
+
+    graph.drawLines();
   };
 
   $scope.init = function() {
@@ -412,27 +416,31 @@ module.exports = function(d3) {
     width = parseInt(this.parent.style('width'), 10) - 10;
     height = parseInt(this.parent.style('height'), 10) - 10;
 
-    this.m = [50, 300, 150, 100];
+    this.m = [50, 230, 100, 100];
     this.w = width - this.m[1] - this.m[3]; 
     this.h = height - this.m[0] - this.m[2];
 
+    this.lines = [];
+    this.labelPositions = [];
     this.tooltips = [];
     this.tooltipFns = [];
     this.colorIndex = 0;
 
     this.lineClass = 'tax';
-    this.hoverLineClass = 'hover';
-    this.tooltipClass = 'tooltip';
     this.labelClass = 'label';
+    this.hoverLineClass = 'hover';
+    this.hoverLabelClass = 'hoverlabel';
+    this.tooltipClass = 'tooltip';
     this.circleClass = 'point';
     this.xAxisClass = 'x axis';
     this.yAxisClass = 'y axis';
     this.hideClass = 'hide';
 
     this.lineSelector = createSelector(this.lineClass);
-    this.hoverLineSelector = createSelector(this.hoverLineClass);
-    this.tooltipSelector = createSelector(this.tooltipClass);
     this.labelSelector = createSelector(this.labelClass);
+    this.hoverLineSelector = createSelector(this.hoverLineClass);
+    this.hoverLabelSelector = createSelector(this.hoverLabelClass);
+    this.tooltipSelector = createSelector(this.tooltipClass);
     this.xAxisSelector = createSelector(this.xAxisClass);
     this.yAxisSelector = createSelector(this.yAxisClass);
 
@@ -483,6 +491,15 @@ module.exports = function(d3) {
     this.updateTooltips(xPos);
   };
 
+  this.moveHoverLineToEnd = function() {
+    if (this.hoverLine.attr('x1') < 0) {
+      this.updateHoverLine(this.w);
+    }
+
+    this.graph.selectAll(this.labelSelector)
+      .classed(this.hideClass, false);
+  };
+
   this.updateHoverLabel = function(xPos) {
     var xChange = Math.abs(xPos - this.hoverLabel.attr('x')),
         xScale = this.xMax / this.w,
@@ -495,6 +512,7 @@ module.exports = function(d3) {
     if (xPos < 0) {
       this.hoverLabel.classed(this.hideClass, true)
         .attr('x', -1);
+
     } else {
       this.hoverLabel.classed(this.hideClass, false)
         .attr('x', xPos - 35)
@@ -506,7 +524,9 @@ module.exports = function(d3) {
     var xScale = this.xMax / this.w,
         yScale = this.yMax / this.h,
         xValue = Math.round(xPos * xScale),
-        prevYPos = 0,
+        prevYPos = this.h + 30,
+        textYPos,
+        textXPos,
         yValue,
         yPos,
         text;
@@ -518,8 +538,14 @@ module.exports = function(d3) {
     for (var i = 0, len = this.tooltips.length; i < len; i++) {
       if (xPos < 0) {
         this.tooltips[i].classed(this.hideClass, true);
-      }  else {
+      } else {
         this.tooltips[i].classed(this.hideClass, false);
+      }
+
+      textXPos = 5;
+      textYPos = -5;
+      if (this.w - xPos < 50) {
+        textXPos = -55;
       }
 
       yValue = this.tooltipFns[i](xValue);
@@ -529,20 +555,18 @@ module.exports = function(d3) {
       }
 
       yPos = this.h - (yValue / yScale * 100);
-
-      // Prevent text collision for two lines that are too close
-      // if (Math.abs(yPos - prevYPos) < 20) {
-      //   console.log(yPos, prevYPos);
-      //   yPos -= 20;
+      // if (prevYPos - yPos < 15) {
+      //   textYPos -= (15 - prevYPos + yPos);
       // }
-
       prevYPos = yPos;
       text = Math.round10(yValue * 100, -2) + '%';
 
       this.tooltips[i]
         .attr('transform', 'translate(' + xPos + ',' + yPos + ')')
         .select('text')
-        .text(text);
+        .text(text)
+        .attr('x', textXPos)
+        .attr('y', textYPos);
     }
   };
 
@@ -631,11 +655,32 @@ module.exports = function(d3) {
   };
 
   this.drawHoverLabel = function() {
-    this.hoverLabel = this.graph.append('svg:text')
+    this.hoverLabel = this.graph.append('g')
+      .append('text')
       .attr('x', 0)
       .attr('y', this.h + 50)
-      .attr('class', this.labelClass)
+      .attr('class', this.hoverLabelClass)
       .classed(this.hideClass, true);
+  };
+
+  this.addLine = function(data, label, tooltipFn, isInterpolated) {
+    this.lines.push([data, label, tooltipFn, isInterpolated]);
+  };
+
+  this.drawLines = function() {
+    // Sort from lowest to highest tax rate
+    this.lines.sort(function(a, b) {
+      var dataA = a[0],
+          yValueA = dataA[dataA.length - 1].y,
+          dataB = b[0],
+          yValueB = dataB[dataB.length - 1].y;
+
+      return yValueA - yValueB;
+    });
+
+    for (var i = 0, len = this.lines.length; i < len; i++) {
+      this.drawLine.apply(this, this.lines[i]);
+    }
   };
         
   this.drawLine = function(data, label, tooltipFn, isInterpolated) {
@@ -656,8 +701,8 @@ module.exports = function(d3) {
       this.animatePath(path);
     }
 
+    this.drawTooltip(tooltipFn);
     this.drawLabel(data, label);
-    this.drawPoint(tooltipFn);
   };
 
   this.animatePath = function(path) {
@@ -669,25 +714,10 @@ module.exports = function(d3) {
       .duration(this.settings.animationTime)
       .ease('linear')
       .attr('stroke-dashoffset', 0)
-      .each('end', this.updateHoverLine.bind(this, this.w));
+      .each('end', this.moveHoverLineToEnd.bind(this));
   };
 
-  this.drawLabel = function(data, text) {
-    var lastPoint = data[data.length - 1],
-        yScale = 100 * this.h / this.yMax,
-        yPos = this.h - (lastPoint.y * yScale);
-
-    var label = this.graph.append('g')
-      .attr('transform', 'translate(' + this.w + ',' + yPos + ')')
-      .attr('class', this.tooltipClass);
-      
-    label.append('text')
-      .attr('x', 60)
-      .attr('y', -5)
-      .text(text);
-  };
-
-  this.drawPoint = function(tooltipFn) {
+  this.drawTooltip = function(tooltipFn) {
     // http://bl.ocks.org/mbostock/3902569
     var tooltip = this.graph.append('g')
       .attr('class', this.tooltipClass)
@@ -696,7 +726,7 @@ module.exports = function(d3) {
     tooltip.append('circle')
       .attr('class', this.circleClass)
       .attr('fill', this.settings.colors[this.colorIndex])
-      .attr('r', 3);
+      .attr('r', 4);
 
     tooltip.append('text')
       .attr('x', 5)
@@ -712,16 +742,43 @@ module.exports = function(d3) {
     }
   };
 
+  this.drawLabel = function(data, text) {
+    var lastPoint = data[data.length - 1],
+        yScale = 100 * this.h / this.yMax,
+        yPos = this.h - (lastPoint.y * yScale),
+        len = this.labelPositions.length,
+        lastLabelPosition = this.labelPositions[len - 1] || this.h + 30;
+
+    if (lastLabelPosition - yPos < 15) {
+      yPos -= (15 - lastLabelPosition + yPos);
+    }
+
+    var label = this.graph.append('g')
+      .attr('transform', 'translate(' + this.w + ',' + yPos + ')')
+      .attr('class', this.labelClass)
+      .classed(this.hideClass, true);
+      
+    label.append('text')
+      .attr('x', 10)
+      .attr('y', -5)
+      .text(text);
+
+    this.labelPositions.push(yPos);
+  };
+
   this.resetTooltips = function() {
-    this.graph.selectAll(this.lineSelector).transition().duration(0);
     this.updateHoverLine(-1);
+    this.labelPositions.length = 0;
     this.tooltips.length = 0;
     this.tooltipFns.length = 0;
     this.colorIndex = 0;
+    this.graph.selectAll(this.labelSelector).remove();
   };
 
   this.clear = function() {
     this.resetTooltips();
+    this.lines.length = 0;
+    this.graph.selectAll(this.lineSelector).transition().duration(0);
     this.graph.selectAll(this.tooltipSelector).remove();
     this.graph.selectAll(this.lineSelector).remove();
   };

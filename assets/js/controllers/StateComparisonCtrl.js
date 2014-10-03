@@ -56,15 +56,17 @@ module.exports = function($scope, taxData, taxService, graph) {
       if (graphLines.effective) {
         data = taxService.createEffectiveTaxData(total[i], xMax);
         tooltipFn = $scope.createTaxRateFn(total[i], filingStatus, true);
-        graph.drawLine(data, stateNames[i] + ' Effective', tooltipFn, true);
+        graph.addLine(data, stateNames[i] + ' Effective', tooltipFn, true);
       }
 
       if (graphLines.marginal) {
         data = taxService.createMarginalTaxData(total[i], xMax);
         tooltipFn = $scope.createTaxRateFn(total[i], filingStatus);
-        graph.drawLine(data, stateNames[i] + ' Marginal', tooltipFn);
+        graph.addLine(data, stateNames[i] + ' Marginal', tooltipFn);
       }
     }
+
+    graph.drawLines();
   };
 
   $scope.init = function() {
