@@ -54,7 +54,7 @@ module.exports = function(d3) {
     width = parseInt(this.parent.style('width'), 10) - 10;
     height = parseInt(this.parent.style('height'), 10) - 10;
 
-    this.m = [50, 230, 100, 100];
+    this.m = [80, 230, 80, 100];
     this.w = width - this.m[1] - this.m[3]; 
     this.h = height - this.m[0] - this.m[2];
 
@@ -167,7 +167,10 @@ module.exports = function(d3) {
         textXPos,
         yValue,
         yPos,
-        text;
+        text,
+        textWidth,
+        textHeight,
+        d;
 
     if (xPos > this.w) {
       return;
@@ -180,11 +183,8 @@ module.exports = function(d3) {
         this.tooltips[i].classed(this.hideClass, false);
       }
 
-      textXPos = 5;
-      textYPos = -5;
-      if (this.w - xPos < 50) {
-        textXPos = -55;
-      }
+      textXPos = 10;
+      textYPos = -15;
 
       yValue = this.tooltipFns[i](xValue);
 
@@ -205,6 +205,25 @@ module.exports = function(d3) {
         .text(text)
         .attr('x', textXPos)
         .attr('y', textYPos);
+
+      textWidth = this.tooltips[i].select('text').style('width');
+      textWidth = parseInt(textWidth, 10) + 10;
+      textHeight = this.tooltips[i].select('text').style('height');
+      textHeight = parseInt(textHeight, 10) + 10;
+
+      d = [
+        'M5,0',
+        'L' + (((5 + textWidth) / 2) - 4) + ',-10',
+        'L5,-10',
+        'L5,-' + textHeight,
+        'L' + (5 + textWidth) + ',-' + textHeight,
+        'L' + (5 + textWidth) + ',-10',
+        'L' + (((5 + textWidth) / 2) + 4) + ',-10',
+        'L5,0'
+      ].join('');
+
+      this.tooltips[i].select('path')
+        .attr('d', d);
     }
   };
 
@@ -302,26 +321,46 @@ module.exports = function(d3) {
   };
 
   this.addLine = function(data, label, tooltipFn, isInterpolated) {
-    this.lines.push([data, label, tooltipFn, isInterpolated]);
+    if (data[0].y === 0 && data[data.length - 1].y === 0) {
+      return;
+    }
+    
+    this.lines.push({
+      data: data,
+      label: label,
+      tooltipFn: tooltipFn,
+      isInterpolated: isInterpolated
+    });
   };
 
   this.drawLines = function() {
+    var len = this.lines.length,
+        i;
+
     // Sort from lowest to highest tax rate
     this.lines.sort(function(a, b) {
-      var dataA = a[0],
-          yValueA = dataA[dataA.length - 1].y,
-          dataB = b[0],
-          yValueB = dataB[dataB.length - 1].y;
+      var yValueA = a.data[a.data.length - 1].y,
+          yValueB = b.data[b.data.length - 1].y;
 
       return yValueA - yValueB;
     });
 
-    for (var i = 0, len = this.lines.length; i < len; i++) {
-      this.drawLine.apply(this, this.lines[i]);
+    for (i = 0; i < len; i++) {
+      this.drawLine(this.lines[i].data, this.lines[i].isInterpolated);
+      this.changeColor();
+    }
+
+    this.colorIndex = 0;
+
+    // Make sure tooltips are rendered on top of line
+    for (i = 0; i < len; i++) {
+      this.drawTooltip(this.lines[i].tooltipFn);
+      this.drawLabel(this.lines[i].data, this.lines[i].label);
+      this.changeColor();
     }
   };
         
-  this.drawLine = function(data, label, tooltipFn, isInterpolated) {
+  this.drawLine = function(data, isInterpolated) {
     var line = d3.svg.line()
       .x(function(d) { return this.x(d.x); }.bind(this))
       .y(function(d) { return this.y(d.y); }.bind(this));
@@ -338,9 +377,6 @@ module.exports = function(d3) {
     if (this.settings.animationTime > 100) {
       this.animatePath(path);
     }
-
-    this.drawTooltip(tooltipFn);
-    this.drawLabel(data, label);
   };
 
   this.animatePath = function(path) {
@@ -366,12 +402,13 @@ module.exports = function(d3) {
       .attr('fill', this.settings.colors[this.colorIndex])
       .attr('r', 4);
 
+    tooltip.append('path');
+
     tooltip.append('text')
       .attr('x', 5)
       .attr('y', -5);
 
     this.tooltips.push(tooltip);
-    this.colorIndex = (this.colorIndex + 1) % this.settings.colors.length;
 
     if (tooltipFn) {
       this.tooltipFns.push(tooltipFn);
@@ -402,6 +439,10 @@ module.exports = function(d3) {
       .text(text);
 
     this.labelPositions.push(yPos);
+  };
+
+  this.changeColor = function() {
+    this.colorIndex = (this.colorIndex + 1) % this.settings.colors.length;
   };
 
   this.resetTooltips = function() {
