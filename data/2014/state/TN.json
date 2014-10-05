@@ -1,9 +1,11 @@
 {
-  "income": {
-    "rate": 0,
-    "source": {
-      "name": "Tennessee - Department of Revenue",
-      "url": "//www.tn.gov/revenue/tntaxes/indinc.shtml"
+  "taxes": {
+    "income": {
+      "rate": 0,
+      "source": {
+        "name": "Tennessee - Department of Revenue",
+        "url": "//www.tn.gov/revenue/tntaxes/indinc.shtml"
+      }
     }
   }
 }

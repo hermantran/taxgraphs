@@ -1,16 +1,18 @@
 {
-  "income": {
-    "rate": 0.0307,
-    "source": {
-      "name": "REV-414I -- 2014 Individuals Worksheet for PA Estimated Tax",
-      "url": "//www.revenue.pa.gov/FormsandPublications/FormsforIndividuals/Documents/Personal%20Income%20Tax/2014/2014_rev-414i.pdf"
-    }
-  },
-  "stateUnemploymentInsurance": {
-    "rate": 0.0007,
-    "source": {
-      "name": "Pennsylvania Department of Labor & Industry",
-      "url": "//www.portal.state.pa.us/portal/server.pt/community/filing_information/14667/calculating_contributions/599704"
+  "taxes": {
+    "income": {
+      "rate": 0.0307,
+      "source": {
+        "name": "REV-414I -- 2014 Individuals Worksheet for PA Estimated Tax",
+        "url": "//www.revenue.pa.gov/FormsandPublications/FormsforIndividuals/Documents/Personal%20Income%20Tax/2014/2014_rev-414i.pdf"
+      }
+    },
+    "stateUnemploymentInsurance": {
+      "rate": 0.0007,
+      "source": {
+        "name": "Pennsylvania Department of Labor & Industry",
+        "url": "//www.portal.state.pa.us/portal/server.pt/community/filing_information/14667/calculating_contributions/599704"
+      }
     }
   }
 }

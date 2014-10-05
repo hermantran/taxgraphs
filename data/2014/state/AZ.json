@@ -1,24 +1,26 @@
 {
-  "income": {
-    "rate": {
-      "single": [
-        [0, 0.0259],
-        [10000, 0.0288],
-        [25000, 0.0336],
-        [50000, 0.0424],
-        [150000, 0.0454]
-      ],
-      "married": [
-        [0, 0.0259],
-        [20000, 0.0288],
-        [50000, 0.0336],
-        [100000, 0.0424],
-        [300000, 0.0454]
-      ]
-    },
-    "source": {
-      "name": "Tax Foundation - State Individual Income Tax Rates",
-      "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
+  "taxes": {
+    "income": {
+      "rate": {
+        "single": [
+          [0, 0.0259],
+          [10000, 0.0288],
+          [25000, 0.0336],
+          [50000, 0.0424],
+          [150000, 0.0454]
+        ],
+        "married": [
+          [0, 0.0259],
+          [20000, 0.0288],
+          [50000, 0.0336],
+          [100000, 0.0424],
+          [300000, 0.0454]
+        ]
+      },
+      "source": {
+        "name": "Tax Foundation - State Individual Income Tax Rates",
+        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
+      }
     }
   }
 }

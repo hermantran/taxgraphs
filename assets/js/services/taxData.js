@@ -35,7 +35,7 @@ module.exports = function($http, $q, $filter, TAX_API) {
       this.states.push(state);
     }
 
-    for (var filingStatus in data.federal.income.rate) {
+    for (var filingStatus in data.federal.taxes.income.rate) {
       this.filingStatuses.push(filingStatus);
     }
   };
@@ -43,13 +43,13 @@ module.exports = function($http, $q, $filter, TAX_API) {
   this.getTaxes = function(state) {
     var taxes = [];
 
-    for (var tax in this.data.federal) {
-      taxes.push(this.data.federal[tax].rate);
+    for (var tax in this.data.federal.taxes) {
+      taxes.push(this.data.federal.taxes[tax].rate);
     }
 
-    for (tax in this.data.state[state]) {
-      if (this.data.state[state].hasOwnProperty(tax)) {
-        taxes.push(this.data.state[state][tax].rate);
+    for (tax in this.data.state[state].taxes) {
+      if (this.data.state[state].taxes.hasOwnProperty(tax)) {
+        taxes.push(this.data.state[state].taxes[tax].rate);
       }
     }
 
@@ -59,12 +59,12 @@ module.exports = function($http, $q, $filter, TAX_API) {
   this.getTaxNames = function(state) {
     var taxes = [];
 
-    for (var tax in this.data.federal) {
+    for (var tax in this.data.federal.taxes) {
       taxes.push('Federal ' + splitCamelCase(tax));
     }
 
-    for (tax in this.data.state[state]) {
-      if (this.data.state[state].hasOwnProperty(tax)) {
+    for (tax in this.data.state[state].taxes) {
+      if (this.data.state[state].taxes.hasOwnProperty(tax)) {
         taxes.push(state + ' ' + splitCamelCase(tax));
       }
     }

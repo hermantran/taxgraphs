@@ -1,9 +1,11 @@
 {
-  "income": {
-    "rate": 0,
-    "source": {
-      "name": "Wyoming Department of Revenue",
-      "url": "//revenue.wyo.gov"
+  "taxes": {
+    "income": {
+      "rate": 0,
+      "source": {
+        "name": "Wyoming Department of Revenue",
+        "url": "//revenue.wyo.gov"
+      }
     }
   }
 }

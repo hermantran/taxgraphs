@@ -1,20 +1,22 @@
 {
-  "income": {
-    "rate": {
-      "single": [
-        [0, 0.02],
-        [500, 0.04],
-        [3000, 0.05]
-      ],
-      "married": [
-        [0, 0.02],
-        [1000, 0.04],
-        [6000, 0.05]
-      ]
-    },
-    "source": {
-      "name": "Alabama Department of Revenue - Form 40ES",
-      "url": "//revenue.alabama.gov/incometax/2013_forms/14f40esblk.pdf"
+  "taxes": {
+    "income": {
+      "rate": {
+        "single": [
+          [0, 0.02],
+          [500, 0.04],
+          [3000, 0.05]
+        ],
+        "married": [
+          [0, 0.02],
+          [1000, 0.04],
+          [6000, 0.05]
+        ]
+      },
+      "source": {
+        "name": "Alabama Department of Revenue - Form 40ES",
+        "url": "//revenue.alabama.gov/incometax/2013_forms/14f40esblk.pdf"
+      }
     }
   }
 }

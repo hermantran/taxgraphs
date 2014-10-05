@@ -1,4 +1,4 @@
-<fieldset>
+<div class="section">
   <h3>Data</h3>
 
   <div>
@@ -40,9 +40,7 @@
       </div>
     </div>
   </div>
-</fieldset>
 
-<fieldset>
   <h3>Settings</h3>
 
   <div>
@@ -64,9 +62,9 @@
     <label for="colors">Color Scheme:</label>
     <select id="colors" name="colors" ng-model="settings.colors" ng-options="(key | capitalize) for (key, val) in colors"></select>
   </div>
-</fieldset>
 
-<div class="text-center">
-  <button class="pure-button pure-button-primary" ng-click="drawGraph()">Graph</button>
-  <button class="pure-button" ng-click="clearGraph()">Clear</button>
+  <div class="text-center">
+    <button class="pure-button pure-button-primary" ng-click="drawGraph()">Graph</button>
+    <button class="pure-button" ng-click="clearGraph()">Clear</button>
+  </div>
 </div>

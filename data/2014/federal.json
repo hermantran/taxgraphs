@@ -1,47 +1,66 @@
 {
-  "medicare": {
-    "rate": 0.0145,
-    "source": {
-      "name": "IRS Publication 15, Employer's Tax Guide - Page 1",
-      "url": "//www.irs.gov/pub/irs-pdf/p15.pdf"
-    }
-  },
-  "socialSecurity": {
-    "rate": [
-      [0, 0.062],
-      [117000, 0]
-    ],
-    "source": {
-      "name": "IRS Publication 15, Employer's Tax Guide - Page 1",
-      "url": "//www.irs.gov/pub/irs-pdf/p15.pdf"
-    }
-  },
-  "income": {
-    "rate": {
-      "single": [
-        [0, 0],
-        [2250, 0.1],
-        [11325, 0.15],
-        [39150, 0.25],
-        [91600, 0.28],
-        [188600, 0.33],
-        [407350, 0.35],
-        [409000, 0.396]
-      ],
-      "married": [
-        [0, 0],
-        [8450, 0.1],
-        [26600, 0.15],
-        [82250, 0.25],
-        [157300, 0.28],
-        [235300, 0.33],
-        [413550, 0.35],
-        [466050, 0.396]
-      ]
+  "taxes": {
+    "medicare": {
+      "rate": 0.0145,
+      "source": {
+        "name": "IRS Publication 15, Employer's Tax Guide - Page 1",
+        "url": "//www.irs.gov/pub/irs-pdf/p15.pdf"
+      }
     },
-    "source": {
-      "name": "IRS Publication 15, Employer's Tax Guide - Table 7",
-      "url": "//www.irs.gov/pub/irs-pdf/p15.pdf"
+    "socialSecurity": {
+      "rate": [
+        [0, 0.062],
+        [117000, 0]
+      ],
+      "source": {
+        "name": "IRS Publication 15, Employer's Tax Guide - Page 1",
+        "url": "//www.irs.gov/pub/irs-pdf/p15.pdf"
+      }
+    },
+    "income": {
+      "rate": {
+        "single": [
+          [0, 0.1],
+          [9075, 0.15],
+          [36900, 0.25],
+          [89350, 0.28],
+          [186350, 0.33],
+          [405100, 0.35],
+          [406750, 0.396]
+        ],
+        "married": [
+          [0, 0.1],
+          [18150, 0.15],
+          [73800, 0.25],
+          [148850, 0.28],
+          [226850, 0.33],
+          [405100, 0.35],
+          [457600, 0.396]
+        ]
+      },
+      "source": {
+        "name": "Tax Foundation - The 2014 Tax Brackets",
+        "url": "//taxfoundation.org/article/2014-tax-brackets"
+      }
+    }
+  },
+  "deductions": {
+    "standardDeduction": {
+      "amount": {
+        "single": 6200,
+        "married": 12400
+      },
+      "source": {
+        "name": "Tax Foundation - The 2014 Tax Brackets",
+        "url": "//taxfoundation.org/article/2014-tax-brackets"
+      }
+    },
+    "personalExemption": {
+      "amount": 3950,
+      "source": {
+        "name": "Tax Foundation - The 2014 Tax Brackets",
+        "url": "//taxfoundation.org/article/2014-tax-brackets"
+      }
     }
   }
 }

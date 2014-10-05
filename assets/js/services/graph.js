@@ -1,7 +1,11 @@
 'use strict';
 
 module.exports = function(d3) {
-  this.hasInited = false;
+  function createSelector(string) {
+    return '.' + string.split(' ').join('.');
+  }
+
+  function noop() {}
 
   this.colors = {
     blue: [
@@ -21,6 +25,24 @@ module.exports = function(d3) {
     ]
   };
 
+  this.classes = {
+    line: 'tax',
+    label: 'label',
+    hoverLine: 'hover',
+    hoverLabel: 'hoverlabel',
+    tooltip: 'tooltip',
+    circle: 'point',
+    xAxis: 'x axis',
+    yAxis: 'y axis',
+    hide: 'hide'
+  };
+
+  this.selectors = {};
+
+  for (var prop in this.classes) {
+    this.selectors[prop] = createSelector(this.classes[prop]);
+  }
+
   this.settings = {
     xMin: 0,
     xMax: 250000,
@@ -30,14 +52,8 @@ module.exports = function(d3) {
     colors: this.colors.multi
   };
 
-  function createSelector(string) {
-    return '.' + string.split(' ').join('.');
-  }
-
-  function noop() {}
-
   this.init = function(settings) {
-    var width, height;
+    var parent, width, height;
 
     if (this.hasInited) {
       return;
@@ -47,12 +63,17 @@ module.exports = function(d3) {
 
     this.svg = d3.select('svg');
 
-    this.parent = this.svg.select(function() { 
+    parent = this.svg.select(function() { 
       return this.parentNode; 
     });
 
-    width = parseInt(this.parent.style('width'), 10) - 10;
-    height = parseInt(this.parent.style('height'), 10) - 10;
+    width = parseInt(parent.style('width'), 10) - 10;
+    height = parseInt(parent.style('height'), 10) - 10;
+
+    if (width <= 768) {
+      width = window.innerWidth;
+      height = window.innerHeight;
+    }
 
     this.m = [80, 230, 80, 100];
     this.w = width - this.m[1] - this.m[3]; 
@@ -63,24 +84,6 @@ module.exports = function(d3) {
     this.tooltips = [];
     this.tooltipFns = [];
     this.colorIndex = 0;
-
-    this.lineClass = 'tax';
-    this.labelClass = 'label';
-    this.hoverLineClass = 'hover';
-    this.hoverLabelClass = 'hoverlabel';
-    this.tooltipClass = 'tooltip';
-    this.circleClass = 'point';
-    this.xAxisClass = 'x axis';
-    this.yAxisClass = 'y axis';
-    this.hideClass = 'hide';
-
-    this.lineSelector = createSelector(this.lineClass);
-    this.labelSelector = createSelector(this.labelClass);
-    this.hoverLineSelector = createSelector(this.hoverLineClass);
-    this.hoverLabelSelector = createSelector(this.hoverLabelClass);
-    this.tooltipSelector = createSelector(this.tooltipClass);
-    this.xAxisSelector = createSelector(this.xAxisClass);
-    this.yAxisSelector = createSelector(this.yAxisClass);
 
     this.createGraph();
     this.setupEventHandlers();
@@ -119,10 +122,10 @@ module.exports = function(d3) {
     }
 
     if (xPos < 0) {
-      this.hoverLine.classed(this.hideClass, true)
+      this.hoverLine.classed(this.classes.hide, true)
         .attr('x1', -1).attr('x2', -1);
     } else {
-      this.hoverLine.classed(this.hideClass, false)
+      this.hoverLine.classed(this.classes.hide, false)
         .attr('x1', xPos).attr('x2', xPos);
     }
 
@@ -134,8 +137,8 @@ module.exports = function(d3) {
       this.updateHoverLine(this.w);
     }
 
-    this.graph.selectAll(this.labelSelector)
-      .classed(this.hideClass, false);
+    this.graph.selectAll(this.selectors.label)
+      .classed(this.classes.hide, false);
   };
 
   this.updateHoverLabel = function(xPos) {
@@ -148,11 +151,11 @@ module.exports = function(d3) {
     }
 
     if (xPos < 0) {
-      this.hoverLabel.classed(this.hideClass, true)
+      this.hoverLabel.classed(this.classes.hide, true)
         .attr('x', -1);
 
     } else {
-      this.hoverLabel.classed(this.hideClass, false)
+      this.hoverLabel.classed(this.classes.hide, false)
         .attr('x', xPos - 35)
         .text(d3.format('$0,000')(xValue));
     }
@@ -167,6 +170,7 @@ module.exports = function(d3) {
         textXPos,
         yValue,
         yPos,
+        tooltipText,
         text,
         textWidth,
         textHeight,
@@ -178,9 +182,9 @@ module.exports = function(d3) {
 
     for (var i = 0, len = this.tooltips.length; i < len; i++) {
       if (xPos < 0) {
-        this.tooltips[i].classed(this.hideClass, true);
+        this.tooltips[i].classed(this.classes.hide, true);
       } else {
-        this.tooltips[i].classed(this.hideClass, false);
+        this.tooltips[i].classed(this.classes.hide, false);
       }
 
       textXPos = 10;
@@ -199,32 +203,42 @@ module.exports = function(d3) {
       prevYPos = yPos;
       text = Math.round10(yValue * 100, -2) + '%';
 
-      this.tooltips[i]
+      tooltipText = this.tooltips[i]
         .attr('transform', 'translate(' + xPos + ',' + yPos + ')')
-        .select('text')
-        .text(text)
+        .select('text');
+
+      tooltipText.text(text)
         .attr('x', textXPos)
         .attr('y', textYPos);
 
-      textWidth = this.tooltips[i].select('text').style('width');
+      textWidth = tooltipText.style('width');
       textWidth = parseInt(textWidth, 10) + 10;
-      textHeight = this.tooltips[i].select('text').style('height');
+      textHeight = tooltipText.style('height');
       textHeight = parseInt(textHeight, 10) + 10;
-
-      d = [
-        'M5,0',
-        'L' + (((5 + textWidth) / 2) - 4) + ',-10',
-        'L5,-10',
-        'L5,-' + textHeight,
-        'L' + (5 + textWidth) + ',-' + textHeight,
-        'L' + (5 + textWidth) + ',-10',
-        'L' + (((5 + textWidth) / 2) + 4) + ',-10',
-        'L5,0'
-      ].join('');
+      d = this.createTooltipPath(textWidth, textHeight);
 
       this.tooltips[i].select('path')
         .attr('d', d);
     }
+  };
+
+  this.createTooltipPath = function(textWidth, textHeight) {
+    var yOffset = -10,
+        xOffset = 5,
+        openingWidth = 4;
+
+    var d = [
+      'M' + xOffset + ',0',
+      'L' + (((xOffset + textWidth) / 2) - openingWidth) + ',' + yOffset,
+      'L' + xOffset + ',' + yOffset,
+      'L' + xOffset + ',-' + textHeight,
+      'L' + (xOffset + textWidth) + ',-' + textHeight,
+      'L' + (xOffset + textWidth) + ',' + yOffset,
+      'L' + (((xOffset + textWidth) / 2) + openingWidth) + ',' + yOffset,
+      'L' + xOffset + ',0'
+    ].join('');
+
+    return d;
   };
 
   this.updateXAxis = function(xMax) {
@@ -246,10 +260,10 @@ module.exports = function(d3) {
       .tickPadding(10)
       .orient('bottom');
 
-    this.graph.selectAll(this.xAxisSelector).remove();
+    this.graph.selectAll(this.selectors.xAxis).remove();
 
     this.graph.append('svg:g')
-      .attr('class', this.xAxisClass)
+      .attr('class', this.classes.xAxis)
       .attr('transform', 'translate(0,' + this.h + ')')
       .call(this.xAxis);
   };
@@ -273,10 +287,10 @@ module.exports = function(d3) {
       .tickPadding(7)
       .orient('left');
 
-    this.graph.selectAll(this.yAxisSelector).remove();
+    this.graph.selectAll(this.selectors.yAxis).remove();
 
     this.graph.append('svg:g')
-      .attr('class', this.yAxisClass)
+      .attr('class', this.classes.yAxis)
       .attr('transform', 'translate(0,0)')
       .call(this.yAxis)
       .selectAll('.tick')
@@ -307,8 +321,8 @@ module.exports = function(d3) {
     this.hoverLine = this.graph.append('svg:line')
       .attr('x1', 0).attr('x2', 0)
       .attr('y1', 0).attr('y2', this.h)
-      .attr('class', this.hoverLineClass)
-      .classed(this.hideClass, true);
+      .attr('class', this.classes.hoverLine)
+      .classed(this.classes.hide, true);
   };
 
   this.drawHoverLabel = function() {
@@ -316,8 +330,8 @@ module.exports = function(d3) {
       .append('text')
       .attr('x', 0)
       .attr('y', this.h + 50)
-      .attr('class', this.hoverLabelClass)
-      .classed(this.hideClass, true);
+      .attr('class', this.classes.hoverLabel)
+      .classed(this.classes.hide, true);
   };
 
   this.addLine = function(data, label, tooltipFn, isInterpolated) {
@@ -370,7 +384,7 @@ module.exports = function(d3) {
     }
 
     var path = this.graph.append('svg:path')
-      .attr('class', this.lineClass)
+      .attr('class', this.classes.line)
       .attr('stroke', this.settings.colors[this.colorIndex])
       .attr('d', line(data));
 
@@ -394,11 +408,11 @@ module.exports = function(d3) {
   this.drawTooltip = function(tooltipFn) {
     // http://bl.ocks.org/mbostock/3902569
     var tooltip = this.graph.append('g')
-      .attr('class', this.tooltipClass)
-      .classed(this.hideClass, true);
+      .attr('class', this.classes.tooltip)
+      .classed(this.classes.hide, true);
 
     tooltip.append('circle')
-      .attr('class', this.circleClass)
+      .attr('class', this.classes.circle)
       .attr('fill', this.settings.colors[this.colorIndex])
       .attr('r', 4);
 
@@ -430,8 +444,8 @@ module.exports = function(d3) {
 
     var label = this.graph.append('g')
       .attr('transform', 'translate(' + this.w + ',' + yPos + ')')
-      .attr('class', this.labelClass)
-      .classed(this.hideClass, true);
+      .attr('class', this.classes.label)
+      .classed(this.classes.hide, true);
       
     label.append('text')
       .attr('x', 10)
@@ -451,14 +465,14 @@ module.exports = function(d3) {
     this.tooltips.length = 0;
     this.tooltipFns.length = 0;
     this.colorIndex = 0;
-    this.graph.selectAll(this.labelSelector).remove();
+    this.graph.selectAll(this.selectors.label).remove();
   };
 
   this.clear = function() {
     this.resetTooltips();
     this.lines.length = 0;
-    this.graph.selectAll(this.lineSelector).transition().duration(0);
-    this.graph.selectAll(this.tooltipSelector).remove();
-    this.graph.selectAll(this.lineSelector).remove();
+    this.graph.selectAll(this.selectors.line).transition().duration(0);
+    this.graph.selectAll(this.selectors.tooltip).remove();
+    this.graph.selectAll(this.selectors.line).remove();
   };
 };

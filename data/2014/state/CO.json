@@ -1,9 +1,11 @@
 {
-  "income": {
-    "rate": 0.0463,
-    "source": {
-      "name": "Colorado - Department of Revenue",
-      "url": "//www.colorado.gov/cs/Satellite/Revenue/REVX/1176842266485"
+  "taxes": {
+    "income": {
+      "rate": 0.0463,
+      "source": {
+        "name": "Colorado - Department of Revenue",
+        "url": "//www.colorado.gov/cs/Satellite/Revenue/REVX/1176842266485"
+      }
     }
   }
 }
