@@ -1,0 +1,19 @@
+{
+  "taxes": {
+    "income": {
+      "rate": [
+        [0, 0],
+        [2000, 0.022],
+        [5000, 0.039],
+        [10000, 0.048],
+        [20000, 0.052],
+        [25000, 0.0555],
+        [60000, 0.066]
+      ],
+      "source": {
+        "name": "State of Delaware - Tax Table Calculation",
+        "url": "//revenue.delaware.gov/services/Developer/cyr_pers/sd_pitcomp.shtml"
+      }
+    }
+  }
+}

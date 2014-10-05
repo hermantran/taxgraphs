@@ -1,0 +1,11 @@
+{
+  "taxes": {
+    "income": {
+      "rate": 0,
+      "source": {
+        "name": "South Dakota Department of Revenue",
+        "url": "//dor.sd.gov/Taxes/Business_Taxes/"
+      }
+    }
+  }
+}

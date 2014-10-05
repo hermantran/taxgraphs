@@ -1,0 +1,59 @@
+{
+  "taxes": {
+    "income": {
+      "rate": {
+        "single": [
+          [0, 0.014],
+          [20000, 0.0175],
+          [35000, 0.035],
+          [40000, 0.05525],
+          [75000, 0.0637],
+          [500000, 0.0897]
+        ],
+        "married": [
+          [0, 0.014],
+          [20000, 0.0175],
+          [50000, 0.0245],
+          [70000, 0.035],
+          [80000, 0.05525],
+          [150000, 0.0637],
+          [500000, 0.0897]
+        ]
+      },
+      "source": {
+        "name": "Tax Foundation - State Individual Income Tax Rates",
+        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
+      }
+    },
+    "unemploymentInsurance": {
+      "rate": [
+        [0, 0.003825],
+        [31500, 0]
+      ],
+      "source": {
+        "name": "State of New Jersey - Department of Labor and Workforce Development",
+        "url": "//lwd.dol.state.nj.us/labor/ea/rates/ea2014.html"
+      }
+    },
+    "disabilityInsurance": {
+      "rate": [
+        [0, 0.0038],
+        [31500, 0]
+      ],
+      "source": {
+        "name": "State of New Jersey - Department of Labor and Workforce Development",
+        "url": "//lwd.dol.state.nj.us/labor/ea/rates/ea2014.html"
+      }
+    },
+    "familyLeaveInsurance": {
+      "rate": [
+        [0, 0.001],
+        [31500, 0]
+      ],
+      "source": {
+        "name": "State of New Jersey - Department of Labor and Workforce Development",
+        "url": "//lwd.dol.state.nj.us/labor/ea/rates/ea2014.html"
+      }
+    }
+  }
+}
