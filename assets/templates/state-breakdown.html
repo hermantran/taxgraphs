@@ -44,13 +44,8 @@
   <h3>Settings</h3>
 
   <div>
-    <label for="y-max">Y Axis Max (%):</label>
-    <input type="text" id="y-max" name="y-max" ng-model="settings.yMax">
-  </div>
-
-  <div>
     <label for="x-max">X Axis Max ($):</label>
-    <input type="text" id="x-max" name="x-max" ng-model="settings.xMax">
+    <input type="text" id="x-max" name="x-max" ng-model="settings.xMax" required ng-pattern="/^\d+$/">
   </div>
 
   <div>

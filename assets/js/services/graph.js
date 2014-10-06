@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(d3) {
+module.exports = function(d3, _) {
   function createSelector(string) {
     return '.' + string.split(' ').join('.');
   }
@@ -47,10 +47,12 @@ module.exports = function(d3) {
     xMin: 0,
     xMax: 250000,
     yMin: 0,
-    yMax: 50,
+    yMax: 60,
     animationTime: 2500,
     colors: this.colors.multi
   };
+
+  this.defaults = _.cloneDeep(this.settings);
 
   this.init = function(settings) {
     var parent, width, height;
@@ -99,8 +101,8 @@ module.exports = function(d3) {
       .append('svg:g')
       .attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
 
-    this.updateXAxis(this.settings.xMax);
-    this.updateYAxis(this.settings.yMax);
+    this.updateXAxis();
+    this.updateYAxis();
     this.drawHoverLine();
     this.drawHoverLabel();
   };
@@ -143,7 +145,7 @@ module.exports = function(d3) {
 
   this.updateHoverLabel = function(xPos) {
     var xChange = Math.abs(xPos - this.hoverLabel.attr('x')),
-        xScale = this.xMax / this.w,
+        xScale = this.settings.xMax / this.w,
         xValue = Math.round(xPos * xScale);
 
     if (xChange < 0.5 || xPos > this.w) {
@@ -162,8 +164,8 @@ module.exports = function(d3) {
   };
 
   this.updateTooltips = function(xPos) {
-    var xScale = this.xMax / this.w,
-        yScale = this.yMax / this.h,
+    var xScale = this.settings.xMax / this.w,
+        yScale = this.settings.yMax / this.h,
         xValue = Math.round(xPos * xScale),
         prevYPos = this.h + 30,
         textYPos,
@@ -242,14 +244,11 @@ module.exports = function(d3) {
   };
 
   this.updateXAxis = function(xMax) {
-    if (this.xMax === xMax) {
-      return;
-    }
-
-    this.xMax = xMax;
+    xMax = isNaN(xMax) ? this.defaults.xMax : xMax;
+    this.settings.xMax = xMax;
 
     this.x = d3.scale.linear()
-      .domain([this.settings.xMin, this.xMax])
+      .domain([this.settings.xMin, this.settings.xMax])
       .range([0, this.w]);
 
     this.xAxis = d3.svg.axis()
@@ -269,19 +268,16 @@ module.exports = function(d3) {
   };
 
   this.updateYAxis = function(yMax) {
-    if (this.yMax === yMax) {
-      return;
-    }
-
-    this.yMax = yMax;
+    yMax = isNaN(yMax) ? this.defaults.yMax : yMax;
+    this.settings.yMax = yMax;
 
     this.y = d3.scale.linear()
-      .domain([this.settings.yMin / 100, this.yMax / 100])
+      .domain([this.settings.yMin / 100, this.settings.yMax / 100])
       .range([this.h, 0]);
 
     this.yAxis = d3.svg.axis()
       .scale(this.y)
-      .ticks(4)
+      .ticks(Math.ceil(yMax / 10))
       .tickSize(-this.w, 0)
       .tickFormat(d3.format('%'))
       .tickPadding(7)
@@ -299,6 +295,7 @@ module.exports = function(d3) {
   };
 
   this.updateAnimationTime = function(time) {
+    time = isNaN(time) ? this.defaults.time : time;
     this.settings.animationTime = time;
   };
 
@@ -335,6 +332,7 @@ module.exports = function(d3) {
   };
 
   this.addLine = function(data, label, tooltipFn, isInterpolated) {
+    // Don't draw lines that start at y = 0 and end at y = 0
     if (data[0].y === 0 && data[data.length - 1].y === 0) {
       return;
     }
@@ -359,6 +357,8 @@ module.exports = function(d3) {
       return yValueA - yValueB;
     });
 
+    this.scaleYAxis();
+
     for (i = 0; i < len; i++) {
       this.drawLine(this.lines[i].data, this.lines[i].isInterpolated);
       this.changeColor();
@@ -366,12 +366,21 @@ module.exports = function(d3) {
 
     this.colorIndex = 0;
 
-    // Make sure tooltips are rendered on top of line
+    // Make sure tooltips are rendered on top of lines
     for (i = 0; i < len; i++) {
       this.drawTooltip(this.lines[i].tooltipFn);
       this.drawLabel(this.lines[i].data, this.lines[i].label);
       this.changeColor();
     }
+  };
+
+  this.scaleYAxis = function() {
+    var len = this.lines.length,
+        highestLine = this.lines[len - 1],
+        highestY = highestLine.data[highestLine.data.length - 1].y,
+        yMax = Math.ceil(highestY * 10) * 10;
+
+    this.updateYAxis(yMax);
   };
         
   this.drawLine = function(data, isInterpolated) {
@@ -433,7 +442,7 @@ module.exports = function(d3) {
 
   this.drawLabel = function(data, text) {
     var lastPoint = data[data.length - 1],
-        yScale = 100 * this.h / this.yMax,
+        yScale = 100 * this.h / this.settings.yMax,
         yPos = this.h - (lastPoint.y * yScale),
         len = this.labelPositions.length,
         lastLabelPosition = this.labelPositions[len - 1] || this.h + 30;

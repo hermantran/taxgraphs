@@ -1,31 +1,4 @@
 .controls {
-  .section {
-    margin: 10px;
-    padding: 5px 10px;
-    background: @white;
-    border: 1px solid darken(@light-grey, 10%);
-    border-top: 3px solid @blue;
-
-    label {
-      display: inline-block;
-      min-width: 120px;
-    }
-
-    input[type="text"] {
-      width: 100px;
-    }
-
-    > div {
-      margin: 0 0 10px; 
-    }
-  }
-
-  .inline-block {
-    div {
-      margin: 0 0 3px;
-    }
-  }
-
   h3 {
     margin: 0 0 10px;
   }
@@ -33,14 +6,55 @@
   button {
     margin: 0 5px;
   }
+}
 
-  .states {
-    div {
-      margin-bottom: 5px;
-    }
+.section {
+  margin: 10px;
+  padding: 5px 10px;
+  background: @white;
+  border: 1px solid darken(@light-grey, 10%);
+  border-top: 3px solid @blue;
 
-    label {
-      display: inline;
-    }
+  label {
+    display: inline-block;
+    min-width: 120px;
   }
+
+  input[type="text"] {
+    width: 100px;
+  }
+
+  > div {
+    margin: 0 0 10px; 
+  }
+}
+
+.inline-block {
+  div {
+    margin: 0 0 3px;
+  }
+}
+
+.states {
+  margin: 5px 0;
+  max-height: 180px;
+  overflow: auto;
+
+  > div {
+    margin-bottom: 6px;
+  }
+
+  label {
+    display: inline;
+  }
+}
+
+.state-options {
+  label {
+    min-width: initial;
+  }
+}
+
+#no-states {
+  margin-left: 15px;
 }

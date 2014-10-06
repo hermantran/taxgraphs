@@ -7,10 +7,13 @@ module.exports = function($scope, taxData, taxService, graph) {
   $scope.states = taxData.states;
   $scope.filingStatuses = taxData.filingStatuses;
   $scope.graphLines = taxData.taxTypes;
+  $scope.toggleState = false;
 
   $scope.data = {
     states: {
       CA: true,
+      IL: true,
+      PA: true,
       NY: true,
       TX: true
     },
@@ -19,6 +22,18 @@ module.exports = function($scope, taxData, taxService, graph) {
       effective: true,
       marginal: false
     }
+  };
+
+  $scope.toggleStates = function(bool) {
+    var state;
+    for (var i = 0, len = $scope.states.length; i < len; i++) {
+      state = $scope.states[i];
+      $scope.data.states[state] = bool;
+    }
+  };
+
+  $scope.keepUnchecked = function() {
+    $scope.toggleState = false;
   };
 
   $scope.createTaxRateFn = function(tax, filingStatus, isEffective) {
@@ -39,6 +54,8 @@ module.exports = function($scope, taxData, taxService, graph) {
         total = [],
         stateNames = [],
         data;
+
+    xMax = isNaN(xMax) ? graph.defaults.xMax : xMax;
 
     for (var state in $scope.data.states) {
       if ($scope.data.states[state]) {

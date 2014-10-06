@@ -41,6 +41,8 @@ module.exports = function($scope, taxData, taxService, graph) {
         total,
         args;
 
+    xMax = isNaN(xMax) ? graph.defaults.xMax : xMax;
+
     if (graphLines.totalEffective || graphLines.totalMarginal) {
       total = taxService.calcTotalMarginalTaxBrackets(
         taxes, xMax, filingStatus
