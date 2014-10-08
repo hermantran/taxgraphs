@@ -5,7 +5,8 @@ var app = require('../app'),
     lodash = require('lodash'),
     JST = require('JST'),
     routes = require('./routes'),
-    templateCache = require('./templateCache');
+    templateCache = require('./templateCache'),
+    rootScope = require('./rootScope');
 
 // JST.js requires lodash in the global scope
 window._ = lodash;
@@ -15,4 +16,5 @@ app.constant('d3', d3)
   .constant('JST', JST)
   .constant('TAX_API', 'data/2014.json')
   .config(['$provide', 'JST', templateCache])
-  .config(['$routeProvider', routes]);
+  .config(['$routeProvider', routes])
+  .run(['$rootScope', '$location', rootScope]);

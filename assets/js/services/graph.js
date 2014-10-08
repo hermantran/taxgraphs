@@ -26,12 +26,16 @@ module.exports = function(d3, _) {
   };
 
   this.classes = {
+    controls: 'controls',
+    data: 'data',
+    title: 'title',
     line: 'tax',
-    label: 'label',
     hoverLine: 'hover',
     hoverLabel: 'hoverlabel',
     tooltip: 'tooltip',
     circle: 'point',
+    lineLabel: 'label',
+    lineValue: 'value',
     xAxis: 'x axis',
     yAxis: 'y axis',
     hide: 'hide'
@@ -62,7 +66,6 @@ module.exports = function(d3, _) {
     }
     
     this.settings = settings || this.settings;
-
     this.svg = d3.select('svg');
 
     parent = this.svg.select(function() { 
@@ -77,12 +80,11 @@ module.exports = function(d3, _) {
       height = window.innerHeight;
     }
 
-    this.m = [80, 230, 80, 100];
+    this.m = [80, 180, 80, 100];
     this.w = width - this.m[1] - this.m[3]; 
     this.h = height - this.m[0] - this.m[2];
 
     this.lines = [];
-    this.labelPositions = [];
     this.tooltips = [];
     this.tooltipFns = [];
     this.colorIndex = 0;
@@ -101,10 +103,239 @@ module.exports = function(d3, _) {
       .append('svg:g')
       .attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
 
+    this.title = this.graph
+      .append('svg:g')
+      .attr('class', this.classes.title)
+      .attr('transform', 'translate(' +
+        (this.w / 2) + ',' + (-this.m[0] / 2) + ')')
+      .append('text');
+
+    this.controls = this.graph
+      .append('svg:g')
+      .attr('class', this.classes.controls);
+
+    this.data = this.graph
+      .append('svg:g')
+      .attr('class', this.classes.data);
+
     this.updateXAxis();
     this.updateYAxis();
     this.drawHoverLine();
     this.drawHoverLabel();
+  };
+
+  this.updateXAxis = function(xMax) {
+    xMax = isNaN(xMax) ? this.defaults.xMax : xMax;
+    this.settings.xMax = xMax;
+
+    this.x = d3.scale.linear()
+      .domain([this.settings.xMin, this.settings.xMax])
+      .range([0, this.w]);
+
+    this.xAxis = d3.svg.axis()
+      .scale(this.x)
+      .ticks(6)
+      .tickSize(-this.h, 0)
+      .tickFormat(d3.format('$0,000'))
+      .tickPadding(10)
+      .orient('bottom');
+
+    this.controls.selectAll(this.selectors.xAxis).remove();
+
+    this.controls.append('svg:g')
+      .attr('class', this.classes.xAxis)
+      .attr('transform', 'translate(0,' + this.h + ')')
+      .call(this.xAxis);
+  };
+
+  this.updateYAxis = function(yMax) {
+    yMax = isNaN(yMax) ? this.defaults.yMax : yMax;
+    this.settings.yMax = yMax;
+
+    this.y = d3.scale.linear()
+      .domain([this.settings.yMin / 100, this.settings.yMax / 100])
+      .range([this.h, 0]);
+
+    this.yAxis = d3.svg.axis()
+      .scale(this.y)
+      .ticks(Math.ceil(yMax / 10))
+      .tickSize(-this.w, 0)
+      .tickFormat(d3.format('%'))
+      .tickPadding(7)
+      .orient('left');
+
+    this.controls.select(this.selectors.yAxis).remove();
+
+    this.controls.append('svg:g')
+      .attr('class', this.classes.yAxis)
+      .attr('transform', 'translate(0,0)')
+      .call(this.yAxis)
+      .selectAll('.tick')
+        .filter(function (d) { return d === 0; })
+        .remove();
+  };
+
+  this.drawHoverLine = function() {
+    // http://bl.ocks.org/benjchristensen/2657838
+    this.hoverLine = this.controls.append('svg:line')
+      .attr('x1', 0).attr('x2', 0)
+      .attr('y1', 0).attr('y2', this.h)
+      .attr('class', this.classes.hoverLine)
+      .classed(this.classes.hide, true);
+  };
+
+  this.drawHoverLabel = function() {
+    this.hoverLabel = this.controls.append('g')
+      .append('text')
+      .attr('x', 0)
+      .attr('y', this.h + 50)
+      .attr('class', this.classes.hoverLabel)
+      .classed(this.classes.hide, true);
+  };
+
+  this.updateTitle = function(title) {
+    this.title.text(title);
+  };
+
+  this.updateAnimationTime = function(time) {
+    time = isNaN(time) ? this.defaults.animationTime : time;
+    this.settings.animationTime = time;
+  };
+
+  this.update = function(settings) {
+    if (settings.xMax) {
+      this.updateXAxis(settings.xMax);
+    }
+
+    if (settings.yMax) {
+      this.updateYAxis(settings.yMax);
+    }
+
+    if (settings.animationTime) {
+      this.updateAnimationTime(settings.animationTime);
+    }
+  };
+
+  this.addLine = function(data, label, tooltipFn, isInterpolated) {
+    // Don't draw lines that start at y = 0 and end at y = 0
+    if (data[0].y === 0 && data[data.length - 1].y === 0) {
+      return;
+    }
+    
+    this.lines.push({
+      data: data,
+      label: label,
+      tooltipFn: tooltipFn,
+      isInterpolated: isInterpolated
+    });
+  };
+
+  this.drawLines = function() {
+    var len = this.lines.length,
+        i;
+
+    // Sort from lowest to highest tax rate
+    this.lines.sort(function(a, b) {
+      var yValueA = a.data[a.data.length - 1].y,
+          yValueB = b.data[b.data.length - 1].y;
+
+      return yValueA - yValueB;
+    });
+
+    this.scaleYAxis();
+
+    for (i = 0; i < len; i++) {
+      this.drawLine(this.lines[i].data, this.lines[i].isInterpolated);
+      this.changeColor();
+    }
+
+    this.colorIndex = 0;
+
+    // Make sure tooltips are rendered on top of lines
+    for (i = 0; i < len; i++) {
+      this.drawTooltip(this.lines[i].tooltipFn, this.lines[i].label);
+      this.changeColor();
+    }
+  };
+
+  // Automatically scales the y-axis based on the input data
+  this.scaleYAxis = function() {
+    var len = this.lines.length,
+        highestLine = this.lines[len - 1],
+        highestY = highestLine.data[highestLine.data.length - 1].y,
+        yMax = Math.ceil(highestY * 10) * 10;
+
+    this.updateYAxis(yMax);
+  };
+        
+  this.drawLine = function(data, isInterpolated) {
+    var line = d3.svg.line()
+      .x(function(d) { return this.x(d.x); }.bind(this))
+      .y(function(d) { return this.y(d.y); }.bind(this));
+
+    if (isInterpolated) {
+      line.interpolate('basis');
+    }
+
+    var path = this.data.append('svg:path')
+      .attr('class', this.classes.line)
+      .attr('stroke', this.settings.colors[this.colorIndex])
+      .attr('d', line(data));
+
+    if (this.settings.animationTime > 100) {
+      this.animatePath(path);
+    }
+  };
+
+  this.animatePath = function(path) {
+    var length = path.node().getTotalLength();
+
+    path.attr('stroke-dasharray', length + ' ' + length)
+      .attr('stroke-dashoffset', length)
+      .transition()
+      .duration(this.settings.animationTime)
+      .ease('linear')
+      .attr('stroke-dashoffset', 0)
+      .each('end', this.moveHoverLineToEnd.bind(this));
+  };
+
+  this.drawTooltip = function(tooltipFn, label) {
+    // http://bl.ocks.org/mbostock/3902569
+    var tooltip = this.data.append('g')
+      .attr('class', this.classes.tooltip)
+      .classed(this.classes.hide, true);
+
+    tooltip.append('circle')
+      .attr('class', this.classes.circle)
+      .attr('fill', this.settings.colors[this.colorIndex])
+      .attr('r', 4);
+
+    tooltip.append('path');
+
+    var text = tooltip.append('text')
+      .attr('x', 5)
+      .attr('y', -5);
+
+    text.append('tspan')
+      .attr('class', this.classes.lineLabel)
+      .text(label);
+
+    text.append('tspan')
+      .attr('class', this.classes.lineValue)
+      .attr('x', 8)
+      .attr('dy', '1.2em');
+
+    this.tooltips.push(tooltip);
+
+    if (tooltipFn) {
+      this.tooltipFns.push(tooltipFn);
+    } else {
+      this.tooltipFns.push(noop);
+    }
+  };
+
+  this.changeColor = function() {
+    this.colorIndex = (this.colorIndex + 1) % this.settings.colors.length;
   };
 
   this.setupEventHandlers = function() {
@@ -168,8 +399,9 @@ module.exports = function(d3, _) {
         yScale = this.settings.yMax / this.h,
         xValue = Math.round(xPos * xScale),
         prevYPos = this.h + 30,
-        textYPos,
-        textXPos,
+        textYPos = -35,
+        textXPos = 8,
+        hide,
         yValue,
         yPos,
         tooltipText,
@@ -183,14 +415,8 @@ module.exports = function(d3, _) {
     }
 
     for (var i = 0, len = this.tooltips.length; i < len; i++) {
-      if (xPos < 0) {
-        this.tooltips[i].classed(this.classes.hide, true);
-      } else {
-        this.tooltips[i].classed(this.classes.hide, false);
-      }
-
-      textXPos = 10;
-      textYPos = -15;
+      hide = (xPos < 0);
+      this.tooltips[i].classed(this.classes.hide, hide);
 
       yValue = this.tooltipFns[i](xValue);
 
@@ -207,16 +433,17 @@ module.exports = function(d3, _) {
 
       tooltipText = this.tooltips[i]
         .attr('transform', 'translate(' + xPos + ',' + yPos + ')')
-        .select('text');
-
-      tooltipText.text(text)
+        .select('text')
         .attr('x', textXPos)
         .attr('y', textYPos);
+
+      tooltipText.select(this.selectors.lineValue)
+        .text(text);
 
       textWidth = tooltipText.style('width');
       textWidth = parseInt(textWidth, 10) + 10;
       textHeight = tooltipText.style('height');
-      textHeight = parseInt(textHeight, 10) + 10;
+      textHeight = parseInt(textHeight, 10) + 15;
       d = this.createTooltipPath(textWidth, textHeight);
 
       this.tooltips[i].select('path')
@@ -243,245 +470,18 @@ module.exports = function(d3, _) {
     return d;
   };
 
-  this.updateXAxis = function(xMax) {
-    xMax = isNaN(xMax) ? this.defaults.xMax : xMax;
-    this.settings.xMax = xMax;
-
-    this.x = d3.scale.linear()
-      .domain([this.settings.xMin, this.settings.xMax])
-      .range([0, this.w]);
-
-    this.xAxis = d3.svg.axis()
-      .scale(this.x)
-      .ticks(6)
-      .tickSize(-this.h, 0)
-      .tickFormat(d3.format('$0,000'))
-      .tickPadding(10)
-      .orient('bottom');
-
-    this.graph.selectAll(this.selectors.xAxis).remove();
-
-    this.graph.append('svg:g')
-      .attr('class', this.classes.xAxis)
-      .attr('transform', 'translate(0,' + this.h + ')')
-      .call(this.xAxis);
-  };
-
-  this.updateYAxis = function(yMax) {
-    yMax = isNaN(yMax) ? this.defaults.yMax : yMax;
-    this.settings.yMax = yMax;
-
-    this.y = d3.scale.linear()
-      .domain([this.settings.yMin / 100, this.settings.yMax / 100])
-      .range([this.h, 0]);
-
-    this.yAxis = d3.svg.axis()
-      .scale(this.y)
-      .ticks(Math.ceil(yMax / 10))
-      .tickSize(-this.w, 0)
-      .tickFormat(d3.format('%'))
-      .tickPadding(7)
-      .orient('left');
-
-    this.graph.selectAll(this.selectors.yAxis).remove();
-
-    this.graph.append('svg:g')
-      .attr('class', this.classes.yAxis)
-      .attr('transform', 'translate(0,0)')
-      .call(this.yAxis)
-      .selectAll('.tick')
-        .filter(function (d) { return d === 0; })
-        .remove();
-  };
-
-  this.updateAnimationTime = function(time) {
-    time = isNaN(time) ? this.defaults.time : time;
-    this.settings.animationTime = time;
-  };
-
-  this.update = function(settings) {
-    if (settings.xMax) {
-      this.updateXAxis(settings.xMax);
-    }
-
-    if (settings.yMax) {
-      this.updateYAxis(settings.yMax);
-    }
-
-    if (settings.animationTime) {
-      this.updateAnimationTime(settings.animationTime);
-    }
-  };
-
-  this.drawHoverLine = function() {
-    // http://bl.ocks.org/benjchristensen/2657838
-    this.hoverLine = this.graph.append('svg:line')
-      .attr('x1', 0).attr('x2', 0)
-      .attr('y1', 0).attr('y2', this.h)
-      .attr('class', this.classes.hoverLine)
-      .classed(this.classes.hide, true);
-  };
-
-  this.drawHoverLabel = function() {
-    this.hoverLabel = this.graph.append('g')
-      .append('text')
-      .attr('x', 0)
-      .attr('y', this.h + 50)
-      .attr('class', this.classes.hoverLabel)
-      .classed(this.classes.hide, true);
-  };
-
-  this.addLine = function(data, label, tooltipFn, isInterpolated) {
-    // Don't draw lines that start at y = 0 and end at y = 0
-    if (data[0].y === 0 && data[data.length - 1].y === 0) {
-      return;
-    }
-    
-    this.lines.push({
-      data: data,
-      label: label,
-      tooltipFn: tooltipFn,
-      isInterpolated: isInterpolated
-    });
-  };
-
-  this.drawLines = function() {
-    var len = this.lines.length,
-        i;
-
-    // Sort from lowest to highest tax rate
-    this.lines.sort(function(a, b) {
-      var yValueA = a.data[a.data.length - 1].y,
-          yValueB = b.data[b.data.length - 1].y;
-
-      return yValueA - yValueB;
-    });
-
-    this.scaleYAxis();
-
-    for (i = 0; i < len; i++) {
-      this.drawLine(this.lines[i].data, this.lines[i].isInterpolated);
-      this.changeColor();
-    }
-
-    this.colorIndex = 0;
-
-    // Make sure tooltips are rendered on top of lines
-    for (i = 0; i < len; i++) {
-      this.drawTooltip(this.lines[i].tooltipFn);
-      this.drawLabel(this.lines[i].data, this.lines[i].label);
-      this.changeColor();
-    }
-  };
-
-  this.scaleYAxis = function() {
-    var len = this.lines.length,
-        highestLine = this.lines[len - 1],
-        highestY = highestLine.data[highestLine.data.length - 1].y,
-        yMax = Math.ceil(highestY * 10) * 10;
-
-    this.updateYAxis(yMax);
-  };
-        
-  this.drawLine = function(data, isInterpolated) {
-    var line = d3.svg.line()
-      .x(function(d) { return this.x(d.x); }.bind(this))
-      .y(function(d) { return this.y(d.y); }.bind(this));
-
-    if (isInterpolated) {
-      line.interpolate('basis');
-    }
-
-    var path = this.graph.append('svg:path')
-      .attr('class', this.classes.line)
-      .attr('stroke', this.settings.colors[this.colorIndex])
-      .attr('d', line(data));
-
-    if (this.settings.animationTime > 100) {
-      this.animatePath(path);
-    }
-  };
-
-  this.animatePath = function(path) {
-    var length = path.node().getTotalLength();
-
-    path.attr('stroke-dasharray', length + ' ' + length)
-      .attr('stroke-dashoffset', length)
-      .transition()
-      .duration(this.settings.animationTime)
-      .ease('linear')
-      .attr('stroke-dashoffset', 0)
-      .each('end', this.moveHoverLineToEnd.bind(this));
-  };
-
-  this.drawTooltip = function(tooltipFn) {
-    // http://bl.ocks.org/mbostock/3902569
-    var tooltip = this.graph.append('g')
-      .attr('class', this.classes.tooltip)
-      .classed(this.classes.hide, true);
-
-    tooltip.append('circle')
-      .attr('class', this.classes.circle)
-      .attr('fill', this.settings.colors[this.colorIndex])
-      .attr('r', 4);
-
-    tooltip.append('path');
-
-    tooltip.append('text')
-      .attr('x', 5)
-      .attr('y', -5);
-
-    this.tooltips.push(tooltip);
-
-    if (tooltipFn) {
-      this.tooltipFns.push(tooltipFn);
-    } else {
-      this.tooltipFns.push(noop);
-    }
-  };
-
-  this.drawLabel = function(data, text) {
-    var lastPoint = data[data.length - 1],
-        yScale = 100 * this.h / this.settings.yMax,
-        yPos = this.h - (lastPoint.y * yScale),
-        len = this.labelPositions.length,
-        lastLabelPosition = this.labelPositions[len - 1] || this.h + 30;
-
-    if (lastLabelPosition - yPos < 15) {
-      yPos -= (15 - lastLabelPosition + yPos);
-    }
-
-    var label = this.graph.append('g')
-      .attr('transform', 'translate(' + this.w + ',' + yPos + ')')
-      .attr('class', this.classes.label)
-      .classed(this.classes.hide, true);
-      
-    label.append('text')
-      .attr('x', 10)
-      .attr('y', -5)
-      .text(text);
-
-    this.labelPositions.push(yPos);
-  };
-
-  this.changeColor = function() {
-    this.colorIndex = (this.colorIndex + 1) % this.settings.colors.length;
-  };
-
   this.resetTooltips = function() {
     this.updateHoverLine(-1);
-    this.labelPositions.length = 0;
     this.tooltips.length = 0;
     this.tooltipFns.length = 0;
     this.colorIndex = 0;
-    this.graph.selectAll(this.selectors.label).remove();
   };
 
   this.clear = function() {
     this.resetTooltips();
     this.lines.length = 0;
-    this.graph.selectAll(this.selectors.line).transition().duration(0);
     this.graph.selectAll(this.selectors.tooltip).remove();
+    this.graph.selectAll(this.selectors.line).transition().duration(0);
     this.graph.selectAll(this.selectors.line).remove();
   };
 };

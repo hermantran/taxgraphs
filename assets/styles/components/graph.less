@@ -42,16 +42,33 @@
     font-weight: 400;
   }
 
-  .tooltip, .label {
+  .tooltip {
     text {
       text-anchor: start;
+    }
+
+    .value {
+      font-size: 1em;
       font-weight: 400;
+    }
+
+    .label {
+      font-size: 0.8em;
+      font-weight: 500;
     }
 
     path {
       fill: white;
       stroke-width: 0.5;
       stroke: grey;
+    }
+  }
+
+  .title {
+    text {
+      text-anchor: middle;
+      font-weight: 300;
+      font-size: 1.8em;
     }
   }
 }

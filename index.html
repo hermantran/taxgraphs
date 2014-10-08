@@ -31,8 +31,8 @@
     <header class="pure-g pure-menu pure-menu-open pure-menu-horizontal">
         <ul class="pure-u-1">
           <li class="logo">TaxGraphs</li>
-          <li><a href="#">State Comparison</a></li>
-          <li><a href="#/state">State Breakdown</a></li>
+          <li><a href="#/" ng-class="{ active: isActive('/') }">State Comparison</a></li>
+          <li><a href="#/state" ng-class="{ active: isActive('/state') }">State Breakdown</a></li>
         </ul>
     </header>
 

@@ -60,7 +60,11 @@ module.exports = function($http, $q, $filter, TAX_API) {
     var taxes = [];
 
     for (var tax in this.data.federal.taxes) {
-      taxes.push('Federal ' + splitCamelCase(tax));
+      if (tax === 'income') {
+        taxes.push('Federal Income');
+      } else {
+        taxes.push(splitCamelCase(tax));
+      }
     }
 
     for (tax in this.data.state[state].taxes) {

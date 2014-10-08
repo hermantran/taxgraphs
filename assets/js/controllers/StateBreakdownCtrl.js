@@ -81,6 +81,7 @@ module.exports = function($scope, taxData, taxService, graph) {
     }
 
     graph.drawLines();
+    graph.updateTitle(state + ' Income Tax Rates, 2014');
   };
 
   $scope.init = function() {
