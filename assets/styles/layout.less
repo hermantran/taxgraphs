@@ -42,7 +42,21 @@ header {
   overflow: auto;
 }
 
+@media screen and (max-width: (@screen-sm-min - 1)) {
+  .pure-hidden-xs {
+    display: none;
+  }
+
+  .pure-hidden-sm {
+    display: none;
+  }
+}
+
 @media screen and (max-width: @screen-sm-max) {
+  .pure-hidden-sm {
+    display: none;
+  }
+
   .container {
     min-height: 0;
   }

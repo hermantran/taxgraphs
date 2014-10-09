@@ -15,10 +15,9 @@ module.exports = function(grunt) {
     dev: ['dist/**'],
     dist: [
       'dist/js/**/*.js',
-      '!dist/js/*.min.js',
-      'dist/styles/*/**',
-      'dist/styles/*.css',
-      '!dist/styles/*.min.css'
+      '!dist/js/*/*.min.js',
+      'dist/styles/**/*.css',
+      '!dist/styles/*/*.min.css'
     ]
   });
 

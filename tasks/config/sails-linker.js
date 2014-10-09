@@ -36,7 +36,7 @@ module.exports = function(grunt) {
       },
 
       files: {
-        '*.html': 'dist/js/main.min.js'
+        '*.html': require('../pipeline').jsProdFile
       }
     },
 
@@ -62,7 +62,7 @@ module.exports = function(grunt) {
       },
 
       files: {
-        '*.html': 'dist/styles/main.min.css',
+        '*.html': require('../pipeline').cssProdFile,
       }
     },
 

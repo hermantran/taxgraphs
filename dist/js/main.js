@@ -5,7 +5,7 @@ var angular = require('angular');
 require('angular-route/angular-route');
 
 module.exports = angular.module('taxApp', ['ngRoute']);
-},{"angular":21,"angular-route/angular-route":20}],2:[function(require,module,exports){
+},{"angular":22,"angular-route/angular-route":21}],2:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -28,7 +28,7 @@ app.constant('d3', d3)
   .config(['$routeProvider', routes])
   .run(['$rootScope', '$location', rootScope]);
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../app":1,"./rootScope":3,"./routes":4,"./templateCache":5,"d3":23,"lodash":24}],3:[function(require,module,exports){
+},{"../app":1,"./rootScope":3,"./routes":4,"./templateCache":5,"d3":24,"lodash":25}],3:[function(require,module,exports){
 'use strict';
 
 function rootScope($rootScope, $location) {
@@ -399,7 +399,7 @@ require('./controllers');
 },{"./app":1,"./config":2,"./controllers":8,"./directives":9,"./factories":10,"./filters":12,"./services":17}],16:[function(require,module,exports){
 'use strict';
 
-module.exports = function(d3, _) {
+module.exports = function(d3, _, screenService) {
   function createSelector(string) {
     return '.' + string.split(' ').join('.');
   }
@@ -448,7 +448,7 @@ module.exports = function(d3, _) {
 
   this.settings = {
     xMin: 0,
-    xMax: 250000,
+    xMax: 300000,
     yMin: 0,
     yMax: 60,
     animationTime: 2500,
@@ -458,14 +458,26 @@ module.exports = function(d3, _) {
   this.defaults = _.cloneDeep(this.settings);
 
   this.init = function(settings) {
-    var parent, width, height;
-
     if (this.hasInited) {
       return;
     }
     
-    this.settings = settings || this.settings;
     this.svg = d3.select('svg');
+    this.settings = settings || this.settings;
+
+    this.lines = [];
+    this.tooltips = [];
+    this.tooltipFns = [];
+    this.colorIndex = 0;
+
+    this.setSize();
+    this.createGraph();
+    this.setupEventHandlers();
+    this.hasInited = true;
+  };
+
+  this.setSize = function() {
+    var parent, width, height;
 
     parent = this.svg.select(function() { 
       return this.parentNode; 
@@ -474,23 +486,14 @@ module.exports = function(d3, _) {
     width = parseInt(parent.style('width'), 10) - 10;
     height = parseInt(parent.style('height'), 10) - 10;
 
-    if (width <= 768) {
-      width = window.innerWidth;
-      height = window.innerHeight;
+    if (screenService.width < screenService.sizes.md) {
+      width = screenService.width - 10;
+      height = screenService.height - 10;
     }
 
-    this.m = [80, 180, 80, 100];
+    this.m = [80, 180, 80, 70];
     this.w = width - this.m[1] - this.m[3]; 
     this.h = height - this.m[0] - this.m[2];
-
-    this.lines = [];
-    this.tooltips = [];
-    this.tooltipFns = [];
-    this.colorIndex = 0;
-
-    this.createGraph();
-    this.setupEventHandlers();
-    this.hasInited = true;
   };
 
   this.createGraph = function() {
@@ -524,8 +527,14 @@ module.exports = function(d3, _) {
   };
 
   this.updateXAxis = function(xMax) {
+    var ticks = 6;
+
     xMax = isNaN(xMax) ? this.defaults.xMax : xMax;
     this.settings.xMax = xMax;
+
+    if (screenService.width < screenService.sizes.lg) {
+      ticks = 3;
+    }
 
     this.x = d3.scale.linear()
       .domain([this.settings.xMin, this.settings.xMax])
@@ -533,7 +542,7 @@ module.exports = function(d3, _) {
 
     this.xAxis = d3.svg.axis()
       .scale(this.x)
-      .ticks(6)
+      .ticks(ticks)
       .tickSize(-this.h, 0)
       .tickFormat(d3.format('$0,000'))
       .tickPadding(10)
@@ -678,6 +687,7 @@ module.exports = function(d3, _) {
 
     var path = this.data.append('svg:path')
       .attr('class', this.classes.line)
+      .attr('fill', 'none')
       .attr('stroke', this.settings.colors[this.colorIndex])
       .attr('d', line(data));
 
@@ -853,7 +863,7 @@ module.exports = function(d3, _) {
   this.createTooltipPath = function(textWidth, textHeight) {
     var yOffset = -10,
         xOffset = 5,
-        openingWidth = 4;
+        openingWidth = 6;
 
     var d = [
       'M' + xOffset + ',0',
@@ -890,12 +900,33 @@ module.exports = function(d3, _) {
 var app = require('../app'),
     taxService = require('./taxService'),
     taxData = require('./taxData'),
-    graph = require('./graph');
+    graph = require('./graph'),
+    screenService = require('./screenService');
 
 app.service('taxService', ['_', taxService])
   .service('taxData', ['$http', '$q', '$filter', 'TAX_API', taxData])
-  .service('graph', ['d3', '_', graph]);
-},{"../app":1,"./graph":16,"./taxData":18,"./taxService":19}],18:[function(require,module,exports){
+  .service('graph', ['d3', '_', 'screenService', graph])
+  .service('screenService', ['$window', screenService]);
+},{"../app":1,"./graph":16,"./screenService":18,"./taxData":19,"./taxService":20}],18:[function(require,module,exports){
+'use strict';
+
+module.exports = function($window) {
+  this.width = $window.innerWidth;
+  this.height = $window.innerHeight;
+
+  this.sizes = {
+    sm: 568,
+    md: 768,
+    lg: 1024,
+    xl: 1280 
+  };
+
+  $window.onresize = function() {
+    this.width = $window.innerWidth;
+    this.height = $window.innerHeight;
+  }.bind(this);
+};
+},{}],19:[function(require,module,exports){
 'use strict';
 
 module.exports = function($http, $q, $filter, TAX_API) {
@@ -974,7 +1005,7 @@ module.exports = function($http, $q, $filter, TAX_API) {
     return taxes;
   };
 };
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 require('../lib/Math.round10');
@@ -1280,7 +1311,7 @@ module.exports = function(_) {
   this.calcMarginalTaxRate = calcMarginalTaxRate;
   this.calcEffectiveTaxRate = calcEffectiveTaxRate;
 };
-},{"../lib/Math.round10":14}],20:[function(require,module,exports){
+},{"../lib/Math.round10":14}],21:[function(require,module,exports){
 /**
  * @license AngularJS v1.2.17-build.163+sha.fafcd62
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -2209,12 +2240,12 @@ function ngViewFillContentFactory($compile, $controller, $route) {
 
 })(window, window.angular);
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 require('./lib/angular.js');
 
 module.exports = angular;
 
-},{"./lib/angular.js":22}],22:[function(require,module,exports){
+},{"./lib/angular.js":23}],23:[function(require,module,exports){
 /**
  * @license AngularJS v1.2.23
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -24169,7 +24200,7 @@ var styleDirective = valueFn({
 })(window, document);
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}.ng-animate-block-transitions{transition:0s all!important;-webkit-transition:0s all!important;}.ng-hide-add-active,.ng-hide-remove{display:block!important;}</style>');
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 !function() {
   var d3 = {
     version: "3.4.11"
@@ -33403,7 +33434,7 @@ var styleDirective = valueFn({
   if (typeof define === "function" && define.amd) define(d3); else if (typeof module === "object" && module.exports) module.exports = d3;
   this.d3 = d3;
 }();
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 (function (global){
 /**
  * @license

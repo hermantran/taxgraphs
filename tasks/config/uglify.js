@@ -11,12 +11,10 @@
  */
 module.exports = function(grunt) {
 
-  grunt.config.set('pkg', grunt.file.readJSON('package.json'));
-
   grunt.config.set('uglify', {
     js: {
       src: ['dist/js/main.js'],
-      dest: 'dist/js/main.min.js',
+      dest: require('../pipeline').jsProdFile,
       options: {
         banner: [
           '/*!',

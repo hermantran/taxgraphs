@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(d3, _) {
+module.exports = function(d3, _, screenService) {
   function createSelector(string) {
     return '.' + string.split(' ').join('.');
   }
@@ -49,7 +49,7 @@ module.exports = function(d3, _) {
 
   this.settings = {
     xMin: 0,
-    xMax: 250000,
+    xMax: 300000,
     yMin: 0,
     yMax: 60,
     animationTime: 2500,
@@ -59,14 +59,26 @@ module.exports = function(d3, _) {
   this.defaults = _.cloneDeep(this.settings);
 
   this.init = function(settings) {
-    var parent, width, height;
-
     if (this.hasInited) {
       return;
     }
     
-    this.settings = settings || this.settings;
     this.svg = d3.select('svg');
+    this.settings = settings || this.settings;
+
+    this.lines = [];
+    this.tooltips = [];
+    this.tooltipFns = [];
+    this.colorIndex = 0;
+
+    this.setSize();
+    this.createGraph();
+    this.setupEventHandlers();
+    this.hasInited = true;
+  };
+
+  this.setSize = function() {
+    var parent, width, height;
 
     parent = this.svg.select(function() { 
       return this.parentNode; 
@@ -75,23 +87,14 @@ module.exports = function(d3, _) {
     width = parseInt(parent.style('width'), 10) - 10;
     height = parseInt(parent.style('height'), 10) - 10;
 
-    if (width <= 768) {
-      width = window.innerWidth;
-      height = window.innerHeight;
+    if (screenService.width < screenService.sizes.md) {
+      width = screenService.width - 10;
+      height = screenService.height - 10;
     }
 
-    this.m = [80, 180, 80, 100];
+    this.m = [80, 180, 80, 70];
     this.w = width - this.m[1] - this.m[3]; 
     this.h = height - this.m[0] - this.m[2];
-
-    this.lines = [];
-    this.tooltips = [];
-    this.tooltipFns = [];
-    this.colorIndex = 0;
-
-    this.createGraph();
-    this.setupEventHandlers();
-    this.hasInited = true;
   };
 
   this.createGraph = function() {
@@ -125,8 +128,14 @@ module.exports = function(d3, _) {
   };
 
   this.updateXAxis = function(xMax) {
+    var ticks = 6;
+
     xMax = isNaN(xMax) ? this.defaults.xMax : xMax;
     this.settings.xMax = xMax;
+
+    if (screenService.width < screenService.sizes.lg) {
+      ticks = 3;
+    }
 
     this.x = d3.scale.linear()
       .domain([this.settings.xMin, this.settings.xMax])
@@ -134,7 +143,7 @@ module.exports = function(d3, _) {
 
     this.xAxis = d3.svg.axis()
       .scale(this.x)
-      .ticks(6)
+      .ticks(ticks)
       .tickSize(-this.h, 0)
       .tickFormat(d3.format('$0,000'))
       .tickPadding(10)
@@ -279,6 +288,7 @@ module.exports = function(d3, _) {
 
     var path = this.data.append('svg:path')
       .attr('class', this.classes.line)
+      .attr('fill', 'none')
       .attr('stroke', this.settings.colors[this.colorIndex])
       .attr('d', line(data));
 
@@ -454,7 +464,7 @@ module.exports = function(d3, _) {
   this.createTooltipPath = function(textWidth, textHeight) {
     var yOffset = -10,
         xOffset = 5,
-        openingWidth = 4;
+        openingWidth = 6;
 
     var d = [
       'M' + xOffset + ',0',

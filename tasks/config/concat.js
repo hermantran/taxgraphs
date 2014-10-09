@@ -15,7 +15,7 @@ module.exports = function(grunt) {
   grunt.config.set('concat', {
     css: {
       src: require('../pipeline').cssFilesToInject,
-      dest: 'dist/styles/main.min.css'
+      dest: require('../pipeline').cssProdFile
     }
   });
 

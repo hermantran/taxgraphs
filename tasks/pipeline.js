@@ -8,7 +8,10 @@
  * for matching multiple files.)
  */
 
+ var pkg = require('../package.json');
 
+var cssProdFile = 'styles/' + pkg.version + '/main.min.css';
+var jsProdFile = 'js/' + pkg.version + '/main.min.js';
 
 // CSS files to inject in order
 //
@@ -62,3 +65,5 @@ module.exports.templateFilesToInject = templateFilesToInject.map(function(path) 
   return 'assets/' + path;
 });
 module.exports.livereloadFilesToInject = module.exports.jsFilesToInject;
+module.exports.cssProdFile = 'dist/' + cssProdFile;
+module.exports.jsProdFile = 'dist/' + jsProdFile;
