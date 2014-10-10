@@ -88,8 +88,8 @@ module.exports = function(d3, _, screenService) {
     height = parseInt(parent.style('height'), 10) - 10;
 
     if (screenService.width < screenService.sizes.md) {
-      width = screenService.width - 10;
-      height = screenService.height - 10;
+      width = screenService.width - 20;
+      height = screenService.height - 45;
     }
 
     this.m = [80, 180, 80, 70];
@@ -248,7 +248,7 @@ module.exports = function(d3, _, screenService) {
       var yValueA = a.data[a.data.length - 1].y,
           yValueB = b.data[b.data.length - 1].y;
 
-      return yValueA - yValueB;
+      return yValueB - yValueA;
     });
 
     this.scaleYAxis();
@@ -269,8 +269,7 @@ module.exports = function(d3, _, screenService) {
 
   // Automatically scales the y-axis based on the input data
   this.scaleYAxis = function() {
-    var len = this.lines.length,
-        highestLine = this.lines[len - 1],
+    var highestLine = this.lines[0],
         highestY = highestLine.data[highestLine.data.length - 1].y,
         yMax = Math.ceil(highestY * 10) * 10;
 
@@ -408,9 +407,10 @@ module.exports = function(d3, _, screenService) {
     var xScale = this.settings.xMax / this.w,
         yScale = this.settings.yMax / this.h,
         xValue = Math.round(xPos * xScale),
-        prevYPos = this.h + 30,
+        textPos = [],
         textYPos = -35,
-        textXPos = 8,
+        textXPos = 10,
+        yOffset = -10,
         hide,
         yValue,
         yPos,
@@ -435,10 +435,6 @@ module.exports = function(d3, _, screenService) {
       }
 
       yPos = this.h - (yValue / yScale * 100);
-      // if (prevYPos - yPos < 15) {
-      //   textYPos -= (15 - prevYPos + yPos);
-      // }
-      prevYPos = yPos;
       text = Math.round10(yValue * 100, -2) + '%';
 
       tooltipText = this.tooltips[i]
@@ -446,38 +442,84 @@ module.exports = function(d3, _, screenService) {
         .select('text')
         .attr('x', textXPos)
         .attr('y', textYPos);
-
+      
       tooltipText.select(this.selectors.lineValue)
+        .attr('x', textXPos)
         .text(text);
 
       textWidth = tooltipText.style('width');
       textWidth = parseInt(textWidth, 10) + 10;
       textHeight = tooltipText.style('height');
-      textHeight = parseInt(textHeight, 10) + 15;
-      d = this.createTooltipPath(textWidth, textHeight);
+      textHeight = parseInt(textHeight, 10) + 5;
+      d = this.createTooltipPath(textWidth, textHeight, textXPos - 3, yOffset);
 
       this.tooltips[i].select('path')
         .attr('d', d);
+
+      textPos.push({
+        tooltipY: yPos,
+        textWidth: textWidth,
+        textHeight: textHeight,
+        i: i
+      });
+    }
+
+    if (textPos.length < 8) {
+      this.fixTooltipOverlaps(textPos);
     }
   };
 
-  this.createTooltipPath = function(textWidth, textHeight) {
-    var yOffset = -10,
-        xOffset = 5,
-        openingWidth = 6;
+  this.createTooltipPath = function(textWidth, textHeight, xOffset, yOffset) {
+    var openingWidth = 6;
 
     var d = [
-      'M' + xOffset + ',0',
+      'M0,0',
       'L' + (((xOffset + textWidth) / 2) - openingWidth) + ',' + yOffset,
       'L' + xOffset + ',' + yOffset,
-      'L' + xOffset + ',-' + textHeight,
-      'L' + (xOffset + textWidth) + ',-' + textHeight,
+      'L' + xOffset + ',' + (yOffset - textHeight),
+      'L' + (xOffset + textWidth) + ',' + (yOffset - textHeight),
       'L' + (xOffset + textWidth) + ',' + yOffset,
       'L' + (((xOffset + textWidth) / 2) + openingWidth) + ',' + yOffset,
-      'L' + xOffset + ',0'
+      'L0,0'
     ].join('');
 
     return d;
+  };
+
+  this.fixTooltipOverlaps = function(textPos) {
+    var textYPos = -35,
+        textXPos = 8,
+        yOffset = -10,
+        tooltipHeight = 50,
+        yDist,
+        diff,
+        d;
+
+    textPos.sort(function(a, b) {
+      return a.tooltipY - b.tooltipY;
+    });
+
+    for (var len = textPos.length - 1, i = len; i > 0; i--) {
+      yDist = textPos[i].tooltipY - textPos[i-1].tooltipY;
+
+      if (yDist < tooltipHeight) {
+        diff = yDist - tooltipHeight;
+
+        this.tooltips[textPos[i-1].i].select('text')
+          .attr('y', textYPos + diff);
+
+        d = this.createTooltipPath(textPos[i-1].textWidth,
+          textPos[i-1].textHeight, textXPos - 3, 
+          yOffset + diff);
+
+        this.tooltips[textPos[i-1].i].select('path')
+          .attr('d', d);
+
+        textPos[i-1].tooltipY += diff;
+      }
+    }
+
+     console.log(textPos);
   };
 
   this.resetTooltips = function() {
