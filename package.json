@@ -2,7 +2,7 @@
   "name": "taxgraphs",
   "private": true,
   "version": "0.0.9",
-  "description": "Visualization of US state individual income taxes",
+  "description": "Visualization of US state individual income tax rates",
   "author": "Herman Tran <hermanctran@gmail.com>",
   "license": "MIT",
   "keywords": ["income", "tax", "state", "federal", "graph", "visualization"],
