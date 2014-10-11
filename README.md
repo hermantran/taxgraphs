@@ -4,13 +4,14 @@ TaxGraphs is a web app that graphs marginal and effective tax rates against inco
 
 Setup
 ---
+To run the app locally, install [Node.js](http://nodejs.org/download/) and then execute the following from the project directory:
 ```
 npm install -g grunt-cli
 npm install
 ```
-To set up background tasks and view locally for development, run `grunt` and then browse to `localhost:1337`.
+Executing `grunt` will set up `grunt-watch` to monitor changes and compile the static assets and tax data. It will also set up the app locally at `localhost:1337` with livereload enabled.
 
-To prepare the app for distribution, run `grunt dist`.
+Executing `grunt dist` will prepare the app for distribution with concatenated and minified assets.
 
 Data
 ---
