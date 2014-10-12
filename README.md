@@ -1,8 +1,8 @@
 # TaxGraphs
 
-TaxGraphs is a web app that graphs marginal and effective tax rates against income for each US state. Graphs include a comparison between overall state tax rates and a detailed breakdown of each state's tax rate into its individual components. The app currently supports showing graphs for the single and married jointly filing statuses, as well as adjusting income by the standard deduction or itemized deduction.  
+TaxGraphs is a web app that graphs marginal and effective tax rates against income for each US state. Graphs include a comparison between overall state tax rates and a detailed breakdown of each state's tax rate into its individual components. The app currently supports showing graphs for the single and married jointly filing statuses, as well as adjusting income with the standard deduction or itemized deduction.  
 
-Tax data is collected from each state's official website and the [Tax Foundation](http://taxfoundation.org/article/state-individual-income-tax-rates). For the tech stack, the app uses AngularJS and D3.js to display the visualization, and it uses Browserify and LESS for asset compilation.
+Tax data is collected from each state's official website and the [Tax Foundation](http://taxfoundation.org/article/state-individual-income-tax-rates). The app uses AngularJS and D3.js to display the visualization, and Browserify and LESS for asset compilation.
 
 Setup
 ---
@@ -19,7 +19,7 @@ The Grunt tasks and build process originate from the [Sails.js](http://sailsjs.o
 
 Data
 ---
-The tax data is in the `data/` folder and is broken down into individual JSON files for federal and each state's tax rates. The `json-bake` task concatenates all the JSON files together, and a custom Grunt task then preproceses the tax data and minfies the final JSON.
+The tax data is in the [data/](/data) folder and is broken down into individual JSON files for federal and each state's tax rates. The `json-bake` task concatenates all the JSON files together, and a custom Grunt task then preproceses the tax data and minifies the final JSON.
 
 The `rate` property for each tax can be one of the following types:
 - Number: A flat tax rate.
@@ -31,7 +31,7 @@ Each marginal tax bracket has the following structure:
 [
   Bracket income minimum,
   Bracket marginal tax rate,
-  Total tax at the bracket income maxmium
+  Total tax at the bracket income maximum
 ]
 ```
 The following is an example:
@@ -50,7 +50,7 @@ The following is an example:
   }
 }
 ```
-The total tax is left empty on the last bracket since there is no maximum. The total tax is also not available in the individual JSON files; it is calculated and added in during the concatenation process. 
+The total tax is not available for the last bracket since there is no maximum. The total tax is also not available in any tax bracket for the individual JSON files; it is instead calculated and added to the final JSON file during compilation.
 
 Pull requests to update or correct any of the tax rates are welcome.
 

@@ -1,28 +1,33 @@
 'use strict';
 
-module.exports = function($scope, taxData, taxService, graph) {
+module.exports = function($scope, taxData, taxService, graph, cache) {
   $scope.clearGraph = graph.clear.bind(graph);
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
+  $scope.animationTimes = graph.animationTimes;
   $scope.states = taxData.states;
   $scope.filingStatuses = taxData.filingStatuses;
   $scope.graphLines = taxData.taxTypes;
   $scope.toggleState = false;
 
-  $scope.data = {
-    states: {
-      CA: true,
-      IL: true,
-      PA: true,
-      NY: true,
-      TX: true
-    },
-    status: 'single',
-    graphLines: {
-      effective: true,
-      marginal: false
-    }
-  };
+  if (!cache.get('stateComparisonData')) {
+    cache.set('stateComparisonData', {
+      states: {
+        CA: true,
+        IL: true,
+        PA: true,
+        NY: true,
+        TX: true
+      },
+      status: 'single',
+      graphLines: {
+        effective: true,
+        marginal: false
+      }
+    });
+  }
+
+  $scope.data = cache.get('stateComparisonData');
 
   $scope.toggleStates = function(bool) {
     var state;
@@ -88,11 +93,9 @@ module.exports = function($scope, taxData, taxService, graph) {
   };
 
   $scope.init = function() {
-    taxData.get().then(function() {
-      graph.init();
-      $scope.drawGraph();
-    });
+    graph.init();
+    $scope.drawGraph();
   };
 
-  $scope.init();
+  taxData.get().then($scope.init);
 };

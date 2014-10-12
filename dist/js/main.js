@@ -5,7 +5,7 @@ var angular = require('angular');
 require('angular-route/angular-route');
 
 module.exports = angular.module('taxApp', ['ngRoute']);
-},{"angular":22,"angular-route/angular-route":21}],2:[function(require,module,exports){
+},{"angular":23,"angular-route/angular-route":22}],2:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -28,12 +28,14 @@ app.constant('d3', d3)
   .config(['$routeProvider', routes])
   .run(['$rootScope', '$location', rootScope]);
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../app":1,"./rootScope":3,"./routes":4,"./templateCache":5,"d3":24,"lodash":25}],3:[function(require,module,exports){
+},{"../app":1,"./rootScope":3,"./routes":4,"./templateCache":5,"d3":25,"lodash":26}],3:[function(require,module,exports){
 'use strict';
 
 function rootScope($rootScope, $location) {
-  $rootScope.$on('$routeChangeSuccess', function() {
+  $rootScope.$on('$routeChangeSuccess', function(e, route) {
     $rootScope.activeRoute = $location.path();
+    $rootScope.title = route.title;
+    console.log(route);
 
     $rootScope.isActive = function(route) {
       return $rootScope.activeRoute === route;
@@ -49,11 +51,13 @@ module.exports = function($routeProvider) {
   $routeProvider
     .when('/', {
       templateUrl: 'assets/templates/state-comparison.html',
-      controller: 'StateComparisonCtrl'
+      controller: 'StateComparisonCtrl',
+      title: 'State Comparison'
     })
     .when('/state', {
       templateUrl: 'assets/templates/state-breakdown.html',
-      controller: 'StateBreakdownCtrl'
+      controller: 'StateBreakdownCtrl',
+      title: 'State Breakdown'
     })
     .otherwise({
       redirectTo: '/'
@@ -89,24 +93,30 @@ module.exports = function($provide, JST) {
 },{}],6:[function(require,module,exports){
 'use strict';
 
-module.exports = function($scope, taxData, taxService, graph) {
+module.exports = function($scope, taxData, taxService, graph, cache) {
   $scope.clearGraph = graph.clear.bind(graph);
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
+  $scope.animationTimes = graph.animationTimes;
   $scope.states = taxData.states;
   $scope.filingStatuses = taxData.filingStatuses;
+  $scope.stateNames = taxData.stateNames;
   $scope.graphTypes = taxData.taxTypes;
 
-  $scope.data = {
-    state: 'CA',
-    status: 'single',
-    graphLines: {
-      effective: true,
-      marginal: false,
-      totalEffective: true,
-      totalMarginal: true
-    }
-  };
+  if (!cache.get('stateBreakdownData')) {
+    cache.set('stateBreakdownData', {
+      state: 'CA',
+      status: 'single',
+      graphLines: {
+        effective: true,
+        marginal: false,
+        totalEffective: true,
+        totalMarginal: true
+      }
+    });
+  }
+
+  $scope.data = cache.get('stateBreakdownData');
 
   $scope.createTaxRateFn = function(tax, filingStatus, isEffective) {
     return function(income) {
@@ -147,13 +157,13 @@ module.exports = function($scope, taxData, taxService, graph) {
       if (graphLines.effective) {
         data = taxService.createEffectiveTaxData.apply(taxService, args);
         tooltipFn = $scope.createTaxRateFn(taxes[i], filingStatus, true);
-        graph.addLine(data, taxNames[i], tooltipFn, true);
+        graph.addLine(data, taxNames[i] + ' (E)', tooltipFn, true);
       }
 
       if (graphLines.marginal) {
         data = taxService.createMarginalTaxData.apply(taxService, args);
         tooltipFn = $scope.createTaxRateFn(taxes[i], filingStatus);
-        graph.addLine(data, taxNames[i], tooltipFn);
+        graph.addLine(data, taxNames[i] + ' (M)', tooltipFn);
       }
     }
 
@@ -170,44 +180,47 @@ module.exports = function($scope, taxData, taxService, graph) {
     }
 
     graph.drawLines();
-    graph.updateTitle(state + ' Income Tax Rates, 2014');
+    graph.updateTitle($scope.stateNames[state] + ' Income Tax Rates, 2014');
   };
 
   $scope.init = function() {
-    taxData.get().then(function() {
-      graph.init();
-      $scope.drawGraph();
-    });
+    graph.init();
+    $scope.drawGraph();
   };
 
-  $scope.init();
+  taxData.get().then($scope.init);
 };
 },{}],7:[function(require,module,exports){
 'use strict';
 
-module.exports = function($scope, taxData, taxService, graph) {
+module.exports = function($scope, taxData, taxService, graph, cache) {
   $scope.clearGraph = graph.clear.bind(graph);
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
+  $scope.animationTimes = graph.animationTimes;
   $scope.states = taxData.states;
   $scope.filingStatuses = taxData.filingStatuses;
   $scope.graphLines = taxData.taxTypes;
   $scope.toggleState = false;
 
-  $scope.data = {
-    states: {
-      CA: true,
-      IL: true,
-      PA: true,
-      NY: true,
-      TX: true
-    },
-    status: 'single',
-    graphLines: {
-      effective: true,
-      marginal: false
-    }
-  };
+  if (!cache.get('stateComparisonData')) {
+    cache.set('stateComparisonData', {
+      states: {
+        CA: true,
+        IL: true,
+        PA: true,
+        NY: true,
+        TX: true
+      },
+      status: 'single',
+      graphLines: {
+        effective: true,
+        marginal: false
+      }
+    });
+  }
+
+  $scope.data = cache.get('stateComparisonData');
 
   $scope.toggleStates = function(bool) {
     var state;
@@ -273,13 +286,11 @@ module.exports = function($scope, taxData, taxService, graph) {
   };
 
   $scope.init = function() {
-    taxData.get().then(function() {
-      graph.init();
-      $scope.drawGraph();
-    });
+    graph.init();
+    $scope.drawGraph();
   };
 
-  $scope.init();
+  taxData.get().then($scope.init);
 };
 },{}],8:[function(require,module,exports){
 'use strict';
@@ -289,9 +300,19 @@ var app = require('../app'),
     StateBreakdownCtrl = require('./StateBreakdownCtrl');
 
 app.controller('StateComparisonCtrl', [
-  '$scope', 'taxData', 'taxService', 'graph', StateComparisonCtrl
+  '$scope',
+  'taxData',
+  'taxService',
+  'graph',
+  'cache',
+  StateComparisonCtrl
 ]).controller('StateBreakdownCtrl', [
-  '$scope', 'taxData', 'taxService', 'graph', StateBreakdownCtrl
+  '$scope',
+  'taxData',
+  'taxService',
+  'graph',
+  'cache',
+  StateBreakdownCtrl
 ]);
 },{"../app":1,"./StateBreakdownCtrl":6,"./StateComparisonCtrl":7}],9:[function(require,module,exports){
 'use strict';
@@ -396,7 +417,21 @@ require('./directives');
 require('./factories');
 require('./services');
 require('./controllers');
-},{"./app":1,"./config":2,"./controllers":8,"./directives":9,"./factories":10,"./filters":12,"./services":17}],16:[function(require,module,exports){
+},{"./app":1,"./config":2,"./controllers":8,"./directives":9,"./factories":10,"./filters":12,"./services":18}],16:[function(require,module,exports){
+'use strict';
+
+module.exports = function() {
+  var cache = {};
+
+  this.get = function(key) {
+    return cache[key];
+  };
+
+  this.set = function(key, value) {
+    cache[key] = value;
+  };
+};
+},{}],17:[function(require,module,exports){
 'use strict';
 
 module.exports = function(d3, _, screenService) {
@@ -423,6 +458,8 @@ module.exports = function(d3, _, screenService) {
       '#856EC7'
     ]
   };
+
+  this.animationTimes = [0, 500, 1000, 2000, 3000, 5000, 10000, 20000];
 
   this.classes = {
     controls: 'controls',
@@ -451,7 +488,7 @@ module.exports = function(d3, _, screenService) {
     xMax: 300000,
     yMin: 0,
     yMax: 60,
-    animationTime: 2500,
+    animationTime: 3000,
     colors: this.colors.multi
   };
 
@@ -659,10 +696,14 @@ module.exports = function(d3, _, screenService) {
 
     this.colorIndex = 0;
 
-    // Make sure tooltips are rendered on top of lines
+    // Make sure tooltips are rendered after lines (and appear on top of lines)
     for (i = 0; i < len; i++) {
       this.drawTooltip(this.lines[i].tooltipFn, this.lines[i].label);
       this.changeColor();
+    }
+
+    if (this.settings.animationTime < 100) {
+      this.moveHoverLineToEnd();
     }
   };
 
@@ -670,7 +711,7 @@ module.exports = function(d3, _, screenService) {
   this.scaleYAxis = function() {
     var highestLine = this.lines[0],
         highestY = highestLine.data[highestLine.data.length - 1].y,
-        yMax = Math.ceil(highestY * 10) * 10;
+        yMax = Math.ceil((highestY + 0.05) * 10) * 10;
 
     this.updateYAxis(yMax);
   };
@@ -863,9 +904,7 @@ module.exports = function(d3, _, screenService) {
       });
     }
 
-    if (textPos.length < 8) {
-      this.fixTooltipOverlaps(textPos);
-    }
+    this.fixTooltipOverlaps(textPos);
   };
 
   this.createTooltipPath = function(textWidth, textHeight, xOffset, yOffset) {
@@ -890,6 +929,7 @@ module.exports = function(d3, _, screenService) {
         textXPos = 8,
         yOffset = -10,
         tooltipHeight = 50,
+        maxNumLines = 12,
         yDist,
         diff,
         d;
@@ -901,7 +941,7 @@ module.exports = function(d3, _, screenService) {
     for (var len = textPos.length - 1, i = len; i > 0; i--) {
       yDist = textPos[i].tooltipY - textPos[i-1].tooltipY;
 
-      if (yDist < tooltipHeight) {
+      if (len < maxNumLines && yDist < tooltipHeight) {
         diff = yDist - tooltipHeight;
 
         this.tooltips[textPos[i-1].i].select('text')
@@ -917,8 +957,6 @@ module.exports = function(d3, _, screenService) {
         textPos[i-1].tooltipY += diff;
       }
     }
-
-     console.log(textPos);
   };
 
   this.resetTooltips = function() {
@@ -936,20 +974,22 @@ module.exports = function(d3, _, screenService) {
     this.graph.selectAll(this.selectors.line).remove();
   };
 };
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 var app = require('../app'),
     taxService = require('./taxService'),
     taxData = require('./taxData'),
     graph = require('./graph'),
-    screenService = require('./screenService');
+    screenService = require('./screenService'),
+    cache = require('./cache');
 
 app.service('taxService', ['_', taxService])
   .service('taxData', ['$http', '$q', '$filter', 'TAX_API', taxData])
   .service('graph', ['d3', '_', 'screenService', graph])
-  .service('screenService', ['$window', screenService]);
-},{"../app":1,"./graph":16,"./screenService":18,"./taxData":19,"./taxService":20}],18:[function(require,module,exports){
+  .service('screenService', ['$window', screenService])
+  .service('cache', cache);
+},{"../app":1,"./cache":16,"./graph":17,"./screenService":19,"./taxData":20,"./taxService":21}],19:[function(require,module,exports){
 'use strict';
 
 module.exports = function($window) {
@@ -968,7 +1008,7 @@ module.exports = function($window) {
     this.height = $window.innerHeight;
   }.bind(this);
 };
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 module.exports = function($http, $q, $filter, TAX_API) {
@@ -979,6 +1019,60 @@ module.exports = function($http, $q, $filter, TAX_API) {
   this.states = [];
   this.filingStatuses = [];
   this.taxTypes = ['effective', 'marginal'];
+
+  this.stateNames = {
+    AL: 'Alabama',
+    AK: 'Alaska',
+    AZ: 'Arizona',
+    AR: 'Arkansas',
+    CA: 'California',
+    CO: 'Colorado',
+    CT: 'Connecticut',
+    DC: 'Washington, D.C.',
+    DE: 'Delaware',
+    FL: 'Florida',
+    GA: 'Georgia',
+    HI: 'Hawaii',
+    ID: 'Idaho',
+    IL: 'Illinois',
+    IN: 'Indiana',
+    IA: 'Iowa',
+    KS: 'Kansas',
+    KY: 'Kentucky',
+    LA: 'Louisiana',
+    ME: 'Maine',
+    MD: 'Maryland',
+    MA: 'Massachusetts',
+    MI: 'Michigan',
+    MN: 'Minnesota',
+    MS: 'Mississippi',
+    MO: 'Missouri',
+    MT: 'Montana',
+    NE: 'Nebraska',
+    NV: 'Nevada',
+    NH: 'New Hampshire',
+    NJ: 'New Jersey',
+    NM: 'New Mexico',
+    NY: 'New York',
+    NC: 'North Carolina',
+    ND: 'North Dakota',
+    OH: 'Ohio',
+    OK: 'Oklahoma',
+    OR: 'Oregon',
+    PA: 'Pennsylvania',
+    RI: 'Rhode Island',
+    SC: 'South Carolina',
+    SD: 'South Dakota',
+    TN: 'Tennessee',
+    TX: 'Texas',
+    UT: 'Utah',
+    VT: 'Vermont',
+    VA: 'Virginia',
+    WA: 'Washington',
+    WV: 'West Virginia',
+    WI: 'Wisconsin',
+    WY: 'Wyoming',
+  };
 
   this.get = function() {
     var deferred = $q.defer();
@@ -1047,7 +1141,7 @@ module.exports = function($http, $q, $filter, TAX_API) {
     return taxes;
   };
 };
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
 require('../lib/Math.round10');
@@ -1353,7 +1447,7 @@ module.exports = function(_) {
   this.calcMarginalTaxRate = calcMarginalTaxRate;
   this.calcEffectiveTaxRate = calcEffectiveTaxRate;
 };
-},{"../lib/Math.round10":14}],21:[function(require,module,exports){
+},{"../lib/Math.round10":14}],22:[function(require,module,exports){
 /**
  * @license AngularJS v1.2.17-build.163+sha.fafcd62
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -2282,12 +2376,12 @@ function ngViewFillContentFactory($compile, $controller, $route) {
 
 })(window, window.angular);
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 require('./lib/angular.js');
 
 module.exports = angular;
 
-},{"./lib/angular.js":23}],23:[function(require,module,exports){
+},{"./lib/angular.js":24}],24:[function(require,module,exports){
 /**
  * @license AngularJS v1.2.23
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -24242,7 +24336,7 @@ var styleDirective = valueFn({
 })(window, document);
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}.ng-animate-block-transitions{transition:0s all!important;-webkit-transition:0s all!important;}.ng-hide-add-active,.ng-hide-remove{display:block!important;}</style>');
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 !function() {
   var d3 = {
     version: "3.4.11"
@@ -33476,7 +33570,7 @@ var styleDirective = valueFn({
   if (typeof define === "function" && define.amd) define(d3); else if (typeof module === "object" && module.exports) module.exports = d3;
   this.d3 = d3;
 }();
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 (function (global){
 /**
  * @license

@@ -4,7 +4,7 @@
   <div>
     <label for="state">State:</label>
     <select ng-model="data.state" id="state" name="state"
-     ng-options="v for v in states">
+     ng-options="v as (stateNames[v]) for v in states">
     </select>
   </div>
 
@@ -50,7 +50,10 @@
 
   <div>
     <label for="animation-time">Animation Time:</label>
-    <input type="text" id="animation-time" name="animation-time" ng-model="settings.animationTime">
+    <select id="animation-time" name="animation-time" ng-model="settings.animationTime"
+     ng-options="time as ((time / 1000) + ' seconds') for time in animationTimes">
+      </option>
+    </select>
   </div>
 
   <div>
@@ -58,8 +61,9 @@
     <select id="colors" name="colors" ng-model="settings.colors" ng-options="(key | capitalize) for (key, val) in colors"></select>
   </div>
 
-  <div class="text-center">
+  <div class="text-center buttons">
     <button class="pure-button pure-button-primary" ng-click="drawGraph()">Graph</button>
-    <button class="pure-button" ng-click="clearGraph()">Clear</button>
+    <button class="pure-button" ng-click="">Save</button>
+    <button class="pure-button" ng-click="">Help</button>
   </div>
 </div>

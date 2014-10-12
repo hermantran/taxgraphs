@@ -25,6 +25,8 @@ module.exports = function(d3, _, screenService) {
     ]
   };
 
+  this.animationTimes = [0, 500, 1000, 2000, 3000, 5000, 10000, 20000];
+
   this.classes = {
     controls: 'controls',
     data: 'data',
@@ -52,7 +54,7 @@ module.exports = function(d3, _, screenService) {
     xMax: 300000,
     yMin: 0,
     yMax: 60,
-    animationTime: 2500,
+    animationTime: 3000,
     colors: this.colors.multi
   };
 
@@ -260,10 +262,14 @@ module.exports = function(d3, _, screenService) {
 
     this.colorIndex = 0;
 
-    // Make sure tooltips are rendered on top of lines
+    // Make sure tooltips are rendered after lines (and appear on top of lines)
     for (i = 0; i < len; i++) {
       this.drawTooltip(this.lines[i].tooltipFn, this.lines[i].label);
       this.changeColor();
+    }
+
+    if (this.settings.animationTime < 100) {
+      this.moveHoverLineToEnd();
     }
   };
 
@@ -271,7 +277,7 @@ module.exports = function(d3, _, screenService) {
   this.scaleYAxis = function() {
     var highestLine = this.lines[0],
         highestY = highestLine.data[highestLine.data.length - 1].y,
-        yMax = Math.ceil(highestY * 10) * 10;
+        yMax = Math.ceil((highestY + 0.05) * 10) * 10;
 
     this.updateYAxis(yMax);
   };
@@ -464,9 +470,7 @@ module.exports = function(d3, _, screenService) {
       });
     }
 
-    if (textPos.length < 8) {
-      this.fixTooltipOverlaps(textPos);
-    }
+    this.fixTooltipOverlaps(textPos);
   };
 
   this.createTooltipPath = function(textWidth, textHeight, xOffset, yOffset) {
@@ -491,6 +495,7 @@ module.exports = function(d3, _, screenService) {
         textXPos = 8,
         yOffset = -10,
         tooltipHeight = 50,
+        maxNumLines = 12,
         yDist,
         diff,
         d;
@@ -502,7 +507,7 @@ module.exports = function(d3, _, screenService) {
     for (var len = textPos.length - 1, i = len; i > 0; i--) {
       yDist = textPos[i].tooltipY - textPos[i-1].tooltipY;
 
-      if (yDist < tooltipHeight) {
+      if (len < maxNumLines && yDist < tooltipHeight) {
         diff = yDist - tooltipHeight;
 
         this.tooltips[textPos[i-1].i].select('text')
@@ -518,8 +523,6 @@ module.exports = function(d3, _, screenService) {
         textPos[i-1].tooltipY += diff;
       }
     }
-
-     console.log(textPos);
   };
 
   this.resetTooltips = function() {

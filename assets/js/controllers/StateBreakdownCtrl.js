@@ -1,23 +1,29 @@
 'use strict';
 
-module.exports = function($scope, taxData, taxService, graph) {
+module.exports = function($scope, taxData, taxService, graph, cache) {
   $scope.clearGraph = graph.clear.bind(graph);
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
+  $scope.animationTimes = graph.animationTimes;
   $scope.states = taxData.states;
   $scope.filingStatuses = taxData.filingStatuses;
+  $scope.stateNames = taxData.stateNames;
   $scope.graphTypes = taxData.taxTypes;
 
-  $scope.data = {
-    state: 'CA',
-    status: 'single',
-    graphLines: {
-      effective: true,
-      marginal: false,
-      totalEffective: true,
-      totalMarginal: true
-    }
-  };
+  if (!cache.get('stateBreakdownData')) {
+    cache.set('stateBreakdownData', {
+      state: 'CA',
+      status: 'single',
+      graphLines: {
+        effective: true,
+        marginal: false,
+        totalEffective: true,
+        totalMarginal: true
+      }
+    });
+  }
+
+  $scope.data = cache.get('stateBreakdownData');
 
   $scope.createTaxRateFn = function(tax, filingStatus, isEffective) {
     return function(income) {
@@ -58,13 +64,13 @@ module.exports = function($scope, taxData, taxService, graph) {
       if (graphLines.effective) {
         data = taxService.createEffectiveTaxData.apply(taxService, args);
         tooltipFn = $scope.createTaxRateFn(taxes[i], filingStatus, true);
-        graph.addLine(data, taxNames[i], tooltipFn, true);
+        graph.addLine(data, taxNames[i] + ' (E)', tooltipFn, true);
       }
 
       if (graphLines.marginal) {
         data = taxService.createMarginalTaxData.apply(taxService, args);
         tooltipFn = $scope.createTaxRateFn(taxes[i], filingStatus);
-        graph.addLine(data, taxNames[i], tooltipFn);
+        graph.addLine(data, taxNames[i] + ' (M)', tooltipFn);
       }
     }
 
@@ -81,15 +87,13 @@ module.exports = function($scope, taxData, taxService, graph) {
     }
 
     graph.drawLines();
-    graph.updateTitle(state + ' Income Tax Rates, 2014');
+    graph.updateTitle($scope.stateNames[state] + ' Income Tax Rates, 2014');
   };
 
   $scope.init = function() {
-    taxData.get().then(function() {
-      graph.init();
-      $scope.drawGraph();
-    });
+    graph.init();
+    $scope.drawGraph();
   };
 
-  $scope.init();
+  taxData.get().then($scope.init);
 };

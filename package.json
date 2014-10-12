@@ -2,17 +2,23 @@
   "name": "taxgraphs",
   "private": true,
   "version": "0.0.9",
-  "description": "Visualization of US state individual income tax rates",
+  "description": "Visualization of US individual income tax rates",
   "author": "Herman Tran <hermanctran@gmail.com>",
   "license": "MIT",
-  "keywords": ["income", "tax", "state", "federal", "graph", "visualization"],
+  "keywords": [
+    "income",
+    "tax",
+    "state",
+    "federal",
+    "graph",
+    "visualization"
+  ],
   "repository": {
     "type": "git",
     "url": "git@github.com:hermantran/taxgraphs.git"
   },
   "dependencies": {
     "angular": "^1.2.23",
-    "angular-local-storage": "^0.1.1",
     "angular-route": "^1.2.17-build.163.1",
     "browserify": "^5.11.2",
     "browserify-shim": "^3.7.0",

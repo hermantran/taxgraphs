@@ -4,11 +4,13 @@ module.exports = function($routeProvider) {
   $routeProvider
     .when('/', {
       templateUrl: 'assets/templates/state-comparison.html',
-      controller: 'StateComparisonCtrl'
+      controller: 'StateComparisonCtrl',
+      title: 'State Comparison'
     })
     .when('/state', {
       templateUrl: 'assets/templates/state-breakdown.html',
-      controller: 'StateBreakdownCtrl'
+      controller: 'StateBreakdownCtrl',
+      title: 'State Breakdown'
     })
     .otherwise({
       redirectTo: '/'
