@@ -528,18 +528,22 @@ module.exports = function(d3, _, screenService) {
     }
   };
 
-  this.resetTooltips = function() {
+  this.removeTooltips = function() {
     this.updateHoverLine(-1);
     this.tooltips.length = 0;
     this.tooltipFns.length = 0;
     this.colorIndex = 0;
+    this.graph.selectAll(this.selectors.tooltip).remove();
+  };
+
+  this.removeLines = function() {
+    this.lines.length = 0;
+    this.graph.selectAll(this.selectors.line).transition().duration(0);
+    this.graph.selectAll(this.selectors.line).remove();
   };
 
   this.clear = function() {
-    this.resetTooltips();
-    this.lines.length = 0;
-    this.graph.selectAll(this.selectors.tooltip).remove();
-    this.graph.selectAll(this.selectors.line).transition().duration(0);
-    this.graph.selectAll(this.selectors.line).remove();
+    this.removeTooltips();
+    this.removeLines();
   };
 };

@@ -7,6 +7,7 @@ module.exports = function($http, $q, $filter, TAX_API) {
   this.data = {};
   this.states = [];
   this.filingStatuses = [];
+  this.deductions = [];
   this.taxTypes = ['effective', 'marginal'];
 
   this.stateNames = {
@@ -91,6 +92,10 @@ module.exports = function($http, $q, $filter, TAX_API) {
 
     for (var filingStatus in data.federal.taxes.income.rate) {
       this.filingStatuses.push(filingStatus);
+    }
+
+    for (var deduction in data.federal.deductions) {
+      this.deductions.push(deduction);
     }
   };
 

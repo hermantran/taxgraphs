@@ -94,14 +94,13 @@ module.exports = function($provide, JST) {
 'use strict';
 
 module.exports = function($scope, taxData, taxService, graph, cache, tips) {
-  $scope.clearGraph = graph.clear.bind(graph);
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
   $scope.states = taxData.states;
   $scope.filingStatuses = taxData.filingStatuses;
   $scope.stateNames = taxData.stateNames;
-  $scope.graphTypes = taxData.taxTypes;
+  $scope.deductions = taxData.deductions;
   $scope.tips = tips.list;
   $scope.closeTip = tips.close;
 
@@ -109,6 +108,10 @@ module.exports = function($scope, taxData, taxService, graph, cache, tips) {
     cache.set('stateBreakdownData', {
       state: 'CA',
       status: 'single',
+      deductions: {
+        standardDeduction: true,
+        personalExemption: true
+      },
       graphLines: {
         effective: true,
         marginal: false,
@@ -199,13 +202,12 @@ module.exports = function($scope, taxData, taxService, graph, cache, tips) {
 'use strict';
 
 module.exports = function($scope, taxData, taxService, graph, cache, tips) {
-  $scope.clearGraph = graph.clear.bind(graph);
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
   $scope.states = taxData.states;
   $scope.filingStatuses = taxData.filingStatuses;
-  $scope.graphLines = taxData.taxTypes;
+  $scope.deductions = taxData.deductions;
   $scope.toggleState = false;
   $scope.tips = tips.list;
   $scope.closeTip = tips.close;
@@ -220,6 +222,10 @@ module.exports = function($scope, taxData, taxService, graph, cache, tips) {
         TX: true
       },
       status: 'single',
+      deductions: {
+        standardDeduction: true,
+        personalExemption: true
+      },
       graphLines: {
         effective: true,
         marginal: false
@@ -971,19 +977,23 @@ module.exports = function(d3, _, screenService) {
     }
   };
 
-  this.resetTooltips = function() {
+  this.removeTooltips = function() {
     this.updateHoverLine(-1);
     this.tooltips.length = 0;
     this.tooltipFns.length = 0;
     this.colorIndex = 0;
+    this.graph.selectAll(this.selectors.tooltip).remove();
+  };
+
+  this.removeLines = function() {
+    this.lines.length = 0;
+    this.graph.selectAll(this.selectors.line).transition().duration(0);
+    this.graph.selectAll(this.selectors.line).remove();
   };
 
   this.clear = function() {
-    this.resetTooltips();
-    this.lines.length = 0;
-    this.graph.selectAll(this.selectors.tooltip).remove();
-    this.graph.selectAll(this.selectors.line).transition().duration(0);
-    this.graph.selectAll(this.selectors.line).remove();
+    this.removeTooltips();
+    this.removeLines();
   };
 };
 },{}],18:[function(require,module,exports){
@@ -1033,6 +1043,7 @@ module.exports = function($http, $q, $filter, TAX_API) {
   this.data = {};
   this.states = [];
   this.filingStatuses = [];
+  this.deductions = [];
   this.taxTypes = ['effective', 'marginal'];
 
   this.stateNames = {
@@ -1117,6 +1128,10 @@ module.exports = function($http, $q, $filter, TAX_API) {
 
     for (var filingStatus in data.federal.taxes.income.rate) {
       this.filingStatuses.push(filingStatus);
+    }
+
+    for (var deduction in data.federal.deductions) {
+      this.deductions.push(deduction);
     }
   };
 

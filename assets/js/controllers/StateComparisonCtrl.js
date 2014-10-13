@@ -1,13 +1,12 @@
 'use strict';
 
 module.exports = function($scope, taxData, taxService, graph, cache, tips) {
-  $scope.clearGraph = graph.clear.bind(graph);
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
   $scope.states = taxData.states;
   $scope.filingStatuses = taxData.filingStatuses;
-  $scope.graphLines = taxData.taxTypes;
+  $scope.deductions = taxData.deductions;
   $scope.toggleState = false;
   $scope.tips = tips.list;
   $scope.closeTip = tips.close;
@@ -22,6 +21,10 @@ module.exports = function($scope, taxData, taxService, graph, cache, tips) {
         TX: true
       },
       status: 'single',
+      deductions: {
+        standardDeduction: true,
+        personalExemption: true
+      },
       graphLines: {
         effective: true,
         marginal: false
