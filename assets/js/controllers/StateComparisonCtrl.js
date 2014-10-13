@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function($scope, taxData, taxService, graph, cache) {
+module.exports = function($scope, taxData, taxService, graph, cache, tips) {
   $scope.clearGraph = graph.clear.bind(graph);
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
@@ -9,6 +9,8 @@ module.exports = function($scope, taxData, taxService, graph, cache) {
   $scope.filingStatuses = taxData.filingStatuses;
   $scope.graphLines = taxData.taxTypes;
   $scope.toggleState = false;
+  $scope.tips = tips.list;
+  $scope.closeTip = tips.close;
 
   if (!cache.get('stateComparisonData')) {
     cache.set('stateComparisonData', {

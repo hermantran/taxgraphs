@@ -4,6 +4,8 @@ TaxGraphs is a web app that graphs marginal and effective tax rates against inco
 
 Tax data is collected from each state's official website and the [Tax Foundation](http://taxfoundation.org/article/state-individual-income-tax-rates). The app uses AngularJS and D3.js to display the visualization, and Browserify and LESS for asset compilation.
 
+The app is currently hosted on GitHub Pages and can be visited at [http://taxgraphs.io](http://taxgraphs.io).
+
 Setup
 ---
 To run the app locally, install [Node.js](http://nodejs.org/download/) and then execute the following from the project directory:

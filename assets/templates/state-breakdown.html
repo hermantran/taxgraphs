@@ -51,7 +51,7 @@
   <div>
     <label for="animation-time">Animation Time:</label>
     <select id="animation-time" name="animation-time" ng-model="settings.animationTime"
-     ng-options="time as ((time / 1000) + ' seconds') for time in animationTimes">
+     ng-options="time as ((time / 1000) + (time === 1000 ? ' second' : ' seconds')) for time in animationTimes">
       </option>
     </select>
   </div>
@@ -64,6 +64,11 @@
   <div class="text-center buttons">
     <button class="pure-button pure-button-primary" ng-click="drawGraph()">Graph</button>
     <button class="pure-button" ng-click="">Save</button>
-    <button class="pure-button" ng-click="">Help</button>
   </div>
+</div>
+
+<div class="section tip" ng-repeat="tip in tips" ng-hide="tip.closed">
+  <i class="fa fa-info-circle info"></i>
+  <span class="text">{{ tip.text }}</span>
+  <i class="fa fa-close close" ng-click="closeTip($index)"></i>
 </div>

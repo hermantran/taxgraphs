@@ -53,7 +53,8 @@
   }
 
   label {
-    display: inline;
+    display: inline-block;
+    min-width: 40px;
   }
 }
 
@@ -65,4 +66,50 @@
 
 #no-states {
   margin-left: 15px;
+}
+
+.tip {
+  font-size: 0.95em;
+  border: 1px solid darken(@light-grey, 10%);
+  position: relative;
+
+  .info {
+    position: absolute;
+    top: 7px;
+    left: 10px;
+  }
+
+  .text {
+    display: inline-block;
+    padding: 0 25px;
+  }
+
+  .close {
+    position: absolute;
+    top: 7px;
+    right: 10px;
+    cursor: pointer;
+  }
+}
+
+.footer {
+  position: absolute;
+  bottom: 5px;
+  left: 10px;
+  width: 100%;
+  font-size: 0.95em;
+
+  a {
+    text-decoration: none;
+    color: #777;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.copyright {
+  font-size: 0.85em;
+  color: #888;
 }

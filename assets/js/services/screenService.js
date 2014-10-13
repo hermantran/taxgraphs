@@ -1,9 +1,12 @@
 'use strict';
 
 module.exports = function($window) {
-  this.width = $window.innerWidth;
-  this.height = $window.innerHeight;
-
+  this.setSize = function() {
+    this.width = $window.innerWidth;
+    this.height = $window.innerHeight;
+    console.log(this.width, this.height);
+  }.bind(this);
+  
   this.sizes = {
     sm: 568,
     md: 768,
@@ -11,8 +14,6 @@ module.exports = function($window) {
     xl: 1280 
   };
 
-  $window.onresize = function() {
-    this.width = $window.innerWidth;
-    this.height = $window.innerHeight;
-  }.bind(this);
+  this.setSize();
+  angular.element($window).bind('resize', this.setSize);
 };

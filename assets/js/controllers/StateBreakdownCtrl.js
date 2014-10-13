@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function($scope, taxData, taxService, graph, cache) {
+module.exports = function($scope, taxData, taxService, graph, cache, tips) {
   $scope.clearGraph = graph.clear.bind(graph);
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
@@ -9,6 +9,8 @@ module.exports = function($scope, taxData, taxService, graph, cache) {
   $scope.filingStatuses = taxData.filingStatuses;
   $scope.stateNames = taxData.stateNames;
   $scope.graphTypes = taxData.taxTypes;
+  $scope.tips = tips.list;
+  $scope.closeTip = tips.close;
 
   if (!cache.get('stateBreakdownData')) {
     cache.set('stateBreakdownData', {
@@ -43,6 +45,7 @@ module.exports = function($scope, taxData, taxService, graph, cache) {
         taxes = taxData.getTaxes(state),
         taxNames = taxData.getTaxNames(state),
         tooltipFn,
+        label,
         data,
         total,
         args;
@@ -62,15 +65,17 @@ module.exports = function($scope, taxData, taxService, graph, cache) {
       args = [taxes[i], xMax, filingStatus];
 
       if (graphLines.effective) {
+        label = taxNames[i] + (graphLines.marginal ? ' (E)' : '');
         data = taxService.createEffectiveTaxData.apply(taxService, args);
         tooltipFn = $scope.createTaxRateFn(taxes[i], filingStatus, true);
-        graph.addLine(data, taxNames[i] + ' (E)', tooltipFn, true);
+        graph.addLine(data, label, tooltipFn, true);
       }
 
       if (graphLines.marginal) {
+        label = taxNames[i] + (graphLines.effective ? ' (M)' : '');
         data = taxService.createMarginalTaxData.apply(taxService, args);
         tooltipFn = $scope.createTaxRateFn(taxes[i], filingStatus);
-        graph.addLine(data, taxNames[i] + ' (M)', tooltipFn);
+        graph.addLine(data, label, tooltipFn);
       }
     }
 

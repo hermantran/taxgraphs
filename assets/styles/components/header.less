@@ -8,12 +8,19 @@ header.pure-menu.pure-menu-horizontal {
   .logo {
     font-weight: 500;
     font-size: 1em;
-    padding: 0 20px;
+    padding: 7px 40px 7px 15px;
   }
 
   li a {
-    &:hover, &.active {
+    &:hover {
+      background: darken(@blue, 5%);
+    }
+    &.active {
       background: darken(@blue, 10%);
     }
+  }
+
+  .mobile {
+    float: right;
   }
 }

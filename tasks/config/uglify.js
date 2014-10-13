@@ -20,7 +20,7 @@ module.exports = function(grunt) {
           '/*!',
           ' * <%= pkg.name %> v<%= pkg.version %>',
           ' * Copyright 2014 <%= pkg.author %>',
-          ' * Licensed under <%= pkg.license %>',
+          ' * Licensed under the <%= pkg.license %> license.',
           ' */',
           ''
         ].join('\n')

@@ -23,38 +23,35 @@ header {
        box-sizing: border-box;
 }
 
-/*
-.controls-wrapper {
-  height: 100%;
-  position: absolute;
-}
-*/
-
 .controls-wrapper {
   position: relative;
+  background: @light-grey;
+  height: 100%;
 }
 
 .controls {
-  height: 100%;
   width: 100%;
-  position: absolute;
-  background: @light-grey;
   overflow: auto;
+}
+
+.graph-wrapper {
+  position: relative;
+  height: 100%;
 }
 
 @media screen and (max-width: (@screen-sm-min - 1)) {
   .pure-hidden-xs {
-    display: none;
+    display: none !important;
   }
 
   .pure-hidden-sm {
-    display: none;
+    display: none !important;
   }
 }
 
 @media screen and (max-width: @screen-sm-max) {
   .pure-hidden-sm {
-    display: none;
+    display: none !important;
   }
 
   .container {
@@ -65,5 +62,17 @@ header {
     height: auto;
     width: auto;
     position: relative;
+  }
+}
+
+@media screen and (min-width: @screen-md-min) {
+  .pure-visible-sm {
+    display: none !important;
+  }
+}
+
+@media screen and (min-width: @screen-sm-min) {
+  .pure-visible-xs {
+    display: none !important;
   }
 }

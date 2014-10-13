@@ -10,6 +10,7 @@ app.controller('StateComparisonCtrl', [
   'taxService',
   'graph',
   'cache',
+  'tips',
   StateComparisonCtrl
 ]).controller('StateBreakdownCtrl', [
   '$scope',
@@ -17,5 +18,6 @@ app.controller('StateComparisonCtrl', [
   'taxService',
   'graph',
   'cache',
+  'tips',
   StateBreakdownCtrl
 ]);

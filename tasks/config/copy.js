@@ -20,6 +20,20 @@ module.exports = function(grunt) {
       files: [
         {
           expand: true,
+          cwd: './node_modules/font-awesome/fonts',
+          src: [
+            '*'
+          ],
+          dest: 'dist/fonts/'
+        }, {
+          expand: true,
+          cwd: './node_modules/font-awesome/css',
+          src: [
+            'font-awesome.min.css'
+          ],
+          dest: 'dist/styles/'
+        }, {
+          expand: true,
           cwd: './node_modules/purecss',
           src: [
             'pure-min.css',

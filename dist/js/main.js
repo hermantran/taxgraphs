@@ -3,9 +3,10 @@
 
 var angular = require('angular');
 require('angular-route/angular-route');
+require('angular-local-storage');
 
-module.exports = angular.module('taxApp', ['ngRoute']);
-},{"angular":23,"angular-route/angular-route":22}],2:[function(require,module,exports){
+module.exports = angular.module('taxApp', ['ngRoute', 'LocalStorageModule']);
+},{"angular":25,"angular-local-storage":23,"angular-route/angular-route":24}],2:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -28,14 +29,13 @@ app.constant('d3', d3)
   .config(['$routeProvider', routes])
   .run(['$rootScope', '$location', rootScope]);
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../app":1,"./rootScope":3,"./routes":4,"./templateCache":5,"d3":25,"lodash":26}],3:[function(require,module,exports){
+},{"../app":1,"./rootScope":3,"./routes":4,"./templateCache":5,"d3":27,"lodash":28}],3:[function(require,module,exports){
 'use strict';
 
 function rootScope($rootScope, $location) {
   $rootScope.$on('$routeChangeSuccess', function(e, route) {
     $rootScope.activeRoute = $location.path();
     $rootScope.title = route.title;
-    console.log(route);
 
     $rootScope.isActive = function(route) {
       return $rootScope.activeRoute === route;
@@ -93,7 +93,7 @@ module.exports = function($provide, JST) {
 },{}],6:[function(require,module,exports){
 'use strict';
 
-module.exports = function($scope, taxData, taxService, graph, cache) {
+module.exports = function($scope, taxData, taxService, graph, cache, tips) {
   $scope.clearGraph = graph.clear.bind(graph);
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
@@ -102,6 +102,8 @@ module.exports = function($scope, taxData, taxService, graph, cache) {
   $scope.filingStatuses = taxData.filingStatuses;
   $scope.stateNames = taxData.stateNames;
   $scope.graphTypes = taxData.taxTypes;
+  $scope.tips = tips.list;
+  $scope.closeTip = tips.close;
 
   if (!cache.get('stateBreakdownData')) {
     cache.set('stateBreakdownData', {
@@ -136,6 +138,7 @@ module.exports = function($scope, taxData, taxService, graph, cache) {
         taxes = taxData.getTaxes(state),
         taxNames = taxData.getTaxNames(state),
         tooltipFn,
+        label,
         data,
         total,
         args;
@@ -155,15 +158,17 @@ module.exports = function($scope, taxData, taxService, graph, cache) {
       args = [taxes[i], xMax, filingStatus];
 
       if (graphLines.effective) {
+        label = taxNames[i] + (graphLines.marginal ? ' (E)' : '');
         data = taxService.createEffectiveTaxData.apply(taxService, args);
         tooltipFn = $scope.createTaxRateFn(taxes[i], filingStatus, true);
-        graph.addLine(data, taxNames[i] + ' (E)', tooltipFn, true);
+        graph.addLine(data, label, tooltipFn, true);
       }
 
       if (graphLines.marginal) {
+        label = taxNames[i] + (graphLines.effective ? ' (M)' : '');
         data = taxService.createMarginalTaxData.apply(taxService, args);
         tooltipFn = $scope.createTaxRateFn(taxes[i], filingStatus);
-        graph.addLine(data, taxNames[i] + ' (M)', tooltipFn);
+        graph.addLine(data, label, tooltipFn);
       }
     }
 
@@ -193,7 +198,7 @@ module.exports = function($scope, taxData, taxService, graph, cache) {
 },{}],7:[function(require,module,exports){
 'use strict';
 
-module.exports = function($scope, taxData, taxService, graph, cache) {
+module.exports = function($scope, taxData, taxService, graph, cache, tips) {
   $scope.clearGraph = graph.clear.bind(graph);
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
@@ -202,6 +207,8 @@ module.exports = function($scope, taxData, taxService, graph, cache) {
   $scope.filingStatuses = taxData.filingStatuses;
   $scope.graphLines = taxData.taxTypes;
   $scope.toggleState = false;
+  $scope.tips = tips.list;
+  $scope.closeTip = tips.close;
 
   if (!cache.get('stateComparisonData')) {
     cache.set('stateComparisonData', {
@@ -305,6 +312,7 @@ app.controller('StateComparisonCtrl', [
   'taxService',
   'graph',
   'cache',
+  'tips',
   StateComparisonCtrl
 ]).controller('StateBreakdownCtrl', [
   '$scope',
@@ -312,6 +320,7 @@ app.controller('StateComparisonCtrl', [
   'taxService',
   'graph',
   'cache',
+  'tips',
   StateBreakdownCtrl
 ]);
 },{"../app":1,"./StateBreakdownCtrl":6,"./StateComparisonCtrl":7}],9:[function(require,module,exports){
@@ -535,8 +544,8 @@ module.exports = function(d3, _, screenService) {
 
   this.createGraph = function() {
     this.svg
-      .attr('width', this.w + this.m[1] + this.m[3])
-      .attr('height', this.h + this.m[0] + this.m[2]);
+      .attr('width', this.w + this.m[1] + this.m[3] + 'px')
+      .attr('height', this.h + this.m[0] + this.m[2] + 'px');
 
     this.graph = this.svg
       .append('svg:g')
@@ -564,13 +573,17 @@ module.exports = function(d3, _, screenService) {
   };
 
   this.updateXAxis = function(xMax) {
-    var ticks = 6;
+    var ticks, format;
 
     xMax = isNaN(xMax) ? this.defaults.xMax : xMax;
     this.settings.xMax = xMax;
 
     if (screenService.width < screenService.sizes.lg) {
       ticks = 3;
+      format = d3.format('$.1s');
+    } else {
+      ticks = 6;
+      format = d3.format('$0,000');
     }
 
     this.x = d3.scale.linear()
@@ -581,7 +594,7 @@ module.exports = function(d3, _, screenService) {
       .scale(this.x)
       .ticks(ticks)
       .tickSize(-this.h, 0)
-      .tickFormat(d3.format('$0,000'))
+      .tickFormat(format)
       .tickPadding(10)
       .orient('bottom');
 
@@ -688,6 +701,7 @@ module.exports = function(d3, _, screenService) {
     });
 
     this.scaleYAxis();
+    this.updateHoverLabel(-1);
 
     for (i = 0; i < len; i++) {
       this.drawLine(this.lines[i].data, this.lines[i].isInterpolated);
@@ -887,10 +901,8 @@ module.exports = function(d3, _, screenService) {
         .attr('x', textXPos)
         .text(text);
 
-      textWidth = tooltipText.style('width');
-      textWidth = parseInt(textWidth, 10) + 10;
-      textHeight = tooltipText.style('height');
-      textHeight = parseInt(textHeight, 10) + 5;
+      textWidth = tooltipText.node().getBBox().width + 10;
+      textHeight = tooltipText.node().getBBox().height + 3;
       d = this.createTooltipPath(textWidth, textHeight, textXPos - 3, yOffset);
 
       this.tooltips[i].select('path')
@@ -928,7 +940,7 @@ module.exports = function(d3, _, screenService) {
     var textYPos = -35,
         textXPos = 8,
         yOffset = -10,
-        tooltipHeight = 50,
+        tooltipHeight = 45,
         maxNumLines = 12,
         yDist,
         diff,
@@ -982,20 +994,25 @@ var app = require('../app'),
     taxData = require('./taxData'),
     graph = require('./graph'),
     screenService = require('./screenService'),
-    cache = require('./cache');
+    cache = require('./cache'),
+    tips = require('./tips');
 
 app.service('taxService', ['_', taxService])
   .service('taxData', ['$http', '$q', '$filter', 'TAX_API', taxData])
   .service('graph', ['d3', '_', 'screenService', graph])
   .service('screenService', ['$window', screenService])
-  .service('cache', cache);
-},{"../app":1,"./cache":16,"./graph":17,"./screenService":19,"./taxData":20,"./taxService":21}],19:[function(require,module,exports){
+  .service('cache', cache)
+  .service('tips', ['localStorageService', tips]);
+},{"../app":1,"./cache":16,"./graph":17,"./screenService":19,"./taxData":20,"./taxService":21,"./tips":22}],19:[function(require,module,exports){
 'use strict';
 
 module.exports = function($window) {
-  this.width = $window.innerWidth;
-  this.height = $window.innerHeight;
-
+  this.setSize = function() {
+    this.width = $window.innerWidth;
+    this.height = $window.innerHeight;
+    console.log(this.width, this.height);
+  }.bind(this);
+  
   this.sizes = {
     sm: 568,
     md: 768,
@@ -1003,10 +1020,8 @@ module.exports = function($window) {
     xl: 1280 
   };
 
-  $window.onresize = function() {
-    this.width = $window.innerWidth;
-    this.height = $window.innerHeight;
-  }.bind(this);
+  this.setSize();
+  angular.element($window).bind('resize', this.setSize);
 };
 },{}],20:[function(require,module,exports){
 'use strict';
@@ -1448,6 +1463,486 @@ module.exports = function(_) {
   this.calcEffectiveTaxRate = calcEffectiveTaxRate;
 };
 },{"../lib/Math.round10":14}],22:[function(require,module,exports){
+'use strict';
+
+module.exports = function(localStorageService) {
+  var list;
+
+  this.key = 'taxAppTips';
+
+  if (!localStorageService.get(this.key)) {
+    list = [
+      {
+        closed: false,
+        text: 'Hover over or click on the graph to view tax rates ' +
+          'at a specific income.'
+      }
+    ];
+    localStorageService.set(this.key, list);
+  }
+
+  this.list = localStorageService.get(this.key);
+
+  this.close = function(index) {
+    index = parseInt(index, 10);
+    this.list[index].closed = true;
+    localStorageService.set(this.key, this.list);
+  }.bind(this);
+};
+},{}],23:[function(require,module,exports){
+/**
+ * An Angular module that gives you access to the browsers local storage
+ * @version v0.1.2 - 2014-10-10
+ * @link https://github.com/grevory/angular-local-storage
+ * @author grevory <greg@gregpike.ca>
+ * @license MIT License, http://www.opensource.org/licenses/MIT
+ */
+(function ( window, angular, undefined ) {
+/*jshint globalstrict:true*/
+'use strict';
+
+var isDefined = angular.isDefined,
+  isUndefined = angular.isUndefined,
+  isNumber = angular.isNumber,
+  isObject = angular.isObject,
+  isArray = angular.isArray,
+  extend = angular.extend,
+  toJson = angular.toJson,
+  fromJson = angular.fromJson;
+
+
+// Test if string is only contains numbers
+// e.g '1' => true, "'1'" => true
+function isStringNumber(num) {
+  return  /^-?\d+\.?\d*$/.test(num.replace(/["']/g, ''));
+}
+
+var angularLocalStorage = angular.module('LocalStorageModule', []);
+
+angularLocalStorage.provider('localStorageService', function() {
+
+  // You should set a prefix to avoid overwriting any local storage variables from the rest of your app
+  // e.g. localStorageServiceProvider.setPrefix('youAppName');
+  // With provider you can use config as this:
+  // myApp.config(function (localStorageServiceProvider) {
+  //    localStorageServiceProvider.prefix = 'yourAppName';
+  // });
+  this.prefix = 'ls';
+
+  // You could change web storage type localstorage or sessionStorage
+  this.storageType = 'localStorage';
+
+  // Cookie options (usually in case of fallback)
+  // expiry = Number of days before cookies expire // 0 = Does not expire
+  // path = The web path the cookie represents
+  this.cookie = {
+    expiry: 30,
+    path: '/'
+  };
+
+  // Send signals for each of the following actions?
+  this.notify = {
+    setItem: true,
+    removeItem: false
+  };
+
+  // Setter for the prefix
+  this.setPrefix = function(prefix) {
+    this.prefix = prefix;
+  };
+
+   // Setter for the storageType
+   this.setStorageType = function(storageType) {
+       this.storageType = storageType;
+   };
+
+  // Setter for cookie config
+  this.setStorageCookie = function(exp, path) {
+    this.cookie = {
+      expiry: exp,
+      path: path
+    };
+  };
+
+  // Setter for cookie domain
+  this.setStorageCookieDomain = function(domain) {
+    this.cookie.domain = domain;
+  };
+
+  // Setter for notification config
+  // itemSet & itemRemove should be booleans
+  this.setNotify = function(itemSet, itemRemove) {
+    this.notify = {
+      setItem: itemSet,
+      removeItem: itemRemove
+    };
+  };
+
+  this.$get = ['$rootScope', '$window', '$document', '$parse', function($rootScope, $window, $document, $parse) {
+    var self = this;
+    var prefix = self.prefix;
+    var cookie = self.cookie;
+    var notify = self.notify;
+    var storageType = self.storageType;
+    var webStorage;
+
+    // When Angular's $document is not available
+    if (!$document) {
+      $document = document;
+    } else if ($document[0]) {
+      $document = $document[0];
+    }
+
+    // If there is a prefix set in the config lets use that with an appended period for readability
+    if (prefix.substr(-1) !== '.') {
+      prefix = !!prefix ? prefix + '.' : '';
+    }
+    var deriveQualifiedKey = function(key) {
+      return prefix + key;
+    };
+    // Checks the browser to see if local storage is supported
+    var browserSupportsLocalStorage = (function () {
+      try {
+        var supported = (storageType in $window && $window[storageType] !== null);
+
+        // When Safari (OS X or iOS) is in private browsing mode, it appears as though localStorage
+        // is available, but trying to call .setItem throws an exception.
+        //
+        // "QUOTA_EXCEEDED_ERR: DOM Exception 22: An attempt was made to add something to storage
+        // that exceeded the quota."
+        var key = deriveQualifiedKey('__' + Math.round(Math.random() * 1e7));
+        if (supported) {
+          webStorage = $window[storageType];
+          webStorage.setItem(key, '');
+          webStorage.removeItem(key);
+        }
+
+        return supported;
+      } catch (e) {
+        storageType = 'cookie';
+        $rootScope.$broadcast('LocalStorageModule.notification.error', e.message);
+        return false;
+      }
+    }());
+
+
+
+    // Directly adds a value to local storage
+    // If local storage is not available in the browser use cookies
+    // Example use: localStorageService.add('library','angular');
+    var addToLocalStorage = function (key, value) {
+      // Let's convert undefined values to null to get the value consistent
+      if (isUndefined(value)) {
+        value = null;
+      } else if (isObject(value) || isArray(value) || isNumber(+value || value)) {
+        value = toJson(value);
+      }
+
+      // If this browser does not support local storage use cookies
+      if (!browserSupportsLocalStorage || self.storageType === 'cookie') {
+        if (!browserSupportsLocalStorage) {
+            $rootScope.$broadcast('LocalStorageModule.notification.warning', 'LOCAL_STORAGE_NOT_SUPPORTED');
+        }
+
+        if (notify.setItem) {
+          $rootScope.$broadcast('LocalStorageModule.notification.setitem', {key: key, newvalue: value, storageType: 'cookie'});
+        }
+        return addToCookies(key, value);
+      }
+
+      try {
+        if (isObject(value) || isArray(value)) {
+          value = toJson(value);
+        }
+        if (webStorage) {webStorage.setItem(deriveQualifiedKey(key), value)};
+        if (notify.setItem) {
+          $rootScope.$broadcast('LocalStorageModule.notification.setitem', {key: key, newvalue: value, storageType: self.storageType});
+        }
+      } catch (e) {
+        $rootScope.$broadcast('LocalStorageModule.notification.error', e.message);
+        return addToCookies(key, value);
+      }
+      return true;
+    };
+
+    // Directly get a value from local storage
+    // Example use: localStorageService.get('library'); // returns 'angular'
+    var getFromLocalStorage = function (key) {
+
+      if (!browserSupportsLocalStorage || self.storageType === 'cookie') {
+        if (!browserSupportsLocalStorage) {
+          $rootScope.$broadcast('LocalStorageModule.notification.warning','LOCAL_STORAGE_NOT_SUPPORTED');
+        }
+
+        return getFromCookies(key);
+      }
+
+      var item = webStorage ? webStorage.getItem(deriveQualifiedKey(key)) : null;
+      // angular.toJson will convert null to 'null', so a proper conversion is needed
+      // FIXME not a perfect solution, since a valid 'null' string can't be stored
+      if (!item || item === 'null') {
+        return null;
+      }
+
+      if (item.charAt(0) === "{" || item.charAt(0) === "[" || isStringNumber(item)) {
+        return fromJson(item);
+      }
+
+      return item;
+    };
+
+    // Remove an item from local storage
+    // Example use: localStorageService.remove('library'); // removes the key/value pair of library='angular'
+    var removeFromLocalStorage = function (key) {
+      if (!browserSupportsLocalStorage || self.storageType === 'cookie') {
+        if (!browserSupportsLocalStorage) {
+          $rootScope.$broadcast('LocalStorageModule.notification.warning', 'LOCAL_STORAGE_NOT_SUPPORTED');
+        }
+
+        if (notify.removeItem) {
+          $rootScope.$broadcast('LocalStorageModule.notification.removeitem', {key: key, storageType: 'cookie'});
+        }
+        return removeFromCookies(key);
+      }
+
+      try {
+        webStorage.removeItem(deriveQualifiedKey(key));
+        if (notify.removeItem) {
+          $rootScope.$broadcast('LocalStorageModule.notification.removeitem', {key: key, storageType: self.storageType});
+        }
+      } catch (e) {
+        $rootScope.$broadcast('LocalStorageModule.notification.error', e.message);
+        return removeFromCookies(key);
+      }
+      return true;
+    };
+
+    // Return array of keys for local storage
+    // Example use: var keys = localStorageService.keys()
+    var getKeysForLocalStorage = function () {
+
+      if (!browserSupportsLocalStorage) {
+        $rootScope.$broadcast('LocalStorageModule.notification.warning', 'LOCAL_STORAGE_NOT_SUPPORTED');
+        return false;
+      }
+
+      var prefixLength = prefix.length;
+      var keys = [];
+      for (var key in webStorage) {
+        // Only return keys that are for this app
+        if (key.substr(0,prefixLength) === prefix) {
+          try {
+            keys.push(key.substr(prefixLength));
+          } catch (e) {
+            $rootScope.$broadcast('LocalStorageModule.notification.error', e.Description);
+            return [];
+          }
+        }
+      }
+      return keys;
+    };
+
+    // Remove all data for this app from local storage
+    // Also optionally takes a regular expression string and removes the matching key-value pairs
+    // Example use: localStorageService.clearAll();
+    // Should be used mostly for development purposes
+    var clearAllFromLocalStorage = function (regularExpression) {
+
+      regularExpression = regularExpression || "";
+      //accounting for the '.' in the prefix when creating a regex
+      var tempPrefix = prefix.slice(0, -1);
+      var testRegex = new RegExp(tempPrefix + '.' + regularExpression);
+
+      if (!browserSupportsLocalStorage || self.storageType === 'cookie') {
+        if (!browserSupportsLocalStorage) {
+          $rootScope.$broadcast('LocalStorageModule.notification.warning', 'LOCAL_STORAGE_NOT_SUPPORTED');
+        }
+
+        return clearAllFromCookies();
+      }
+
+      var prefixLength = prefix.length;
+
+      for (var key in webStorage) {
+        // Only remove items that are for this app and match the regular expression
+        if (testRegex.test(key)) {
+          try {
+            removeFromLocalStorage(key.substr(prefixLength));
+          } catch (e) {
+            $rootScope.$broadcast('LocalStorageModule.notification.error',e.message);
+            return clearAllFromCookies();
+          }
+        }
+      }
+      return true;
+    };
+
+    // Checks the browser to see if cookies are supported
+    var browserSupportsCookies = function() {
+      try {
+        return navigator.cookieEnabled ||
+          ("cookie" in $document && ($document.cookie.length > 0 ||
+          ($document.cookie = "test").indexOf.call($document.cookie, "test") > -1));
+      } catch (e) {
+          $rootScope.$broadcast('LocalStorageModule.notification.error', e.message);
+          return false;
+      }
+    };
+
+    // Directly adds a value to cookies
+    // Typically used as a fallback is local storage is not available in the browser
+    // Example use: localStorageService.cookie.add('library','angular');
+    var addToCookies = function (key, value) {
+
+      if (isUndefined(value)) {
+        return false;
+      } else if(isArray(value) || isObject(value)) {
+        value = toJson(value);
+      }
+
+      if (!browserSupportsCookies()) {
+        $rootScope.$broadcast('LocalStorageModule.notification.error', 'COOKIES_NOT_SUPPORTED');
+        return false;
+      }
+
+      try {
+        var expiry = '',
+            expiryDate = new Date(),
+            cookieDomain = '';
+
+        if (value === null) {
+          // Mark that the cookie has expired one day ago
+          expiryDate.setTime(expiryDate.getTime() + (-1 * 24 * 60 * 60 * 1000));
+          expiry = "; expires=" + expiryDate.toGMTString();
+          value = '';
+        } else if (cookie.expiry !== 0) {
+          expiryDate.setTime(expiryDate.getTime() + (cookie.expiry * 24 * 60 * 60 * 1000));
+          expiry = "; expires=" + expiryDate.toGMTString();
+        }
+        if (!!key) {
+          var cookiePath = "; path=" + cookie.path;
+          if(cookie.domain){
+            cookieDomain = "; domain=" + cookie.domain;
+          }
+          $document.cookie = deriveQualifiedKey(key) + "=" + encodeURIComponent(value) + expiry + cookiePath + cookieDomain;
+        }
+      } catch (e) {
+        $rootScope.$broadcast('LocalStorageModule.notification.error',e.message);
+        return false;
+      }
+      return true;
+    };
+
+    // Directly get a value from a cookie
+    // Example use: localStorageService.cookie.get('library'); // returns 'angular'
+    var getFromCookies = function (key) {
+      if (!browserSupportsCookies()) {
+        $rootScope.$broadcast('LocalStorageModule.notification.error', 'COOKIES_NOT_SUPPORTED');
+        return false;
+      }
+
+      var cookies = $document.cookie && $document.cookie.split(';') || [];
+      for(var i=0; i < cookies.length; i++) {
+        var thisCookie = cookies[i];
+        while (thisCookie.charAt(0) === ' ') {
+          thisCookie = thisCookie.substring(1,thisCookie.length);
+        }
+        if (thisCookie.indexOf(deriveQualifiedKey(key) + '=') === 0) {
+          var storedValues = decodeURIComponent(thisCookie.substring(prefix.length + key.length + 1, thisCookie.length))
+          try{
+            var obj = JSON.parse(storedValues);
+            return fromJson(obj)
+          }catch(e){
+            return storedValues
+          }
+        }
+      }
+      return null;
+    };
+
+    var removeFromCookies = function (key) {
+      addToCookies(key,null);
+    };
+
+    var clearAllFromCookies = function () {
+      var thisCookie = null, thisKey = null;
+      var prefixLength = prefix.length;
+      var cookies = $document.cookie.split(';');
+      for(var i = 0; i < cookies.length; i++) {
+        thisCookie = cookies[i];
+
+        while (thisCookie.charAt(0) === ' ') {
+          thisCookie = thisCookie.substring(1, thisCookie.length);
+        }
+
+        var key = thisCookie.substring(prefixLength, thisCookie.indexOf('='));
+        removeFromCookies(key);
+      }
+    };
+
+    var getStorageType = function() {
+      return storageType;
+    };
+
+    // Add a listener on scope variable to save its changes to local storage
+    // Return a function which when called cancels binding
+    var bindToScope = function(scope, scopeKey, def, lsKey) {
+      if (!lsKey) {
+        lsKey = scopeKey;
+      }
+
+      var value = getFromLocalStorage(lsKey);
+
+      if (value === null && isDefined(def)) {
+        value = def;
+      } else if (isObject(value) && isObject(def)) {
+        value = extend(def, value);
+      }
+
+      $parse(scopeKey).assign(scope, value);
+
+      return scope.$watchCollection(scopeKey, function(newVal) {
+        addToLocalStorage(lsKey, newVal);
+      });
+    };
+
+    // Return localStorageService.length
+    // ignore keys that not owned
+    var lengthOfLocalStorage = function() {
+      var count = 0;
+      var storage = $window[storageType];
+      for(var i = 0; i < storage.length; i++) {
+        if(storage.key(i).indexOf(prefix) === 0 ) {
+          count++;
+        }
+      }
+      return count;
+    };
+
+    return {
+      isSupported: browserSupportsLocalStorage,
+      getStorageType: getStorageType,
+      set: addToLocalStorage,
+      add: addToLocalStorage, //DEPRECATED
+      get: getFromLocalStorage,
+      keys: getKeysForLocalStorage,
+      remove: removeFromLocalStorage,
+      clearAll: clearAllFromLocalStorage,
+      bind: bindToScope,
+      deriveKey: deriveQualifiedKey,
+      length: lengthOfLocalStorage,
+      cookie: {
+        set: addToCookies,
+        add: addToCookies, //DEPRECATED
+        get: getFromCookies,
+        remove: removeFromCookies,
+        clearAll: clearAllFromCookies
+      }
+    };
+  }];
+});
+})( window, window.angular );
+},{}],24:[function(require,module,exports){
 /**
  * @license AngularJS v1.2.17-build.163+sha.fafcd62
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -2376,12 +2871,12 @@ function ngViewFillContentFactory($compile, $controller, $route) {
 
 })(window, window.angular);
 
-},{}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 require('./lib/angular.js');
 
 module.exports = angular;
 
-},{"./lib/angular.js":24}],24:[function(require,module,exports){
+},{"./lib/angular.js":26}],26:[function(require,module,exports){
 /**
  * @license AngularJS v1.2.23
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -24336,7 +24831,7 @@ var styleDirective = valueFn({
 })(window, document);
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}.ng-animate-block-transitions{transition:0s all!important;-webkit-transition:0s all!important;}.ng-hide-add-active,.ng-hide-remove{display:block!important;}</style>');
-},{}],25:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 !function() {
   var d3 = {
     version: "3.4.11"
@@ -33570,7 +34065,7 @@ var styleDirective = valueFn({
   if (typeof define === "function" && define.amd) define(d3); else if (typeof module === "object" && module.exports) module.exports = d3;
   this.d3 = d3;
 }();
-},{}],26:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 (function (global){
 /**
  * @license

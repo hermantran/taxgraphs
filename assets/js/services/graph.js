@@ -101,8 +101,8 @@ module.exports = function(d3, _, screenService) {
 
   this.createGraph = function() {
     this.svg
-      .attr('width', this.w + this.m[1] + this.m[3])
-      .attr('height', this.h + this.m[0] + this.m[2]);
+      .attr('width', this.w + this.m[1] + this.m[3] + 'px')
+      .attr('height', this.h + this.m[0] + this.m[2] + 'px');
 
     this.graph = this.svg
       .append('svg:g')
@@ -130,13 +130,17 @@ module.exports = function(d3, _, screenService) {
   };
 
   this.updateXAxis = function(xMax) {
-    var ticks = 6;
+    var ticks, format;
 
     xMax = isNaN(xMax) ? this.defaults.xMax : xMax;
     this.settings.xMax = xMax;
 
     if (screenService.width < screenService.sizes.lg) {
       ticks = 3;
+      format = d3.format('$.1s');
+    } else {
+      ticks = 6;
+      format = d3.format('$0,000');
     }
 
     this.x = d3.scale.linear()
@@ -147,7 +151,7 @@ module.exports = function(d3, _, screenService) {
       .scale(this.x)
       .ticks(ticks)
       .tickSize(-this.h, 0)
-      .tickFormat(d3.format('$0,000'))
+      .tickFormat(format)
       .tickPadding(10)
       .orient('bottom');
 
@@ -254,6 +258,7 @@ module.exports = function(d3, _, screenService) {
     });
 
     this.scaleYAxis();
+    this.updateHoverLabel(-1);
 
     for (i = 0; i < len; i++) {
       this.drawLine(this.lines[i].data, this.lines[i].isInterpolated);
@@ -453,10 +458,8 @@ module.exports = function(d3, _, screenService) {
         .attr('x', textXPos)
         .text(text);
 
-      textWidth = tooltipText.style('width');
-      textWidth = parseInt(textWidth, 10) + 10;
-      textHeight = tooltipText.style('height');
-      textHeight = parseInt(textHeight, 10) + 5;
+      textWidth = tooltipText.node().getBBox().width + 10;
+      textHeight = tooltipText.node().getBBox().height + 3;
       d = this.createTooltipPath(textWidth, textHeight, textXPos - 3, yOffset);
 
       this.tooltips[i].select('path')
@@ -494,7 +497,7 @@ module.exports = function(d3, _, screenService) {
     var textYPos = -35,
         textXPos = 8,
         yOffset = -10,
-        tooltipHeight = 50,
+        tooltipHeight = 45,
         maxNumLines = 12,
         yDist,
         diff,

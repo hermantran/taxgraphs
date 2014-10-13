@@ -1,20 +1,22 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" ng-app="taxApp"> <!--<![endif]-->
+<html class="no-js" ng-app="taxApp">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title ng-bind="'TaxGraphs | ' + $root.title">TaxGraphs</title>
     <meta name="description" content="Visualization of US individual income tax rates">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" href="dist/images/favicon.ico">
+    <meta property="og:title" content="TaxGraphs">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://taxgraphs.io">
+    <meta property="og:image" content="">
 
+    <link rel="shortcut icon" href="dist/images/favicon.ico">
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500">
     <!--STYLES-->
     <link rel="stylesheet" href="dist/styles/pure/pure-min.css">
     <link rel="stylesheet" href="dist/styles/pure/grids-responsive-min.css">
+    <link rel="stylesheet" href="dist/styles/font-awesome.min.css">
     <link rel="stylesheet" href="dist/styles/importer.css">
     <!--STYLES END-->
 
@@ -28,16 +30,29 @@
 
   <body>
     <header class="pure-g pure-menu pure-menu-open pure-menu-horizontal">
-        <ul class="pure-u-1">
-          <li class="logo">TaxGraphs</li>
-          <li><a href="#/" ng-class="{ active: isActive('/') }">State Comparison</a></li>
-          <li><a href="#/state" ng-class="{ active: isActive('/state') }">State Breakdown</a></li>
-        </ul>
+      <ul class="pure-u-1">
+        <li class="logo">TaxGraphs</li>
+        <li class="pure-hidden-xs">
+          <a href="#/" ng-class="{ active: isActive('/') }">State Comparison</a>
+        </li>
+        <li class="pure-hidden-xs">
+          <a href="#/state" ng-class="{ active: isActive('/state') }">State Breakdown</a>
+        </li>
+        <li class="pure-visible-xs mobile">
+          <a href="#"><i class="fa fa-line-chart"></i></a>
+        </li>
+      </ul>
     </header>
 
     <div class="pure-g container">
       <div class="pure-hidden-sm pure-u-1 pure-u-md-3-8 pure-u-lg-1-3 pure-u-xl-1-4 controls-wrapper">
         <div class="controls" ng-view></div>
+        <div class="footer">
+
+          <a href="https://github.com/hermantran/taxgraphs" target="_blank">GitHub</a> |
+          <a href="https://github.com/hermantran/taxgraphs/issues" target="_blank">Feedback</a>
+          <div class="copyright">&copy; 2014 Herman Tran</div>
+        </div>
       </div>
 
       <div class="pure-u-1 pure-u-md-5-8 pure-u-lg-2-3 pure-u-xl-3-4 graph-wrapper">
