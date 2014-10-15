@@ -1,6 +1,6 @@
 Data
 ---
-The [2014/](/2014) folder contains the individual JSON files for federal and each state's tax rates. The `json-bake` task concatenates all the JSON files together, and a custom Grunt task then preproceses the tax data and minifies the final JSON into [2014.json](2014.json).
+The [2014/](2014) folder contains the individual JSON files for federal and each state's tax rates. The `json-bake` task concatenates all the JSON files together, and a custom Grunt task then preproceses the tax data and minifies the final JSON into [2014.json](2014.json).
 
 The `rate` property for each tax can be one of the following types:
 - Number: A flat tax rate.

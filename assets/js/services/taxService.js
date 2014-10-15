@@ -233,6 +233,16 @@ module.exports = function(_) {
     return data;
   }
 
+  function createTakeHomePayData(tax, max, filingStatus) {
+    var data = createEffectiveTaxData(tax, max, filingStatus);
+
+    for (var i = 0, len = data.length; i < len; i++) {
+      data[i].y = 1 - data[i].y;
+    }
+
+    return data;
+  }
+
   function calcTotalMarginalTaxBrackets(taxes, max, filingStatus) {
     var brackets = [];
 
@@ -332,12 +342,13 @@ module.exports = function(_) {
   this.preprocessTaxes = preprocessTaxes;
   this.calcTax = calcTax;
   this.calcMarginalTax = calcMarginalTax;
-  this.createMarginalTaxData = createMarginalTaxData;
-  this.createEffectiveTaxData = createEffectiveTaxData;
   this.calcTotalMarginalTaxBrackets = calcTotalMarginalTaxBrackets;
   this.calcMarginalTaxRate = calcMarginalTaxRate;
   this.calcEffectiveTaxRate = calcEffectiveTaxRate;
   this.calcDeduction = calcDeduction;
   this.calcTotalDeduction = calcTotalDeduction;
+  this.createMarginalTaxData = createMarginalTaxData;
+  this.createEffectiveTaxData = createEffectiveTaxData;
+  this.createTakeHomePayData = createTakeHomePayData;
   this.modifyTaxBracket = modifyTaxBracket;
 };

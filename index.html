@@ -14,10 +14,7 @@
     <link rel="shortcut icon" href="dist/images/favicon.ico">
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500">
     <!--STYLES-->
-    <link rel="stylesheet" href="dist/styles/pure/pure-min.css">
-    <link rel="stylesheet" href="dist/styles/pure/grids-responsive-min.css">
-    <link rel="stylesheet" href="dist/styles/font-awesome.min.css">
-    <link rel="stylesheet" href="dist/styles/importer.css">
+    <link rel="stylesheet" href="dist/styles/main.min-0.1.0.css">
     <!--STYLES END-->
 
     <!--[if lt IE 9]>
@@ -37,6 +34,9 @@
         </li>
         <li class="pure-hidden-sm">
           <a href="#/state" ng-class="{ active: isActive('/state') }">State Breakdown</a>
+        </li>
+        <li class="pure-hidden-sm">
+          <a href="#/take-home-pay" ng-class="{ active: isActive('/take-home-pay') }">Take Home Pay</a>
         </li>
         <li class="pure-visible-sm mobile">
           <a href="https://github.com/hermantran/taxgraphs"><i class="fa fa-github"></i></a>
@@ -59,6 +59,7 @@
           <div class="text-center buttons">
             <a href="#/"><button class="pure-button">State Comparison</button></a>
             <a href="#/state"><button class="pure-button">State Breakdown</button></a>
+            <a href="#/take-home-pay"><button class="pure-button">Take Home Pay</button></a>
           </div>
         </div>
         <div class="controls" ng-view></div>
@@ -87,11 +88,11 @@
     </script>
 
     <!--SCRIPTS-->
-    <script src="dist/js/main.js"></script>
+    <script src="dist/js/main.min-0.1.0.js"></script>
     <!--SCRIPTS END-->
 
     <!--LIVERELOAD-->
-    <script src="//localhost:35729/livereload.js"></script><!--/js/main.js-->
+    
     <!--LIVERELOAD END-->
   </body>
 </html>

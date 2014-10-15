@@ -57,7 +57,8 @@ module.exports = function(d3, _, screenService, saveService) {
     yMin: 0,
     yMax: 60,
     animationTime: 3000,
-    colors: this.colors.multi
+    colors: this.colors.multi,
+    calculateAmount: false
   };
 
   this.defaults = _.cloneDeep(this.settings);
@@ -298,7 +299,9 @@ module.exports = function(d3, _, screenService, saveService) {
   // Automatically scales the y-axis based on the input data
   this.scaleYAxis = function() {
     var highestLine = this.lines[0],
-        highestY = highestLine.data[highestLine.data.length - 1].y,
+        firstY = highestLine.data[0].y,
+        lastY = highestLine.data[highestLine.data.length - 1].y,
+        highestY = (firstY > lastY) ? firstY : lastY,
         yMax = Math.ceil((highestY + 0.05) * 10) * 10;
 
     this.updateYAxis(yMax);
@@ -391,7 +394,6 @@ module.exports = function(d3, _, screenService, saveService) {
     this.setSize();
     this.positionTitle();
     this.updateXAxis();
-    this.updateYAxis();
     this.removeRenderedData();
     this.drawLines();
     this.updateHoverLine(-1);
@@ -408,7 +410,8 @@ module.exports = function(d3, _, screenService, saveService) {
         .attr('x1', -1).attr('x2', -1);
     } else {
       this.hoverLine.classed(this.classes.hide, false)
-        .attr('x1', xPos).attr('x2', xPos);
+        .attr('x1', xPos).attr('x2', xPos)
+        .attr('y1', 0).attr('y2', this.h);
     }
 
     this.updateTooltips(xPos);
@@ -435,10 +438,10 @@ module.exports = function(d3, _, screenService, saveService) {
     if (xPos < 0) {
       this.hoverLabel.classed(this.classes.hide, true)
         .attr('x', -1);
-
     } else {
       this.hoverLabel.classed(this.classes.hide, false)
         .attr('x', xPos - 35)
+        .attr('y', this.h + 50)
         .text(d3.format('$0,000')(xValue));
     }
   };
@@ -475,7 +478,13 @@ module.exports = function(d3, _, screenService, saveService) {
       }
 
       yPos = this.h - (yValue / yScale * 100);
-      text = Math.round10(yValue * 100, -2) + '%';
+      text = Math.round10(yValue * 100, -2);
+
+      if (this.settings.calculateAmount) {
+        text = '$' + Math.round(xValue * yValue) + ' (' + text + '%)';
+      } else {
+        text += '%';
+      }
 
       tooltipText = this.tooltips[i]
         .attr('transform', 'translate(' + xPos + ',' + yPos + ')')
@@ -577,13 +586,13 @@ module.exports = function(d3, _, screenService, saveService) {
     this.graph.selectAll(this.selectors.tooltip).remove();
     this.graph.selectAll(this.selectors.line).transition().duration(0);
     this.graph.selectAll(this.selectors.line).remove();
+    this.updateHoverLine(-1);
+    this.tooltips.length = 0;
+    this.tooltipFns.length = 0;
     this.colorIndex = 0;
   };
 
   this.resetData = function() {
-    this.updateHoverLine(-1);
-    this.tooltips.length = 0;
-    this.tooltipFns.length = 0;
     this.lines.length = 0; 
   };
 

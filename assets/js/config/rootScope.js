@@ -1,6 +1,12 @@
 'use strict';
 
-function rootScope($rootScope, $location) {
+function rootScope($rootScope, $location, ga, GA_TRACKING_ID) {
+  var isProd = $location.absUrl().indexOf('taxgraphs') > -1;
+
+  if (isProd) {
+    ga('create', GA_TRACKING_ID, 'auto');
+  }
+
   $rootScope.$on('$routeChangeSuccess', function(e, route) {
     $rootScope.activeRoute = $location.path();
     $rootScope.title = route.title;
@@ -14,9 +20,16 @@ function rootScope($rootScope, $location) {
       $rootScope.hideMobileControls = !$rootScope.hideMobileControls;
     };
 
-    $rootScope.$on('hideMobileControls', function() {
-      $rootScope.hideMobileControls = true;
-    });
+    if (isProd) {
+      ga('send', 'pageview', {
+        page: $rootScope.activeRoute,
+        title: $rootScope.title
+      });
+    }
+  });
+
+  $rootScope.$on('hideMobileControls', function() {
+    $rootScope.hideMobileControls = true;
   });
 }
 

@@ -121,6 +121,7 @@ module.exports = function($scope, $filter, taxData, taxService, graph, cache, ti
 
   $scope.init = function() {
     graph.init();
+    $scope.settings.calculateAmount = false;
     $scope.drawGraph();
   };
 

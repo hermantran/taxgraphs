@@ -15,9 +15,9 @@ module.exports = function(grunt) {
     dev: ['dist/**'],
     dist: [
       'dist/js/**/*.js',
-      '!dist/js/*/*.min.js',
       'dist/styles/**/*.css',
-      '!dist/styles/*/*.min.css'
+      '!' + require('../pipeline').jsProdFile,
+      '!' + require('../pipeline').cssProdFile
     ]
   });
 

@@ -5,6 +5,7 @@ var app = require('../app'),
     lodash = require('lodash'),
     JST = require('JST'),
     saveService = require('saveSvgAsPng/saveSvgAsPng'),
+    ga = require('ga'),
     routes = require('./routes'),
     templateCache = require('./templateCache'),
     rootScope = require('./rootScope');
@@ -16,7 +17,9 @@ app.constant('d3', d3)
   .constant('_', lodash)
   .constant('JST', JST)
   .constant('saveService', saveService)
+  .constant('ga', ga)
+  .constant('GA_TRACKING_ID', 'UA-55615931-1')
   .constant('TAX_API', 'data/2014.json')
   .config(['$provide', 'JST', templateCache])
   .config(['$routeProvider', routes])
-  .run(['$rootScope', '$location', rootScope]);
+  .run(['$rootScope', '$location', 'ga', 'GA_TRACKING_ID', rootScope]);

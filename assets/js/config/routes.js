@@ -12,6 +12,11 @@ module.exports = function($routeProvider) {
       controller: 'StateBreakdownCtrl',
       title: 'State Breakdown'
     })
+    .when('/take-home-pay', {
+      templateUrl: 'assets/templates/take-home-pay.html',
+      controller: 'TakeHomePayCtrl',
+      title: 'Take Home Pay'
+    })
     .otherwise({
       redirectTo: '/'
     });
