@@ -37,11 +37,9 @@ module.exports = function(_) {
   }
 
   function precalcBracketTaxes(tax) {
-    for (var i = 0, len = tax.length, max = 0; i < len; i++) {
-      if (len > i + 1) {
-        max += (tax[i + 1][MIN] - tax[i][MIN]) * tax[i][RATE];
-        tax[i].push(Math.round10(max, -2));
-      }
+    for (var i = 0, len = tax.length, max = 0; i < len - 1; i++) {
+      max += (tax[i + 1][MIN] - tax[i][MIN]) * tax[i][RATE];
+      tax[i][MAX_TAX] = Math.round10(max, -2);
     }
   }
 
@@ -294,6 +292,43 @@ module.exports = function(_) {
     return calcTax(tax, income, filingStatus) / income;
   }
 
+  function calcDeduction(deduction, filingStatus) {
+    if (_.isNumber(deduction)) {
+      return deduction;
+    }
+    else if (_.isPlainObject(deduction)) {
+      return deduction[filingStatus];
+    }
+  }
+
+  function calcTotalDeduction(deductions, filingStatus) {
+    var total = 0;
+
+    _(deductions).forEach(function(deduction) {
+      total += calcDeduction(deduction, filingStatus);
+    });
+
+    return total;
+  }
+
+  function modifyTaxBracket(tax, filingStatus, deductions) {
+    var deductionAmount = calcTotalDeduction(deductions, filingStatus),
+        copy = [ [0, 0, 0] ];
+
+    if (_.isArray(tax)) {
+      copy.push.apply(copy, _.cloneDeep(tax));
+    }
+    else if (_.isPlainObject(tax)) {
+      copy.push.apply(copy, _.cloneDeep(tax[filingStatus]));
+    }
+
+    for (var i = 1, len = copy.length; i < len; i++) {
+      copy[i][MIN] += deductionAmount;
+    }
+
+    return copy;
+  }
+
   this.preprocessTaxes = preprocessTaxes;
   this.calcTax = calcTax;
   this.calcMarginalTax = calcMarginalTax;
@@ -302,4 +337,7 @@ module.exports = function(_) {
   this.calcTotalMarginalTaxBrackets = calcTotalMarginalTaxBrackets;
   this.calcMarginalTaxRate = calcMarginalTaxRate;
   this.calcEffectiveTaxRate = calcEffectiveTaxRate;
+  this.calcDeduction = calcDeduction;
+  this.calcTotalDeduction = calcTotalDeduction;
+  this.modifyTaxBracket = modifyTaxBracket;
 };

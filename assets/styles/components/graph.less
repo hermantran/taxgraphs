@@ -55,8 +55,37 @@
   .title {
     text {
       text-anchor: middle;
-      font-weight: 300;
+      font-weight: 400;
+    }
+
+    .primary {
       font-size: 1.6em;
+    }
+
+    .secondary {
+      font-size: 1.1em;
+    }
+  }
+
+  @media screen and (max-width: @screen-sm-max) {
+    text {
+      font-size: 0.95em;
+    }
+    
+    .title {
+      .primary {
+        font-size: 1.2em;
+      }
+
+      .secondary {
+        font-size: 0.9em;
+      }
+    }
+
+    .tooltip {
+      .value {
+        font-size: 0.9em;
+      }
     }
   }
 }

@@ -10,7 +10,7 @@ var app = require('../app'),
 
 app.service('taxService', ['_', taxService])
   .service('taxData', ['$http', '$q', '$filter', 'TAX_API', taxData])
-  .service('graph', ['d3', '_', 'screenService', graph])
+  .service('graph', ['d3', '_', 'screenService', 'saveService', graph])
   .service('screenService', ['$window', screenService])
   .service('cache', cache)
   .service('tips', ['localStorageService', tips]);

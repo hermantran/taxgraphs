@@ -17,7 +17,7 @@
         "url": "//www.irs.gov/pub/irs-pdf/p15.pdf"
       }
     },
-    "income": {
+    "federalIncome": {
       "rate": {
         "single": [
           [0, 0.1],

@@ -6,6 +6,7 @@ var app = require('../app'),
 
 app.controller('StateComparisonCtrl', [
   '$scope',
+  '$filter',
   'taxData',
   'taxService',
   'graph',
@@ -14,6 +15,7 @@ app.controller('StateComparisonCtrl', [
   StateComparisonCtrl
 ]).controller('StateBreakdownCtrl', [
   '$scope',
+  '$filter',
   'taxData',
   'taxService',
   'graph',

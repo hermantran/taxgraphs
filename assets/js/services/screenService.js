@@ -1,10 +1,11 @@
 'use strict';
 
 module.exports = function($window) {
+  var resizeEvents = [];
+
   this.setSize = function() {
     this.width = $window.innerWidth;
     this.height = $window.innerHeight;
-    console.log(this.width, this.height);
   }.bind(this);
   
   this.sizes = {
@@ -14,6 +15,17 @@ module.exports = function($window) {
     xl: 1280 
   };
 
+  this.addResizeEvent = function(fn) {
+    resizeEvents.push(fn);
+  };
+
+  this.runResizeEvents = function() {
+    for (var i = 0, len = resizeEvents.length; i < len; i++) {
+      resizeEvents[i]();
+    }
+  };
+
   this.setSize();
-  angular.element($window).bind('resize', this.setSize);
+  this.addResizeEvent(this.setSize.bind(this));
+  angular.element($window).bind('resize', this.runResizeEvents.bind(this));
 };

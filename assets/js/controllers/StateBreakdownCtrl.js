@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function($scope, taxData, taxService, graph, cache, tips) {
+module.exports = function($scope, $filter, taxData, taxService, graph, cache, tips) {
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
@@ -47,6 +47,10 @@ module.exports = function($scope, taxData, taxService, graph, cache, tips) {
         graphLines = $scope.data.graphLines,
         taxes = taxData.getTaxes(state),
         taxNames = taxData.getTaxNames(state),
+        fedIncomeIndex = taxData.getTaxNames(state).indexOf('Federal Income'),
+        deductions = [],
+        primaryTitle,
+        secondaryTitle,
         tooltipFn,
         label,
         data,
@@ -54,6 +58,16 @@ module.exports = function($scope, taxData, taxService, graph, cache, tips) {
         args;
 
     xMax = isNaN(xMax) ? graph.defaults.xMax : xMax;
+
+    for (var deduction in $scope.data.deductions) {
+      if ($scope.data.deductions[deduction]) {
+        deductions.push(taxData.getDeduction(deduction));
+      }
+    }
+
+    taxes[fedIncomeIndex] = taxService.modifyTaxBracket(
+      taxes[fedIncomeIndex], filingStatus, deductions
+    );
 
     if (graphLines.totalEffective || graphLines.totalMarginal) {
       total = taxService.calcTotalMarginalTaxBrackets(
@@ -95,7 +109,11 @@ module.exports = function($scope, taxData, taxService, graph, cache, tips) {
     }
 
     graph.drawLines();
-    graph.updateTitle($scope.stateNames[state] + ' Income Tax Rates, 2014');
+    primaryTitle = $scope.stateNames[state] + ' Income Tax Rates, 2014';
+    secondaryTitle = $filter('splitCamelCase')(filingStatus) + ' Filing Status, ' +
+      (deductions.length ? ' Standard Deduction' : 'no deductions');
+    graph.updateTitle(primaryTitle, secondaryTitle);
+    $scope.$emit('hideMobileControls');
   };
 
   $scope.init = function() {

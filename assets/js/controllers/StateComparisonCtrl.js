@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function($scope, taxData, taxService, graph, cache, tips) {
+module.exports = function($scope, $filter, taxData, taxService, graph, cache, tips) {
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
@@ -10,6 +10,7 @@ module.exports = function($scope, taxData, taxService, graph, cache, tips) {
   $scope.toggleState = false;
   $scope.tips = tips.list;
   $scope.closeTip = tips.close;
+  $scope.openMobileControls = false;
 
   if (!cache.get('stateComparisonData')) {
     cache.set('stateComparisonData', {
@@ -60,18 +61,35 @@ module.exports = function($scope, taxData, taxService, graph, cache, tips) {
     var filingStatus = $scope.data.status,
         xMax = $scope.settings.xMax,
         graphLines = $scope.data.graphLines,
-        tooltipFn,
+        deductions = [],
         total = [],
         stateNames = [],
+        fedIncomeIndex,
+        primaryTitle,
+        secondaryTitle,
+        taxes,
+        tooltipFn,
         data;
 
     xMax = isNaN(xMax) ? graph.defaults.xMax : xMax;
 
+    for (var deduction in $scope.data.deductions) {
+      if ($scope.data.deductions[deduction]) {
+        deductions.push(taxData.getDeduction(deduction));
+      }
+    }
+
     for (var state in $scope.data.states) {
       if ($scope.data.states[state]) {
         stateNames.push(state);
+        taxes = taxData.getTaxes(state);
+        fedIncomeIndex = taxData.getTaxNames(state).indexOf('Federal Income');
+        taxes[fedIncomeIndex] = taxService.modifyTaxBracket(
+          taxes[fedIncomeIndex], filingStatus, deductions
+        );
+
         total.push(taxService.calcTotalMarginalTaxBrackets(
-          taxData.getTaxes(state), xMax, filingStatus
+          taxes, xMax, filingStatus
         ));
       }
     }
@@ -94,7 +112,11 @@ module.exports = function($scope, taxData, taxService, graph, cache, tips) {
     }
 
     graph.drawLines();
-    graph.updateTitle('State Income Tax Rates, 2014');
+    primaryTitle = 'State Income Tax Rates, 2014';
+    secondaryTitle = $filter('splitCamelCase')(filingStatus) + ' Filing Status, ' +
+      (deductions.length ? ' Standard Deduction' : 'no deductions');
+    graph.updateTitle(primaryTitle, secondaryTitle);
+    $scope.$emit('hideMobileControls');
   };
 
   $scope.init = function() {

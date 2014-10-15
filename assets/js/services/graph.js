@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(d3, _, screenService) {
+module.exports = function(d3, _, screenService, saveService) {
   function createSelector(string) {
     return '.' + string.split(' ').join('.');
   }
@@ -31,6 +31,8 @@ module.exports = function(d3, _, screenService) {
     controls: 'controls',
     data: 'data',
     title: 'title',
+    primaryTitle: 'primary',
+    secondaryTitle: 'secondary',
     line: 'tax',
     hoverLine: 'hover',
     hoverLabel: 'hoverlabel',
@@ -66,6 +68,7 @@ module.exports = function(d3, _, screenService) {
     }
     
     this.svg = d3.select('svg');
+    this.graph = this.svg.append('svg:g');
     this.settings = settings || this.settings;
 
     this.lines = [];
@@ -92,28 +95,35 @@ module.exports = function(d3, _, screenService) {
     if (screenService.width < screenService.sizes.md) {
       width = screenService.width - 20;
       height = screenService.height - 45;
+      this.m = [50, 80, 80, 50];
+    } else {
+      this.m = [80, 180, 80, 70];
     }
 
-    this.m = [80, 180, 80, 70];
     this.w = width - this.m[1] - this.m[3]; 
     this.h = height - this.m[0] - this.m[2];
-  };
 
-  this.createGraph = function() {
     this.svg
       .attr('width', this.w + this.m[1] + this.m[3] + 'px')
       .attr('height', this.h + this.m[0] + this.m[2] + 'px');
 
-    this.graph = this.svg
-      .append('svg:g')
-      .attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
+    this.graph.attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
+  };
 
+  this.createGraph = function() {
     this.title = this.graph
       .append('svg:g')
-      .attr('class', this.classes.title)
-      .attr('transform', 'translate(' +
-        (this.w / 2) + ',' + (-this.m[0] / 2) + ')')
-      .append('text');
+      .attr('class', this.classes.title);
+
+    var text = this.title.append('text');
+
+    text.append('tspan')
+      .attr('class', this.classes.primaryTitle);
+
+    text.append('tspan')
+      .attr('class', this.classes.secondaryTitle)
+      .attr('x', 0)
+      .attr('dy', '1.2em');
 
     this.controls = this.graph
       .append('svg:g')
@@ -123,10 +133,16 @@ module.exports = function(d3, _, screenService) {
       .append('svg:g')
       .attr('class', this.classes.data);
 
+    this.positionTitle();
     this.updateXAxis();
     this.updateYAxis();
     this.drawHoverLine();
     this.drawHoverLabel();
+  };
+
+  this.positionTitle = function() {
+    this.title.attr('transform', 'translate(' +
+        (this.w / 2) + ',' + (-this.m[0] / 2) + ')');
   };
 
   this.updateXAxis = function(xMax) {
@@ -208,8 +224,9 @@ module.exports = function(d3, _, screenService) {
       .classed(this.classes.hide, true);
   };
 
-  this.updateTitle = function(title) {
-    this.title.text(title);
+  this.updateTitle = function(primary, secondary) {
+    this.title.select(this.selectors.primaryTitle).text(primary);
+    this.title.select(this.selectors.secondaryTitle).text(secondary);
   };
 
   this.updateAnimationTime = function(time) {
@@ -366,6 +383,18 @@ module.exports = function(d3, _, screenService) {
       self.updateHoverLine(xPos);
       self.updateHoverLabel(xPos);
     });
+
+    screenService.addResizeEvent(this.redrawGraph.bind(this));
+  };
+
+  this.redrawGraph = function() {
+    this.setSize();
+    this.positionTitle();
+    this.updateXAxis();
+    this.updateYAxis();
+    this.removeRenderedData();
+    this.drawLines();
+    this.updateHoverLine(-1);
   };
 
   this.updateHoverLine = function(xPos) {
@@ -460,7 +489,7 @@ module.exports = function(d3, _, screenService) {
 
       textWidth = tooltipText.node().getBBox().width + 10;
       textHeight = tooltipText.node().getBBox().height + 3;
-      d = this.createTooltipPath(textWidth, textHeight, textXPos - 3, yOffset);
+      d = this.createTooltipPath(textWidth, textHeight, textXPos - 2, yOffset);
 
       this.tooltips[i].select('path')
         .attr('d', d);
@@ -498,7 +527,8 @@ module.exports = function(d3, _, screenService) {
         textXPos = 8,
         yOffset = -10,
         tooltipHeight = 45,
-        maxNumLines = 12,
+        maxNumLines = 14,
+        dataEl = this.data.node(),
         yDist,
         diff,
         d;
@@ -526,24 +556,39 @@ module.exports = function(d3, _, screenService) {
         textPos[i-1].tooltipY += diff;
       }
     }
+
+    // Remove path overlaps by rearranging the node order in the DOM
+    if (len < maxNumLines) {
+      for (i = 0; i <= len; i++) {
+        dataEl.appendChild(this.tooltips[textPos[i].i].node());
+      }
+    // If too many lines, then just make sure to show the first and last node
+    } else {
+      dataEl.appendChild(this.tooltips[textPos[0].i].node());
+      dataEl.appendChild(this.tooltips[textPos[len].i].node());
+    }
   };
 
-  this.removeTooltips = function() {
+  this.save = function() {
+    saveService.saveSvgAsPng(this.svg.node(), 'graph.png');
+  };
+
+  this.removeRenderedData = function() {
+    this.graph.selectAll(this.selectors.tooltip).remove();
+    this.graph.selectAll(this.selectors.line).transition().duration(0);
+    this.graph.selectAll(this.selectors.line).remove();
+    this.colorIndex = 0;
+  };
+
+  this.resetData = function() {
     this.updateHoverLine(-1);
     this.tooltips.length = 0;
     this.tooltipFns.length = 0;
-    this.colorIndex = 0;
-    this.graph.selectAll(this.selectors.tooltip).remove();
-  };
-
-  this.removeLines = function() {
-    this.lines.length = 0;
-    this.graph.selectAll(this.selectors.line).transition().duration(0);
-    this.graph.selectAll(this.selectors.line).remove();
+    this.lines.length = 0; 
   };
 
   this.clear = function() {
-    this.removeTooltips();
-    this.removeLines();
+    this.removeRenderedData();
+    this.resetData();
   };
 };

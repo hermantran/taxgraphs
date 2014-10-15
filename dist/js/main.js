@@ -14,6 +14,7 @@ var app = require('../app'),
     d3 = require('d3'),
     lodash = require('lodash'),
     JST = (typeof window !== "undefined" ? window.JST : typeof global !== "undefined" ? global.JST : null),
+    saveService = require('saveSvgAsPng/saveSvgAsPng'),
     routes = require('./routes'),
     templateCache = require('./templateCache'),
     rootScope = require('./rootScope');
@@ -24,22 +25,32 @@ window._ = lodash;
 app.constant('d3', d3)
   .constant('_', lodash)
   .constant('JST', JST)
+  .constant('saveService', saveService)
   .constant('TAX_API', 'data/2014.json')
   .config(['$provide', 'JST', templateCache])
   .config(['$routeProvider', routes])
   .run(['$rootScope', '$location', rootScope]);
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../app":1,"./rootScope":3,"./routes":4,"./templateCache":5,"d3":27,"lodash":28}],3:[function(require,module,exports){
+},{"../app":1,"./rootScope":3,"./routes":4,"./templateCache":5,"d3":27,"lodash":28,"saveSvgAsPng/saveSvgAsPng":29}],3:[function(require,module,exports){
 'use strict';
 
 function rootScope($rootScope, $location) {
   $rootScope.$on('$routeChangeSuccess', function(e, route) {
     $rootScope.activeRoute = $location.path();
     $rootScope.title = route.title;
+    $rootScope.hideMobileControls = true;
 
     $rootScope.isActive = function(route) {
       return $rootScope.activeRoute === route;
     };
+
+    $rootScope.toggleMobileControls = function() {
+      $rootScope.hideMobileControls = !$rootScope.hideMobileControls;
+    };
+
+    $rootScope.$on('hideMobileControls', function() {
+      $rootScope.hideMobileControls = true;
+    });
   });
 }
 
@@ -93,7 +104,7 @@ module.exports = function($provide, JST) {
 },{}],6:[function(require,module,exports){
 'use strict';
 
-module.exports = function($scope, taxData, taxService, graph, cache, tips) {
+module.exports = function($scope, $filter, taxData, taxService, graph, cache, tips) {
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
@@ -140,6 +151,10 @@ module.exports = function($scope, taxData, taxService, graph, cache, tips) {
         graphLines = $scope.data.graphLines,
         taxes = taxData.getTaxes(state),
         taxNames = taxData.getTaxNames(state),
+        fedIncomeIndex = taxData.getTaxNames(state).indexOf('Federal Income'),
+        deductions = [],
+        primaryTitle,
+        secondaryTitle,
         tooltipFn,
         label,
         data,
@@ -147,6 +162,16 @@ module.exports = function($scope, taxData, taxService, graph, cache, tips) {
         args;
 
     xMax = isNaN(xMax) ? graph.defaults.xMax : xMax;
+
+    for (var deduction in $scope.data.deductions) {
+      if ($scope.data.deductions[deduction]) {
+        deductions.push(taxData.getDeduction(deduction));
+      }
+    }
+
+    taxes[fedIncomeIndex] = taxService.modifyTaxBracket(
+      taxes[fedIncomeIndex], filingStatus, deductions
+    );
 
     if (graphLines.totalEffective || graphLines.totalMarginal) {
       total = taxService.calcTotalMarginalTaxBrackets(
@@ -188,7 +213,11 @@ module.exports = function($scope, taxData, taxService, graph, cache, tips) {
     }
 
     graph.drawLines();
-    graph.updateTitle($scope.stateNames[state] + ' Income Tax Rates, 2014');
+    primaryTitle = $scope.stateNames[state] + ' Income Tax Rates, 2014';
+    secondaryTitle = $filter('splitCamelCase')(filingStatus) + ' Filing Status, ' +
+      (deductions.length ? ' Standard Deduction' : 'no deductions');
+    graph.updateTitle(primaryTitle, secondaryTitle);
+    $scope.$emit('hideMobileControls');
   };
 
   $scope.init = function() {
@@ -201,7 +230,7 @@ module.exports = function($scope, taxData, taxService, graph, cache, tips) {
 },{}],7:[function(require,module,exports){
 'use strict';
 
-module.exports = function($scope, taxData, taxService, graph, cache, tips) {
+module.exports = function($scope, $filter, taxData, taxService, graph, cache, tips) {
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
@@ -211,6 +240,7 @@ module.exports = function($scope, taxData, taxService, graph, cache, tips) {
   $scope.toggleState = false;
   $scope.tips = tips.list;
   $scope.closeTip = tips.close;
+  $scope.openMobileControls = false;
 
   if (!cache.get('stateComparisonData')) {
     cache.set('stateComparisonData', {
@@ -261,18 +291,35 @@ module.exports = function($scope, taxData, taxService, graph, cache, tips) {
     var filingStatus = $scope.data.status,
         xMax = $scope.settings.xMax,
         graphLines = $scope.data.graphLines,
-        tooltipFn,
+        deductions = [],
         total = [],
         stateNames = [],
+        fedIncomeIndex,
+        primaryTitle,
+        secondaryTitle,
+        taxes,
+        tooltipFn,
         data;
 
     xMax = isNaN(xMax) ? graph.defaults.xMax : xMax;
 
+    for (var deduction in $scope.data.deductions) {
+      if ($scope.data.deductions[deduction]) {
+        deductions.push(taxData.getDeduction(deduction));
+      }
+    }
+
     for (var state in $scope.data.states) {
       if ($scope.data.states[state]) {
         stateNames.push(state);
+        taxes = taxData.getTaxes(state);
+        fedIncomeIndex = taxData.getTaxNames(state).indexOf('Federal Income');
+        taxes[fedIncomeIndex] = taxService.modifyTaxBracket(
+          taxes[fedIncomeIndex], filingStatus, deductions
+        );
+
         total.push(taxService.calcTotalMarginalTaxBrackets(
-          taxData.getTaxes(state), xMax, filingStatus
+          taxes, xMax, filingStatus
         ));
       }
     }
@@ -295,7 +342,11 @@ module.exports = function($scope, taxData, taxService, graph, cache, tips) {
     }
 
     graph.drawLines();
-    graph.updateTitle('State Income Tax Rates, 2014');
+    primaryTitle = 'State Income Tax Rates, 2014';
+    secondaryTitle = $filter('splitCamelCase')(filingStatus) + ' Filing Status, ' +
+      (deductions.length ? ' Standard Deduction' : 'no deductions');
+    graph.updateTitle(primaryTitle, secondaryTitle);
+    $scope.$emit('hideMobileControls');
   };
 
   $scope.init = function() {
@@ -314,6 +365,7 @@ var app = require('../app'),
 
 app.controller('StateComparisonCtrl', [
   '$scope',
+  '$filter',
   'taxData',
   'taxService',
   'graph',
@@ -322,6 +374,7 @@ app.controller('StateComparisonCtrl', [
   StateComparisonCtrl
 ]).controller('StateBreakdownCtrl', [
   '$scope',
+  '$filter',
   'taxData',
   'taxService',
   'graph',
@@ -449,7 +502,7 @@ module.exports = function() {
 },{}],17:[function(require,module,exports){
 'use strict';
 
-module.exports = function(d3, _, screenService) {
+module.exports = function(d3, _, screenService, saveService) {
   function createSelector(string) {
     return '.' + string.split(' ').join('.');
   }
@@ -480,6 +533,8 @@ module.exports = function(d3, _, screenService) {
     controls: 'controls',
     data: 'data',
     title: 'title',
+    primaryTitle: 'primary',
+    secondaryTitle: 'secondary',
     line: 'tax',
     hoverLine: 'hover',
     hoverLabel: 'hoverlabel',
@@ -515,6 +570,7 @@ module.exports = function(d3, _, screenService) {
     }
     
     this.svg = d3.select('svg');
+    this.graph = this.svg.append('svg:g');
     this.settings = settings || this.settings;
 
     this.lines = [];
@@ -541,28 +597,35 @@ module.exports = function(d3, _, screenService) {
     if (screenService.width < screenService.sizes.md) {
       width = screenService.width - 20;
       height = screenService.height - 45;
+      this.m = [50, 80, 80, 50];
+    } else {
+      this.m = [80, 180, 80, 70];
     }
 
-    this.m = [80, 180, 80, 70];
     this.w = width - this.m[1] - this.m[3]; 
     this.h = height - this.m[0] - this.m[2];
-  };
 
-  this.createGraph = function() {
     this.svg
       .attr('width', this.w + this.m[1] + this.m[3] + 'px')
       .attr('height', this.h + this.m[0] + this.m[2] + 'px');
 
-    this.graph = this.svg
-      .append('svg:g')
-      .attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
+    this.graph.attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
+  };
 
+  this.createGraph = function() {
     this.title = this.graph
       .append('svg:g')
-      .attr('class', this.classes.title)
-      .attr('transform', 'translate(' +
-        (this.w / 2) + ',' + (-this.m[0] / 2) + ')')
-      .append('text');
+      .attr('class', this.classes.title);
+
+    var text = this.title.append('text');
+
+    text.append('tspan')
+      .attr('class', this.classes.primaryTitle);
+
+    text.append('tspan')
+      .attr('class', this.classes.secondaryTitle)
+      .attr('x', 0)
+      .attr('dy', '1.2em');
 
     this.controls = this.graph
       .append('svg:g')
@@ -572,10 +635,16 @@ module.exports = function(d3, _, screenService) {
       .append('svg:g')
       .attr('class', this.classes.data);
 
+    this.positionTitle();
     this.updateXAxis();
     this.updateYAxis();
     this.drawHoverLine();
     this.drawHoverLabel();
+  };
+
+  this.positionTitle = function() {
+    this.title.attr('transform', 'translate(' +
+        (this.w / 2) + ',' + (-this.m[0] / 2) + ')');
   };
 
   this.updateXAxis = function(xMax) {
@@ -657,8 +726,9 @@ module.exports = function(d3, _, screenService) {
       .classed(this.classes.hide, true);
   };
 
-  this.updateTitle = function(title) {
-    this.title.text(title);
+  this.updateTitle = function(primary, secondary) {
+    this.title.select(this.selectors.primaryTitle).text(primary);
+    this.title.select(this.selectors.secondaryTitle).text(secondary);
   };
 
   this.updateAnimationTime = function(time) {
@@ -815,6 +885,18 @@ module.exports = function(d3, _, screenService) {
       self.updateHoverLine(xPos);
       self.updateHoverLabel(xPos);
     });
+
+    screenService.addResizeEvent(this.redrawGraph.bind(this));
+  };
+
+  this.redrawGraph = function() {
+    this.setSize();
+    this.positionTitle();
+    this.updateXAxis();
+    this.updateYAxis();
+    this.removeRenderedData();
+    this.drawLines();
+    this.updateHoverLine(-1);
   };
 
   this.updateHoverLine = function(xPos) {
@@ -909,7 +991,7 @@ module.exports = function(d3, _, screenService) {
 
       textWidth = tooltipText.node().getBBox().width + 10;
       textHeight = tooltipText.node().getBBox().height + 3;
-      d = this.createTooltipPath(textWidth, textHeight, textXPos - 3, yOffset);
+      d = this.createTooltipPath(textWidth, textHeight, textXPos - 2, yOffset);
 
       this.tooltips[i].select('path')
         .attr('d', d);
@@ -947,7 +1029,8 @@ module.exports = function(d3, _, screenService) {
         textXPos = 8,
         yOffset = -10,
         tooltipHeight = 45,
-        maxNumLines = 12,
+        maxNumLines = 14,
+        dataEl = this.data.node(),
         yDist,
         diff,
         d;
@@ -975,25 +1058,40 @@ module.exports = function(d3, _, screenService) {
         textPos[i-1].tooltipY += diff;
       }
     }
+
+    // Remove path overlaps by rearranging the node order in the DOM
+    if (len < maxNumLines) {
+      for (i = 0; i <= len; i++) {
+        dataEl.appendChild(this.tooltips[textPos[i].i].node());
+      }
+    // If too many lines, then just make sure to show the first and last node
+    } else {
+      dataEl.appendChild(this.tooltips[textPos[0].i].node());
+      dataEl.appendChild(this.tooltips[textPos[len].i].node());
+    }
   };
 
-  this.removeTooltips = function() {
+  this.save = function() {
+    saveService.saveSvgAsPng(this.svg.node(), 'graph.png');
+  };
+
+  this.removeRenderedData = function() {
+    this.graph.selectAll(this.selectors.tooltip).remove();
+    this.graph.selectAll(this.selectors.line).transition().duration(0);
+    this.graph.selectAll(this.selectors.line).remove();
+    this.colorIndex = 0;
+  };
+
+  this.resetData = function() {
     this.updateHoverLine(-1);
     this.tooltips.length = 0;
     this.tooltipFns.length = 0;
-    this.colorIndex = 0;
-    this.graph.selectAll(this.selectors.tooltip).remove();
-  };
-
-  this.removeLines = function() {
-    this.lines.length = 0;
-    this.graph.selectAll(this.selectors.line).transition().duration(0);
-    this.graph.selectAll(this.selectors.line).remove();
+    this.lines.length = 0; 
   };
 
   this.clear = function() {
-    this.removeTooltips();
-    this.removeLines();
+    this.removeRenderedData();
+    this.resetData();
   };
 };
 },{}],18:[function(require,module,exports){
@@ -1009,7 +1107,7 @@ var app = require('../app'),
 
 app.service('taxService', ['_', taxService])
   .service('taxData', ['$http', '$q', '$filter', 'TAX_API', taxData])
-  .service('graph', ['d3', '_', 'screenService', graph])
+  .service('graph', ['d3', '_', 'screenService', 'saveService', graph])
   .service('screenService', ['$window', screenService])
   .service('cache', cache)
   .service('tips', ['localStorageService', tips]);
@@ -1017,10 +1115,11 @@ app.service('taxService', ['_', taxService])
 'use strict';
 
 module.exports = function($window) {
+  var resizeEvents = [];
+
   this.setSize = function() {
     this.width = $window.innerWidth;
     this.height = $window.innerHeight;
-    console.log(this.width, this.height);
   }.bind(this);
   
   this.sizes = {
@@ -1030,8 +1129,19 @@ module.exports = function($window) {
     xl: 1280 
   };
 
+  this.addResizeEvent = function(fn) {
+    resizeEvents.push(fn);
+  };
+
+  this.runResizeEvents = function() {
+    for (var i = 0, len = resizeEvents.length; i < len; i++) {
+      resizeEvents[i]();
+    }
+  };
+
   this.setSize();
-  angular.element($window).bind('resize', this.setSize);
+  this.addResizeEvent(this.setSize.bind(this));
+  angular.element($window).bind('resize', this.runResizeEvents.bind(this));
 };
 },{}],20:[function(require,module,exports){
 'use strict';
@@ -1126,7 +1236,7 @@ module.exports = function($http, $q, $filter, TAX_API) {
       this.states.push(state);
     }
 
-    for (var filingStatus in data.federal.taxes.income.rate) {
+    for (var filingStatus in data.federal.taxes.federalIncome.rate) {
       this.filingStatuses.push(filingStatus);
     }
 
@@ -1155,11 +1265,7 @@ module.exports = function($http, $q, $filter, TAX_API) {
     var taxes = [];
 
     for (var tax in this.data.federal.taxes) {
-      if (tax === 'income') {
-        taxes.push('Federal Income');
-      } else {
-        taxes.push(splitCamelCase(tax));
-      }
+      taxes.push(splitCamelCase(tax));
     }
 
     for (tax in this.data.state[state].taxes) {
@@ -1169,6 +1275,10 @@ module.exports = function($http, $q, $filter, TAX_API) {
     }
 
     return taxes;
+  };
+
+  this.getDeduction = function(deduction) {
+    return this.data.federal.deductions[deduction].amount;
   };
 };
 },{}],21:[function(require,module,exports){
@@ -1211,11 +1321,9 @@ module.exports = function(_) {
   }
 
   function precalcBracketTaxes(tax) {
-    for (var i = 0, len = tax.length, max = 0; i < len; i++) {
-      if (len > i + 1) {
-        max += (tax[i + 1][MIN] - tax[i][MIN]) * tax[i][RATE];
-        tax[i].push(Math.round10(max, -2));
-      }
+    for (var i = 0, len = tax.length, max = 0; i < len - 1; i++) {
+      max += (tax[i + 1][MIN] - tax[i][MIN]) * tax[i][RATE];
+      tax[i][MAX_TAX] = Math.round10(max, -2);
     }
   }
 
@@ -1468,6 +1576,43 @@ module.exports = function(_) {
     return calcTax(tax, income, filingStatus) / income;
   }
 
+  function calcDeduction(deduction, filingStatus) {
+    if (_.isNumber(deduction)) {
+      return deduction;
+    }
+    else if (_.isPlainObject(deduction)) {
+      return deduction[filingStatus];
+    }
+  }
+
+  function calcTotalDeduction(deductions, filingStatus) {
+    var total = 0;
+
+    _(deductions).forEach(function(deduction) {
+      total += calcDeduction(deduction, filingStatus);
+    });
+
+    return total;
+  }
+
+  function modifyTaxBracket(tax, filingStatus, deductions) {
+    var deductionAmount = calcTotalDeduction(deductions, filingStatus),
+        copy = [ [0, 0, 0] ];
+
+    if (_.isArray(tax)) {
+      copy.push.apply(copy, _.cloneDeep(tax));
+    }
+    else if (_.isPlainObject(tax)) {
+      copy.push.apply(copy, _.cloneDeep(tax[filingStatus]));
+    }
+
+    for (var i = 1, len = copy.length; i < len; i++) {
+      copy[i][MIN] += deductionAmount;
+    }
+
+    return copy;
+  }
+
   this.preprocessTaxes = preprocessTaxes;
   this.calcTax = calcTax;
   this.calcMarginalTax = calcMarginalTax;
@@ -1476,6 +1621,9 @@ module.exports = function(_) {
   this.calcTotalMarginalTaxBrackets = calcTotalMarginalTaxBrackets;
   this.calcMarginalTaxRate = calcMarginalTaxRate;
   this.calcEffectiveTaxRate = calcEffectiveTaxRate;
+  this.calcDeduction = calcDeduction;
+  this.calcTotalDeduction = calcTotalDeduction;
+  this.modifyTaxBracket = modifyTaxBracket;
 };
 },{"../lib/Math.round10":14}],22:[function(require,module,exports){
 'use strict';
@@ -40869,4 +41017,124 @@ var styleDirective = valueFn({
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],29:[function(require,module,exports){
+(function() {
+  var out$ = typeof exports != 'undefined' && exports || this;
+
+  var doctype = '<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">';
+
+  function inlineImages(callback) {
+    var images = document.querySelectorAll('svg image');
+    var left = images.length;
+    if (left == 0) {
+      callback();
+    }
+    for (var i = 0; i < images.length; i++) {
+      (function(image) {
+        if (image.getAttribute('xlink:href')) {
+          var href = image.getAttribute('xlink:href').value;
+          if (/^http/.test(href) && !(new RegExp('^' + window.location.host).test(href))) {
+            throw new Error("Cannot render embedded images linking to external hosts.");
+          }
+        }
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        var img = new Image();
+        img.src = image.getAttribute('xlink:href');
+        img.onload = function() {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          image.setAttribute('xlink:href', canvas.toDataURL('image/png'));
+          left--;
+          if (left == 0) {
+            callback();
+          }
+        }
+      })(images[i]);
+    }
+  }
+
+  function styles(dom) {
+    var css = "";
+    var sheets = document.styleSheets;
+    for (var i = 0; i < sheets.length; i++) {
+      var rules = sheets[i].cssRules;
+      if (rules != null) {
+        for (var j = 0; j < rules.length; j++) {
+          var rule = rules[j];
+          if (typeof(rule.style) != "undefined") {
+            css += rule.selectorText + " { " + rule.style.cssText + " }\n";
+          }
+        }
+      }
+    }
+
+    var s = document.createElement('style');
+    s.setAttribute('type', 'text/css');
+    s.innerHTML = "<![CDATA[\n" + css + "\n]]>";
+
+    var defs = document.createElement('defs');
+    defs.appendChild(s);
+    return defs;
+  }
+
+  out$.svgAsDataUri = function(el, scaleFactor, cb) {
+    scaleFactor = scaleFactor || 1;
+
+    inlineImages(function() {
+      var outer = document.createElement("div");
+      var clone = el.cloneNode(true);
+      var width = parseInt(
+        clone.getAttribute('width')
+          || clone.style.width
+          || out$.getComputedStyle(el).getPropertyValue('width')
+      );
+      var height = parseInt(
+        clone.getAttribute('height')
+          || clone.style.height
+          || out$.getComputedStyle(el).getPropertyValue('height')
+      );
+
+      var xmlns = "http://www.w3.org/2000/xmlns/";
+
+      clone.setAttribute("version", "1.1");
+      clone.setAttributeNS(xmlns, "xmlns", "http://www.w3.org/2000/svg");
+      clone.setAttributeNS(xmlns, "xmlns:xlink", "http://www.w3.org/1999/xlink");
+      clone.setAttribute("width", width * scaleFactor);
+      clone.setAttribute("height", height * scaleFactor);
+      clone.setAttribute("viewBox", "0 0 " + width + " " + height);
+      outer.appendChild(clone);
+
+      clone.insertBefore(styles(clone), clone.firstChild);
+
+      var svg = doctype + outer.innerHTML;
+      var uri = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svg)));
+      if (cb) {
+        cb(uri);
+      }
+    });
+  }
+
+  out$.saveSvgAsPng = function(el, name, scaleFactor) {
+    out$.svgAsDataUri(el, scaleFactor, function(uri) {
+      var image = new Image();
+      image.src = uri;
+      image.onload = function() {
+        var canvas = document.createElement('canvas');
+        canvas.width = image.width;
+        canvas.height = image.height;
+        var context = canvas.getContext('2d');
+        context.drawImage(image, 0, 0);
+
+        var a = document.createElement('a');
+        a.download = name;
+        a.href = canvas.toDataURL('image/png');
+        document.body.appendChild(a);
+        a.click();
+      }
+    });
+  }
+})();
+
 },{}]},{},[15]);

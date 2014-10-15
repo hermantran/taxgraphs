@@ -90,7 +90,7 @@ module.exports = function($http, $q, $filter, TAX_API) {
       this.states.push(state);
     }
 
-    for (var filingStatus in data.federal.taxes.income.rate) {
+    for (var filingStatus in data.federal.taxes.federalIncome.rate) {
       this.filingStatuses.push(filingStatus);
     }
 
@@ -119,11 +119,7 @@ module.exports = function($http, $q, $filter, TAX_API) {
     var taxes = [];
 
     for (var tax in this.data.federal.taxes) {
-      if (tax === 'income') {
-        taxes.push('Federal Income');
-      } else {
-        taxes.push(splitCamelCase(tax));
-      }
+      taxes.push(splitCamelCase(tax));
     }
 
     for (tax in this.data.state[state].taxes) {
@@ -133,5 +129,9 @@ module.exports = function($http, $q, $filter, TAX_API) {
     }
 
     return taxes;
+  };
+
+  this.getDeduction = function(deduction) {
+    return this.data.federal.deductions[deduction].amount;
   };
 };

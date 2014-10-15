@@ -9,7 +9,7 @@
     <meta property="og:title" content="TaxGraphs">
     <meta property="og:type" content="website">
     <meta property="og:url" content="http://taxgraphs.io">
-    <meta property="og:image" content="">
+    <meta property="og:image" content="dist/images/graph.png">
 
     <link rel="shortcut icon" href="dist/images/favicon.ico">
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500">
@@ -32,30 +32,45 @@
     <header class="pure-g pure-menu pure-menu-open pure-menu-horizontal">
       <ul class="pure-u-1">
         <li class="logo">TaxGraphs</li>
-        <li class="pure-hidden-xs">
+        <li class="pure-hidden-sm">
           <a href="#/" ng-class="{ active: isActive('/') }">State Comparison</a>
         </li>
-        <li class="pure-hidden-xs">
+        <li class="pure-hidden-sm">
           <a href="#/state" ng-class="{ active: isActive('/state') }">State Breakdown</a>
         </li>
-        <li class="pure-visible-xs mobile">
-          <a href="#"><i class="fa fa-line-chart"></i></a>
+        <li class="pure-visible-sm mobile">
+          <a href="https://github.com/hermantran/taxgraphs"><i class="fa fa-github"></i></a>
+        </li>
+        <li class="pure-visible-sm mobile">
+          <a ng-click="$root.toggleMobileControls()"><i class="fa fa-line-chart"></i></a>
         </li>
       </ul>
     </header>
 
     <div class="pure-g container">
-      <div class="pure-hidden-sm pure-u-1 pure-u-md-3-8 pure-u-lg-1-3 pure-u-xl-1-4 controls-wrapper">
+      <div class="pure-u-1 pure-u-md-3-8 pure-u-lg-1-3 pure-u-xl-1-4 controls-wrapper" 
+       ng-class="{ 'pure-hidden-sm': $root.hideMobileControls }">
+        <div class="mobile-links section pure-visible-sm">
+          <h3>Graph</h3>
+          <div>
+            <label>Currently Active:</label>
+            <span>{{ $root.title }}</span>
+          </div>
+          <div class="text-center buttons">
+            <a href="#/"><button class="pure-button">State Comparison</button></a>
+            <a href="#/state"><button class="pure-button">State Breakdown</button></a>
+          </div>
+        </div>
         <div class="controls" ng-view></div>
         <div class="footer">
-
           <a href="https://github.com/hermantran/taxgraphs" target="_blank">GitHub</a> |
           <a href="https://github.com/hermantran/taxgraphs/issues" target="_blank">Feedback</a>
           <div class="copyright">&copy; 2014 Herman Tran</div>
         </div>
       </div>
 
-      <div class="pure-u-1 pure-u-md-5-8 pure-u-lg-2-3 pure-u-xl-3-4 graph-wrapper">
+      <div class="pure-u-1 pure-u-md-5-8 pure-u-lg-2-3 pure-u-xl-3-4 graph-wrapper"
+       ng-class="{ 'pure-hidden-sm': !$root.hideMobileControls }">
         <svg class="graph"></svg>
       </div>
     </div>
