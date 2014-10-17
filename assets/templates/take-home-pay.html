@@ -9,13 +9,6 @@
   </div>
 
   <div>
-    <label for="status">Filing Status:</label>
-    <select ng-model="data.status" id="status" name="status" 
-     ng-options="v as (v | capitalize) for v in filingStatuses">
-    </select>
-  </div>
-
-  <div>
     <label class="valign-top">Deductions:</label>
     <div class="inline-block">
       <div ng-repeat="deduction in deductions">
@@ -29,6 +22,22 @@
   <div>
     <label for="itemized" class="valign-top">Itemized <br>Deduction:</label>
     <input type="text" id="itemized" name="itemized" ng-model="data.itemized">
+  </div>
+
+  <div>
+    <label class="valign-top">Graph Lines:</label>
+    <div class="inline-block">
+      <div>
+        <input type="checkbox" name="single-income" id="single-income" 
+         ng-model="data.graphLines.single"> 
+        <label for="single-income">Single Filing Status</label>
+      </div>
+      <div>
+        <input type="checkbox" name="married-income" id="married-income"
+         ng-model="data.graphLines.married"> 
+        <label for="married-income">Married Filing Status</label>
+      </div>
+    </div>
   </div>
   
   <h3>Settings</h3>

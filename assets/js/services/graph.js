@@ -25,7 +25,7 @@ module.exports = function(d3, _, screenService, saveService) {
     ]
   };
 
-  this.animationTimes = [0, 500, 1000, 2000, 3000, 5000, 10000, 20000];
+  this.animationTimes = [0, 1000, 2000, 3000];
 
   this.classes = {
     controls: 'controls',
@@ -56,7 +56,7 @@ module.exports = function(d3, _, screenService, saveService) {
     xMax: 300000,
     yMin: 0,
     yMax: 60,
-    animationTime: 3000,
+    animationTime: 2000,
     colors: this.colors.multi,
     calculateAmount: false
   };
@@ -454,6 +454,7 @@ module.exports = function(d3, _, screenService, saveService) {
         textYPos = -35,
         textXPos = 10,
         yOffset = -10,
+        box,
         hide,
         yValue,
         yPos,
@@ -496,8 +497,21 @@ module.exports = function(d3, _, screenService, saveService) {
         .attr('x', textXPos)
         .text(text);
 
-      textWidth = tooltipText.node().getBBox().width + 10;
-      textHeight = tooltipText.node().getBBox().height + 3;
+      // https://github.com/robwalch/svg.js/blob/00c786e50ceae8d7514dda609691f842cded9a82/src/bbox.js
+      // Fixes Firefox NS_ERROR_FAILURE when getting the bounding box
+      try {
+        box = tooltipText.node().getBBox();
+      } catch(err) {
+        box = {
+          x: tooltipText.node().clientLeft,
+          y: tooltipText.node().clientTop,
+          width: tooltipText.node().clientWidth,
+          height: tooltipText.node().clientHeight
+        };
+      }
+
+      textWidth = box.width + 10;
+      textHeight = box.height + 3;
       d = this.createTooltipPath(textWidth, textHeight, textXPos - 2, yOffset);
 
       this.tooltips[i].select('path')
@@ -583,13 +597,13 @@ module.exports = function(d3, _, screenService, saveService) {
   };
 
   this.removeRenderedData = function() {
-    this.graph.selectAll(this.selectors.tooltip).remove();
-    this.graph.selectAll(this.selectors.line).transition().duration(0);
-    this.graph.selectAll(this.selectors.line).remove();
     this.updateHoverLine(-1);
     this.tooltips.length = 0;
     this.tooltipFns.length = 0;
     this.colorIndex = 0;
+    this.graph.selectAll(this.selectors.tooltip).remove();
+    this.graph.selectAll(this.selectors.line).transition().duration(0);
+    this.graph.selectAll(this.selectors.line).remove();
   };
 
   this.resetData = function() {

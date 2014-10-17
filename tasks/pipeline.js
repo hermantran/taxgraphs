@@ -10,8 +10,8 @@
 
 var pkg = require('../package.json');
 
-var cssProdFile = 'styles/main.min-' + pkg.version + '.css';
-var jsProdFile = 'js/main.min-' + pkg.version + '.js';
+var cssProdFile = 'styles/main-' + pkg.version + '.min.css';
+var jsProdFile = 'js/main-' + pkg.version + '.min.js';
 
 // CSS files to inject in order
 //

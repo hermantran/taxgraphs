@@ -14,12 +14,15 @@ module.exports = function($scope, $filter, taxData, taxService, graph, cache, ti
   if (!cache.get('takeHomePayData')) {
     cache.set('takeHomePayData', {
       state: 'CA',
-      status: 'single',
       deductions: {
         standardDeduction: true,
         personalExemption: true
       },
-      itemized: 0
+      itemized: 0,
+      graphLines: {
+        single: true,
+        married: true
+      }
     });
   }
 
@@ -33,12 +36,13 @@ module.exports = function($scope, $filter, taxData, taxService, graph, cache, ti
 
   $scope.drawGraph = function() {
     var state = $scope.data.state,
-        filingStatus = $scope.data.status,
         xMax = $scope.settings.xMax,
         taxes = taxData.getTaxes(state),
         fedIncomeIndex = taxData.getTaxNames(state).indexOf('Federal Income'),
         deductions = [],
         itemized = parseInt($scope.data.itemized, 10),
+        capitalize = $filter('capitalize'),
+        label,
         primaryTitle,
         secondaryTitle,
         tooltipFn,
@@ -55,24 +59,31 @@ module.exports = function($scope, $filter, taxData, taxService, graph, cache, ti
       }
     }
 
-    deductions.push(itemized);
+    if (itemized > 0) {
+      deductions.push(itemized);
+    }
 
-    taxes[fedIncomeIndex] = taxService.modifyTaxBracket(
-      taxes[fedIncomeIndex], filingStatus, deductions
-    );
-
-    total = taxService.calcTotalMarginalTaxBrackets(taxes, xMax, filingStatus);
-    data = taxService.createTakeHomePayData(total, xMax);
-    tooltipFn = $scope.createTaxRateFn(total, filingStatus, true);
-    
     graph.clear();
     graph.update($scope.settings);
-    graph.addLine(data, 'Net Income', tooltipFn, true);
+
+    for (var status in $scope.data.graphLines) {
+      if ($scope.data.graphLines[status]) {
+        taxes[fedIncomeIndex] = taxService.modifyTaxBracket(
+          taxes[fedIncomeIndex], status, deductions
+        );
+
+        total = taxService.calcTotalMarginalTaxBrackets(taxes, xMax, status);
+        data = taxService.createTakeHomePayData(total, xMax);
+        label = 'Net Income - ' + capitalize(status) + ' Status';
+        tooltipFn = $scope.createTaxRateFn(total, status, true);
+        graph.addLine(data, label, tooltipFn, true);
+      }
+    }
+    
     graph.drawLines();
 
     primaryTitle = $scope.stateNames[state] + ' Take Home Pay, 2014';
-    secondaryTitle = $filter('splitCamelCase')(filingStatus) + ' Filing Status, ' +
-      (deductions.length ? ' Standard Deduction' : 'no deductions') +
+    secondaryTitle = (deductions.length ? ' Standard Deduction' : 'no deductions') +
       (itemized > 0 ? ', $' + itemized + ' Itemized Deduction' : ''); 
     graph.updateTitle(primaryTitle, secondaryTitle);
     $scope.$emit('hideMobileControls');

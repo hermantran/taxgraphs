@@ -1,10 +1,19 @@
 {
   "taxes": {
     "medicare": {
-      "rate": 0.0145,
+      "rate": {
+        "single": [
+          [0, 0.0145],
+          [200000, 0.0235]
+        ],
+        "married": [
+          [0, 0.0145],
+          [250000, 0.0235]
+        ]
+      },
       "source": {
-        "name": "IRS Publication 15, Employer's Tax Guide - Page 1",
-        "url": "//www.irs.gov/pub/irs-pdf/p15.pdf"
+        "name": "Questions and Answers for the Additional Medicare Tax",
+        "url": "//www.irs.gov/Businesses/Small-Businesses-&-Self-Employed/Questions-and-Answers-for-the-Additional-Medicare-Tax"
       }
     },
     "socialSecurity": {
