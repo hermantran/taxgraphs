@@ -62,7 +62,14 @@
             <a href="#/take-home-pay"><button class="pure-button">Take Home Pay</button></a>
           </div>
         </div>
-        <div class="controls" ng-view></div>
+        <div class="controls">
+          <div ng-view></div>
+          <div class="section tip" ng-repeat="tip in tips" ng-hide="tip.closed">
+            <i class="fa fa-info-circle info"></i>
+            <span class="text">{{ tip.text }}</span>
+            <i class="fa fa-close close" ng-click="closeTip($index)"></i>
+          </div>
+        </div>
         <div class="footer">
           <a href="https://github.com/hermantran/taxgraphs" target="_blank">GitHub</a> |
           <a href="https://github.com/hermantran/taxgraphs/issues" target="_blank">Feedback</a>

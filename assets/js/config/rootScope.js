@@ -1,12 +1,15 @@
 'use strict';
 
 module.exports = /* @ngInject */ 
-function($rootScope, $location, ga, DOMAIN, GA_TRACKING_ID) {
+function($rootScope, $location, ga, DOMAIN, GA_TRACKING_ID, tips) {
   var isProd = $location.absUrl().indexOf(DOMAIN) > -1;
 
   if (isProd) {
     ga('create', GA_TRACKING_ID, 'auto');
   }
+
+  $rootScope.tips = tips.list;
+  $rootScope.closeTip = tips.close;
 
   $rootScope.$on('$routeChangeSuccess', function(e, route) {
     $rootScope.activeRoute = $location.path();

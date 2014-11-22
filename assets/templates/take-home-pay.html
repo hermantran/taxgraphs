@@ -64,9 +64,3 @@
     <button class="pure-button pure-button-primary" ng-click="drawGraph()">Graph</button>
   </div>
 </div>
-
-<div class="section tip" ng-repeat="tip in tips" ng-hide="tip.closed">
-  <i class="fa fa-info-circle info"></i>
-  <span class="text">{{ tip.text }}</span>
-  <i class="fa fa-close close" ng-click="closeTip($index)"></i>
-</div>

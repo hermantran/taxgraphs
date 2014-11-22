@@ -1,10 +1,8 @@
 'use strict';
 
 module.exports = /* @ngInject */ function($http, $q, $filter, TAX_API) {
-  var hasResolved = false,
-      splitCamelCase = $filter('splitCamelCase');
+  var splitCamelCase = $filter('splitCamelCase');
 
-  this.data = {};
   this.states = [];
   this.filingStatuses = [];
   this.deductions = [];
@@ -67,7 +65,7 @@ module.exports = /* @ngInject */ function($http, $q, $filter, TAX_API) {
   this.get = function() {
     var deferred = $q.defer();
 
-    if (!hasResolved) {
+    if (!this.data) {
       this.fetch(TAX_API, deferred);
     } else {
       deferred.resolve(this.data);
@@ -81,7 +79,6 @@ module.exports = /* @ngInject */ function($http, $q, $filter, TAX_API) {
       this.data = resp.data;
       this.fillMetadata(this.data);
       deferred.resolve(this.data);
-      hasResolved = true;
     }.bind(this));
   };
 

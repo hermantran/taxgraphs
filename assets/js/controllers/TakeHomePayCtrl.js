@@ -85,8 +85,8 @@ function($scope, $filter, taxData, taxService, graph, cache, tips) {
 
     primaryTitle = $scope.stateNames[state] + ' Take Home Pay, 2014';
     secondaryTitle = [
-      (deductions.length ? ' Standard Deduction' : 'no deductions') + ',',
-      (itemized > 0 ? '$' + itemized + ' Itemized Deduction' : '')
+      (deductions.length ? ' Standard Deduction' : 'no deductions'),
+      (itemized > 0 ? ', $' + itemized + ' Itemized Deduction' : '')
     ].join(' '); 
     graph.updateTitle(primaryTitle, secondaryTitle);
     $scope.$emit('hideMobileControls');

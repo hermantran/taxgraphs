@@ -5,8 +5,6 @@ module.exports = /* @ngInject */ function(d3, _, screenService, saveService) {
     return '.' + string.split(' ').join('.');
   }
 
-  function noop() {}
-
   this.colors = {
     blue: [
       'steelblue'
@@ -371,7 +369,7 @@ module.exports = /* @ngInject */ function(d3, _, screenService, saveService) {
     if (tooltipFn) {
       this.tooltipFns.push(tooltipFn);
     } else {
-      this.tooltipFns.push(noop);
+      this.tooltipFns.push(angular.noop);
     }
   };
 

@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = /* @ngInject */
-function($scope, $filter, taxData, taxService, graph, cache, tips) {
+function($scope, $filter, taxData, taxService, graph, cache) {
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
@@ -9,8 +9,6 @@ function($scope, $filter, taxData, taxService, graph, cache, tips) {
   $scope.filingStatuses = taxData.filingStatuses;
   $scope.stateNames = taxData.stateNames;
   $scope.deductions = taxData.deductions;
-  $scope.tips = tips.list;
-  $scope.closeTip = tips.close;
 
   if (!cache.get('stateBreakdownData')) {
     cache.set('stateBreakdownData', {
