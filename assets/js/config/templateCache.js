@@ -1,7 +1,7 @@
 'use strict';
 
 // http://stackoverflow.com/questions/22080981/loading-ng-include-partials-from-local-pre-loaded-jst-template-cache
-module.exports = function($provide, JST) {
+module.exports = /* @ngInject */ function($provide, JST) {
   $provide.decorator('$templateCache', ['$delegate', function($delegate) {
     var originalGet = $delegate.get;
 

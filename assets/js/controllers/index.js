@@ -5,31 +5,6 @@ var app = require('../app'),
     StateBreakdownCtrl = require('./StateBreakdownCtrl'),
     TakeHomePayCtrl = require('./TakeHomePayCtrl');
 
-app.controller('StateComparisonCtrl', [
-  '$scope',
-  '$filter',
-  'taxData',
-  'taxService',
-  'graph',
-  'cache',
-  'tips',
-  StateComparisonCtrl
-]).controller('StateBreakdownCtrl', [
-  '$scope',
-  '$filter',
-  'taxData',
-  'taxService',
-  'graph',
-  'cache',
-  'tips',
-  StateBreakdownCtrl
-]).controller('TakeHomePayCtrl', [
-  '$scope',
-  '$filter',
-  'taxData',
-  'taxService',
-  'graph',
-  'cache',
-  'tips',
-  TakeHomePayCtrl
-]);
+app.controller('StateComparisonCtrl', StateComparisonCtrl)
+.controller('StateBreakdownCtrl', StateBreakdownCtrl)
+.controller('TakeHomePayCtrl', TakeHomePayCtrl);

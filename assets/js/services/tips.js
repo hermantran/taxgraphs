@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(localStorageService) {
+module.exports = /* @ngInject */ function(localStorageService) {
   var list;
 
   this.key = 'taxAppTips';

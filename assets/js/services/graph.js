@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(d3, _, screenService, saveService) {
+module.exports = /* @ngInject */ function(d3, _, screenService, saveService) {
   function createSelector(string) {
     return '.' + string.split(' ').join('.');
   }
@@ -108,7 +108,8 @@ module.exports = function(d3, _, screenService, saveService) {
       .attr('width', this.w + this.m[1] + this.m[3] + 'px')
       .attr('height', this.h + this.m[0] + this.m[2] + 'px');
 
-    this.graph.attr('transform', 'translate(' + this.m[3] + ',' + this.m[0] + ')');
+    this.graph.attr('transform', 
+      'translate(' + this.m[3] + ',' + this.m[0] + ')');
   };
 
   this.createGraph = function() {

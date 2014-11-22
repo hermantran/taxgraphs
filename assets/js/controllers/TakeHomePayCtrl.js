@@ -1,6 +1,7 @@
 'use strict';
 
-module.exports = function($scope, $filter, taxData, taxService, graph, cache, tips) {
+module.exports = /* @ngInject */
+function($scope, $filter, taxData, taxService, graph, cache, tips) {
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
@@ -83,8 +84,10 @@ module.exports = function($scope, $filter, taxData, taxService, graph, cache, ti
     graph.drawLines();
 
     primaryTitle = $scope.stateNames[state] + ' Take Home Pay, 2014';
-    secondaryTitle = (deductions.length ? ' Standard Deduction' : 'no deductions') +
-      (itemized > 0 ? ', $' + itemized + ' Itemized Deduction' : ''); 
+    secondaryTitle = [
+      (deductions.length ? ' Standard Deduction' : 'no deductions') + ',',
+      (itemized > 0 ? '$' + itemized + ' Itemized Deduction' : '')
+    ].join(' '); 
     graph.updateTitle(primaryTitle, secondaryTitle);
     $scope.$emit('hideMobileControls');
   };

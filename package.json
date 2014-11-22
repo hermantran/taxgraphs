@@ -27,6 +27,7 @@
     "angular-local-storage": "^0.1.2",
     "angular-route": "^1.2.17-build.163.1",
     "browserify": "^5.11.2",
+    "browserify-ngannotate": "^0.4.0",
     "browserify-shim": "^3.7.0",
     "d3": "^3.4.11",
     "font-awesome": "^4.2.0",
@@ -60,7 +61,8 @@
   },
   "browserify": {
     "transform": [
-      "browserify-shim"
+      "browserify-shim",
+      "browserify-ngannotate"
     ]
   }
 }

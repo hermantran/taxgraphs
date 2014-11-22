@@ -1,7 +1,8 @@
 'use strict';
 
-function rootScope($rootScope, $location, ga, GA_TRACKING_ID) {
-  var isProd = $location.absUrl().indexOf('taxgraphs') > -1;
+module.exports = /* @ngInject */ 
+function($rootScope, $location, ga, DOMAIN, GA_TRACKING_ID) {
+  var isProd = $location.absUrl().indexOf(DOMAIN) > -1;
 
   if (isProd) {
     ga('create', GA_TRACKING_ID, 'auto');
@@ -31,6 +32,4 @@ function rootScope($rootScope, $location, ga, GA_TRACKING_ID) {
   $rootScope.$on('hideMobileControls', function() {
     $rootScope.hideMobileControls = true;
   });
-}
-
-module.exports = rootScope;
+};

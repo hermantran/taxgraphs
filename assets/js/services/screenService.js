@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function($window) {
+module.exports = /* @ngInject */ function($window) {
   var resizeEvents = [];
 
   this.setSize = function() {

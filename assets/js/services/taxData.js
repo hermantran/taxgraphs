@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function($http, $q, $filter, TAX_API) {
+module.exports = /* @ngInject */ function($http, $q, $filter, TAX_API) {
   var hasResolved = false,
       splitCamelCase = $filter('splitCamelCase');
 

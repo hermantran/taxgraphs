@@ -2,7 +2,7 @@
 
 require('../lib/Math.round10');
 
-module.exports = function(_) {
+module.exports = /* @ngInject */ function(_) {
   // enum to represent tax bracket indices
   var MIN = 0,
       RATE = 1,

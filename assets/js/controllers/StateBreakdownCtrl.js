@@ -1,6 +1,7 @@
 'use strict';
 
-module.exports = function($scope, $filter, taxData, taxService, graph, cache, tips) {
+module.exports = /* @ngInject */
+function($scope, $filter, taxData, taxService, graph, cache, tips) {
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
@@ -110,8 +111,11 @@ module.exports = function($scope, $filter, taxData, taxService, graph, cache, ti
 
     graph.drawLines();
     primaryTitle = $scope.stateNames[state] + ' Income Tax Rates, 2014';
-    secondaryTitle = $filter('splitCamelCase')(filingStatus) + ' Filing Status, ' +
-      (deductions.length ? ' Standard Deduction' : 'no deductions');
+    secondaryTitle = [
+      $filter('splitCamelCase')(filingStatus),
+      'Filing Status,',
+      (deductions.length ? ' Standard Deduction' : 'no deductions')
+    ].join(' ');
     graph.updateTitle(primaryTitle, secondaryTitle);
     $scope.$emit('hideMobileControls');
   };

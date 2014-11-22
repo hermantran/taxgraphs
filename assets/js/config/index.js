@@ -20,6 +20,7 @@ app.constant('d3', d3)
   .constant('ga', ga)
   .constant('GA_TRACKING_ID', 'UA-55615931-1')
   .constant('TAX_API', 'data/2014.json')
-  .config(['$provide', 'JST', templateCache])
-  .config(['$routeProvider', routes])
-  .run(['$rootScope', '$location', 'ga', 'GA_TRACKING_ID', rootScope]);
+  .constant('DOMAIN', 'taxgraphs.io')
+  .config(templateCache)
+  .config(routes)
+  .run(rootScope);
