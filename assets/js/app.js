@@ -1,6 +1,6 @@
 'use strict';
 
-var angular = require('angular');
+var angular = require('./lib/angular');
 require('angular-route/angular-route');
 require('angular-local-storage');
 

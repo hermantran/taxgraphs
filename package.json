@@ -1,6 +1,6 @@
 {
   "name": "taxgraphs",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Visualization of US individual income tax rates",
   "author": "Herman Tran <hermanctran@gmail.com>",
   "license": "MIT",
@@ -23,13 +23,13 @@
     "url": "https://github.com/hermantran/taxgraphs/issues"
   },
   "dependencies": {
-    "angular": "^1.2.23",
-    "angular-local-storage": "^0.1.2",
-    "angular-route": "^1.2.17-build.163.1",
-    "browserify": "^5.11.2",
-    "browserify-ngannotate": "^0.4.0",
-    "browserify-shim": "^3.7.0",
-    "d3": "^3.4.11",
+    "angular": "~1.2.23",
+    "angular-local-storage": "~0.1.2",
+    "angular-route": "~1.2.17-build.163.1",
+    "browserify": "~5.11.2",
+    "browserify-ngannotate": "~0.4.0",
+    "browserify-shim": "~3.7.0",
+    "d3": "~3.4.11",
     "font-awesome": "^4.2.0",
     "grunt": "^0.4.5",
     "grunt-browserify": "^3.0.1",
@@ -55,14 +55,14 @@
   "scripts": {
     "install": "napa exupero/saveSvgAsPng"
   },
-  "browserify-shim": {
-    "JST": "global:JST",
-    "ga": "global:ga"
-  },
   "browserify": {
     "transform": [
       "browserify-shim",
       "browserify-ngannotate"
     ]
+  },
+  "browserify-shim": {
+    "JST": "global:JST",
+    "ga": "global:ga"
   }
 }
