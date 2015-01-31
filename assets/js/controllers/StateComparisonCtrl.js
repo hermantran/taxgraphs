@@ -1,7 +1,8 @@
 'use strict';
 
-module.exports = /* @ngInject */
-function($scope, $filter, taxData, taxService, graph, cache) {
+/* @ngInject */
+function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
+ cache) {
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
@@ -127,4 +128,6 @@ function($scope, $filter, taxData, taxService, graph, cache) {
   };
 
   taxData.get().then($scope.init);
-};
+}
+
+module.exports = StateComparisonCtrl;

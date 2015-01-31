@@ -66,19 +66,6 @@ module.exports = function(grunt) {
       }
     },
 
-    tpl: {
-      options: {
-        startTag: '<!--TEMPLATES-->',
-        endTag: '<!--TEMPLATES END-->',
-        fileTmpl: '<script src="dist%s"></script>',
-        appRoot: 'dist'
-      },
-      
-      files: {
-        '*.html': ['dist/jst.js'],
-      }
-    },
-
     livereloadDev: {
       options: {
         startTag: '<!--LIVERELOAD-->',

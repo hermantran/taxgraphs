@@ -7,11 +7,8 @@ var app = require('../app'),
     saveService = require('saveSvgAsPng/saveSvgAsPng'),
     ga = require('ga'),
     routes = require('./routes'),
-    templateCache = require('./templateCache'),
-    rootScope = require('./rootScope');
-
-// JST.js requires lodash in the global scope
-window._ = lodash;
+    rootScope = require('./rootScope'),
+    domain = require('../../../package.json').homepage;
 
 app.constant('d3', d3)
   .constant('_', lodash)
@@ -20,7 +17,6 @@ app.constant('d3', d3)
   .constant('ga', ga)
   .constant('GA_TRACKING_ID', 'UA-55615931-1')
   .constant('TAX_API', 'data/2014.json')
-  .constant('DOMAIN', 'taxgraphs.io')
-  .config(templateCache)
+  .constant('DOMAIN', domain)
   .config(routes)
   .run(rootScope);

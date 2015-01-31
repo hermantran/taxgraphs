@@ -1,6 +1,7 @@
 'use strict';
 
-module.exports = /* @ngInject */ function($routeProvider) {
+/* @ngInject */ 
+function routes($routeProvider) {
   $routeProvider
     .when('/', {
       templateUrl: 'assets/templates/state-comparison.html',
@@ -20,4 +21,6 @@ module.exports = /* @ngInject */ function($routeProvider) {
     .otherwise({
       redirectTo: '/'
     });
-};
+}
+
+module.exports = routes;

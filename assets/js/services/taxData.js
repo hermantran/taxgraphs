@@ -1,14 +1,16 @@
 'use strict';
 
-module.exports = /* @ngInject */ function($http, $q, $filter, TAX_API) {
-  var splitCamelCase = $filter('splitCamelCase');
+/* @ngInject */
+function taxData($http, $q, $filter, TAX_API) {
+  var service = {},
+      splitCamelCase = $filter('splitCamelCase');
 
-  this.states = [];
-  this.filingStatuses = [];
-  this.deductions = [];
-  this.taxTypes = ['effective', 'marginal'];
+  service.states = [];
+  service.filingStatuses = [];
+  service.deductions = [];
+  service.taxTypes = ['effective', 'marginal'];
 
-  this.stateNames = {
+  service.stateNames = {
     AL: 'Alabama',
     AK: 'Alaska',
     AZ: 'Arizona',
@@ -62,65 +64,65 @@ module.exports = /* @ngInject */ function($http, $q, $filter, TAX_API) {
     WY: 'Wyoming',
   };
 
-  this.get = function() {
+  service.get = function() {
     var deferred = $q.defer();
 
-    if (!this.data) {
-      this.fetch(TAX_API, deferred);
+    if (!service.data) {
+      service.fetch(TAX_API, deferred);
     } else {
-      deferred.resolve(this.data);
+      deferred.resolve(service.data);
     }
 
     return deferred.promise;
   };
 
-  this.fetch = function(url, deferred) {
+  service.fetch = function(url, deferred) {
     $http.get(url).then(function(resp) {
-      this.data = resp.data;
-      this.fillMetadata(this.data);
-      deferred.resolve(this.data);
-    }.bind(this));
+      service.data = resp.data;
+      service.fillMetadata(service.data);
+      deferred.resolve(service.data);
+    });
   };
 
-  this.fillMetadata = function(data) {
+  service.fillMetadata = function(data) {
     for (var state in data.state) {
-      this.states.push(state);
+      service.states.push(state);
     }
 
     for (var filingStatus in data.federal.taxes.federalIncome.rate) {
-      this.filingStatuses.push(filingStatus);
+      service.filingStatuses.push(filingStatus);
     }
 
     for (var deduction in data.federal.deductions) {
-      this.deductions.push(deduction);
+      service.deductions.push(deduction);
     }
   };
 
-  this.getTaxes = function(state) {
+  service.getTaxes = function(state) {
     var taxes = [];
 
-    for (var tax in this.data.federal.taxes) {
-      taxes.push(this.data.federal.taxes[tax].rate);
+    for (var tax in service.data.federal.taxes) {
+      taxes.push(service.data.federal.taxes[tax].rate);
     }
 
-    for (tax in this.data.state[state].taxes) {
-      if (this.data.state[state].taxes.hasOwnProperty(tax)) {
-        taxes.push(this.data.state[state].taxes[tax].rate);
+    for (tax in service.data.state[state].taxes) {
+      if (service.data.state[state].taxes.hasOwnProperty(tax)) {
+        taxes.push(service.data.state[state].taxes[tax].rate);
       }
     }
 
     return taxes;
   };
 
-  this.getTaxNames = function(state) {
+  service.getTaxNames = function(state) {
     var taxes = [];
 
-    for (var tax in this.data.federal.taxes) {
+    for (var tax in service.data.federal.taxes) {
       taxes.push(splitCamelCase(tax));
     }
 
-    for (tax in this.data.state[state].taxes) {
-      if (this.data.state[state].taxes.hasOwnProperty(tax)) {
+    for (tax in service.data.state[state].taxes) {
+      if (service.data.state[state].taxes.hasOwnProperty(tax)) {
         taxes.push(state + ' ' + splitCamelCase(tax));
       }
     }
@@ -128,7 +130,11 @@ module.exports = /* @ngInject */ function($http, $q, $filter, TAX_API) {
     return taxes;
   };
 
-  this.getDeduction = function(deduction) {
-    return this.data.federal.deductions[deduction].amount;
+  service.getDeduction = function(deduction) {
+    return service.data.federal.deductions[deduction].amount;
   };
-};
+
+  return service;
+}
+
+module.exports = taxData;

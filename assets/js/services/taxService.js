@@ -2,7 +2,10 @@
 
 require('../lib/Math.round10');
 
-module.exports = /* @ngInject */ function(_) {
+/* @ngInject */
+function taxService(_) {
+  var service = {};
+
   // enum to represent tax bracket indices
   var MIN = 0,
       RATE = 1,
@@ -339,16 +342,20 @@ module.exports = /* @ngInject */ function(_) {
     return copy;
   }
 
-  this.preprocessTaxes = preprocessTaxes;
-  this.calcTax = calcTax;
-  this.calcMarginalTax = calcMarginalTax;
-  this.calcTotalMarginalTaxBrackets = calcTotalMarginalTaxBrackets;
-  this.calcMarginalTaxRate = calcMarginalTaxRate;
-  this.calcEffectiveTaxRate = calcEffectiveTaxRate;
-  this.calcDeduction = calcDeduction;
-  this.calcTotalDeduction = calcTotalDeduction;
-  this.createMarginalTaxData = createMarginalTaxData;
-  this.createEffectiveTaxData = createEffectiveTaxData;
-  this.createTakeHomePayData = createTakeHomePayData;
-  this.modifyTaxBracket = modifyTaxBracket;
-};
+  service.preprocessTaxes = preprocessTaxes;
+  service.calcTax = calcTax;
+  service.calcMarginalTax = calcMarginalTax;
+  service.calcTotalMarginalTaxBrackets = calcTotalMarginalTaxBrackets;
+  service.calcMarginalTaxRate = calcMarginalTaxRate;
+  service.calcEffectiveTaxRate = calcEffectiveTaxRate;
+  service.calcDeduction = calcDeduction;
+  service.calcTotalDeduction = calcTotalDeduction;
+  service.createMarginalTaxData = createMarginalTaxData;
+  service.createEffectiveTaxData = createEffectiveTaxData;
+  service.createTakeHomePayData = createTakeHomePayData;
+  service.modifyTaxBracket = modifyTaxBracket;
+
+  return service;
+}
+
+module.exports = taxService;

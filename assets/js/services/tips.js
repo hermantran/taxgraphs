@@ -1,11 +1,13 @@
 'use strict';
 
-module.exports = /* @ngInject */ function(localStorageService) {
-  var list;
+/* @ngInject */
+function tips(localStorageService) {
+  var service = {},
+      list;
 
-  this.key = 'taxAppTips';
+  service.key = 'taxAppTips';
 
-  if (!localStorageService.get(this.key)) {
+  if (!localStorageService.get(service.key)) {
     list = [
       {
         closed: false,
@@ -13,14 +15,18 @@ module.exports = /* @ngInject */ function(localStorageService) {
           'at a specific income.'
       }
     ];
-    localStorageService.set(this.key, list);
+    localStorageService.set(service.key, list);
   }
 
-  this.list = localStorageService.get(this.key);
+  service.list = localStorageService.get(service.key);
 
-  this.close = function(index) {
+  service.close = function(index) {
     index = parseInt(index, 10);
-    this.list[index].closed = true;
-    localStorageService.set(this.key, this.list);
-  }.bind(this);
-};
+    service.list[index].closed = true;
+    localStorageService.set(service.key, service.list);
+  };
+
+  return service;
+}
+
+module.exports = tips;

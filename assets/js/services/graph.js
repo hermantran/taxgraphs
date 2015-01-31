@@ -1,11 +1,14 @@
 'use strict';
 
-module.exports = /* @ngInject */ function(d3, _, screenService, saveService) {
+/* @ngInject */
+function graph(d3, _, screenService, saveService) {
+  var service = {};
+
   function createSelector(string) {
     return '.' + string.split(' ').join('.');
   }
 
-  this.colors = {
+  service.colors = {
     blue: [
       'steelblue'
     ],
@@ -23,9 +26,9 @@ module.exports = /* @ngInject */ function(d3, _, screenService, saveService) {
     ]
   };
 
-  this.animationTimes = [0, 1000, 2000, 3000];
+  service.animationTimes = [0, 1000, 2000, 3000];
 
-  this.classes = {
+  service.classes = {
     controls: 'controls',
     data: 'data',
     title: 'title',
@@ -43,48 +46,48 @@ module.exports = /* @ngInject */ function(d3, _, screenService, saveService) {
     hide: 'hide'
   };
 
-  this.selectors = {};
+  service.selectors = {};
 
-  for (var prop in this.classes) {
-    this.selectors[prop] = createSelector(this.classes[prop]);
+  for (var prop in service.classes) {
+    service.selectors[prop] = createSelector(service.classes[prop]);
   }
 
-  this.settings = {
+  service.settings = {
     xMin: 0,
     xMax: 300000,
     yMin: 0,
     yMax: 60,
     animationTime: 2000,
-    colors: this.colors.multi,
+    colors: service.colors.multi,
     calculateAmount: false
   };
 
-  this.defaults = _.cloneDeep(this.settings);
+  service.defaults = _.cloneDeep(service.settings);
 
-  this.init = function(settings) {
-    if (this.hasInited) {
+  service.init = function(settings) {
+    if (service.hasInited) {
       return;
     }
     
-    this.svg = d3.select('svg');
-    this.graph = this.svg.append('svg:g');
-    this.settings = settings || this.settings;
+    service.svg = d3.select('svg');
+    service.graph = service.svg.append('svg:g');
+    service.settings = settings || service.settings;
 
-    this.lines = [];
-    this.tooltips = [];
-    this.tooltipFns = [];
-    this.colorIndex = 0;
+    service.lines = [];
+    service.tooltips = [];
+    service.tooltipFns = [];
+    service.colorIndex = 0;
 
-    this.setSize();
-    this.createGraph();
-    this.setupEventHandlers();
-    this.hasInited = true;
+    service.setSize();
+    service.createGraph();
+    service.setupEventHandlers();
+    service.hasInited = true;
   };
 
-  this.setSize = function() {
+  service.setSize = function() {
     var parent, width, height;
 
-    parent = this.svg.select(function() { 
+    parent = service.svg.select(function() { 
       return this.parentNode; 
     });
 
@@ -94,62 +97,62 @@ module.exports = /* @ngInject */ function(d3, _, screenService, saveService) {
     if (screenService.width < screenService.sizes.md) {
       width = screenService.width - 20;
       height = screenService.height - 45;
-      this.m = [50, 80, 80, 50];
+      service.m = [50, 80, 80, 50];
     } else {
-      this.m = [80, 180, 80, 70];
+      service.m = [80, 180, 80, 70];
     }
 
-    this.w = width - this.m[1] - this.m[3]; 
-    this.h = height - this.m[0] - this.m[2];
+    service.w = width - service.m[1] - service.m[3]; 
+    service.h = height - service.m[0] - service.m[2];
 
-    this.svg
-      .attr('width', this.w + this.m[1] + this.m[3] + 'px')
-      .attr('height', this.h + this.m[0] + this.m[2] + 'px');
+    service.svg
+      .attr('width', service.w + service.m[1] + service.m[3] + 'px')
+      .attr('height', service.h + service.m[0] + service.m[2] + 'px');
 
-    this.graph.attr('transform', 
-      'translate(' + this.m[3] + ',' + this.m[0] + ')');
+    service.graph.attr('transform', 
+      'translate(' + service.m[3] + ',' + service.m[0] + ')');
   };
 
-  this.createGraph = function() {
-    this.title = this.graph
+  service.createGraph = function() {
+    service.title = service.graph
       .append('svg:g')
-      .attr('class', this.classes.title);
+      .attr('class', service.classes.title);
 
-    var text = this.title.append('text');
-
-    text.append('tspan')
-      .attr('class', this.classes.primaryTitle);
+    var text = service.title.append('text');
 
     text.append('tspan')
-      .attr('class', this.classes.secondaryTitle)
+      .attr('class', service.classes.primaryTitle);
+
+    text.append('tspan')
+      .attr('class', service.classes.secondaryTitle)
       .attr('x', 0)
       .attr('dy', '1.2em');
 
-    this.controls = this.graph
+    service.controls = service.graph
       .append('svg:g')
-      .attr('class', this.classes.controls);
+      .attr('class', service.classes.controls);
 
-    this.data = this.graph
+    service.data = service.graph
       .append('svg:g')
-      .attr('class', this.classes.data);
+      .attr('class', service.classes.data);
 
-    this.positionTitle();
-    this.updateXAxis();
-    this.updateYAxis();
-    this.drawHoverLine();
-    this.drawHoverLabel();
+    service.positionTitle();
+    service.updateXAxis();
+    service.updateYAxis();
+    service.drawHoverLine();
+    service.drawHoverLabel();
   };
 
-  this.positionTitle = function() {
-    this.title.attr('transform', 'translate(' +
-        (this.w / 2) + ',' + (-this.m[0] / 2) + ')');
+  service.positionTitle = function() {
+    service.title.attr('transform', 'translate(' +
+        (service.w / 2) + ',' + (-service.m[0] / 2) + ')');
   };
 
-  this.updateXAxis = function(xMax) {
+  service.updateXAxis = function(xMax) {
     var ticks, format;
 
-    xMax = isNaN(xMax) ? this.defaults.xMax : xMax;
-    this.settings.xMax = xMax;
+    xMax = isNaN(xMax) ? service.defaults.xMax : xMax;
+    service.settings.xMax = xMax;
 
     if (screenService.width < screenService.sizes.lg) {
       ticks = 3;
@@ -159,102 +162,102 @@ module.exports = /* @ngInject */ function(d3, _, screenService, saveService) {
       format = d3.format('$0,000');
     }
 
-    this.x = d3.scale.linear()
-      .domain([this.settings.xMin, this.settings.xMax])
-      .range([0, this.w]);
+    service.x = d3.scale.linear()
+      .domain([service.settings.xMin, service.settings.xMax])
+      .range([0, service.w]);
 
-    this.xAxis = d3.svg.axis()
-      .scale(this.x)
+    service.xAxis = d3.svg.axis()
+      .scale(service.x)
       .ticks(ticks)
-      .tickSize(-this.h, 0)
+      .tickSize(-service.h, 0)
       .tickFormat(format)
       .tickPadding(10)
       .orient('bottom');
 
-    this.controls.selectAll(this.selectors.xAxis).remove();
+    service.controls.selectAll(service.selectors.xAxis).remove();
 
-    this.controls.append('svg:g')
-      .attr('class', this.classes.xAxis)
-      .attr('transform', 'translate(0,' + this.h + ')')
-      .call(this.xAxis);
+    service.controls.append('svg:g')
+      .attr('class', service.classes.xAxis)
+      .attr('transform', 'translate(0,' + service.h + ')')
+      .call(service.xAxis);
   };
 
-  this.updateYAxis = function(yMax) {
-    yMax = isNaN(yMax) ? this.defaults.yMax : yMax;
-    this.settings.yMax = yMax;
+  service.updateYAxis = function(yMax) {
+    yMax = isNaN(yMax) ? service.defaults.yMax : yMax;
+    service.settings.yMax = yMax;
 
-    this.y = d3.scale.linear()
-      .domain([this.settings.yMin / 100, this.settings.yMax / 100])
-      .range([this.h, 0]);
+    service.y = d3.scale.linear()
+      .domain([service.settings.yMin / 100, service.settings.yMax / 100])
+      .range([service.h, 0]);
 
-    this.yAxis = d3.svg.axis()
-      .scale(this.y)
+    service.yAxis = d3.svg.axis()
+      .scale(service.y)
       .ticks(Math.ceil(yMax / 10))
-      .tickSize(-this.w, 0)
+      .tickSize(-service.w, 0)
       .tickFormat(d3.format('%'))
       .tickPadding(7)
       .orient('left');
 
-    this.controls.select(this.selectors.yAxis).remove();
+    service.controls.select(service.selectors.yAxis).remove();
 
-    this.controls.append('svg:g')
-      .attr('class', this.classes.yAxis)
+    service.controls.append('svg:g')
+      .attr('class', service.classes.yAxis)
       .attr('transform', 'translate(0,0)')
-      .call(this.yAxis)
+      .call(service.yAxis)
       .selectAll('.tick')
         .filter(function (d) { return d === 0; })
         .remove();
   };
 
-  this.drawHoverLine = function() {
+  service.drawHoverLine = function() {
     // http://bl.ocks.org/benjchristensen/2657838
-    this.hoverLine = this.controls.append('svg:line')
+    service.hoverLine = service.controls.append('svg:line')
       .attr('x1', 0).attr('x2', 0)
-      .attr('y1', 0).attr('y2', this.h)
-      .attr('class', this.classes.hoverLine)
-      .classed(this.classes.hide, true);
+      .attr('y1', 0).attr('y2', service.h)
+      .attr('class', service.classes.hoverLine)
+      .classed(service.classes.hide, true);
   };
 
-  this.drawHoverLabel = function() {
-    this.hoverLabel = this.controls.append('g')
+  service.drawHoverLabel = function() {
+    service.hoverLabel = service.controls.append('g')
       .append('text')
       .attr('x', 0)
-      .attr('y', this.h + 50)
-      .attr('class', this.classes.hoverLabel)
-      .classed(this.classes.hide, true);
+      .attr('y', service.h + 50)
+      .attr('class', service.classes.hoverLabel)
+      .classed(service.classes.hide, true);
   };
 
-  this.updateTitle = function(primary, secondary) {
-    this.title.select(this.selectors.primaryTitle).text(primary);
-    this.title.select(this.selectors.secondaryTitle).text(secondary);
+  service.updateTitle = function(primary, secondary) {
+    service.title.select(service.selectors.primaryTitle).text(primary);
+    service.title.select(service.selectors.secondaryTitle).text(secondary);
   };
 
-  this.updateAnimationTime = function(time) {
-    time = isNaN(time) ? this.defaults.animationTime : time;
-    this.settings.animationTime = time;
+  service.updateAnimationTime = function(time) {
+    time = isNaN(time) ? service.defaults.animationTime : time;
+    service.settings.animationTime = time;
   };
 
-  this.update = function(settings) {
+  service.update = function(settings) {
     if (settings.xMax) {
-      this.updateXAxis(settings.xMax);
+      service.updateXAxis(settings.xMax);
     }
 
     if (settings.yMax) {
-      this.updateYAxis(settings.yMax);
+      service.updateYAxis(settings.yMax);
     }
 
     if (settings.animationTime) {
-      this.updateAnimationTime(settings.animationTime);
+      service.updateAnimationTime(settings.animationTime);
     }
   };
 
-  this.addLine = function(data, label, tooltipFn, isInterpolated) {
+  service.addLine = function(data, label, tooltipFn, isInterpolated) {
     // Don't draw lines that start at y = 0 and end at y = 0
     if (data[0].y === 0 && data[data.length - 1].y === 0) {
       return;
     }
     
-    this.lines.push({
+    service.lines.push({
       data: data,
       label: label,
       tooltipFn: tooltipFn,
@@ -262,51 +265,51 @@ module.exports = /* @ngInject */ function(d3, _, screenService, saveService) {
     });
   };
 
-  this.drawLines = function() {
-    var len = this.lines.length,
+  service.drawLines = function() {
+    var len = service.lines.length,
         i;
 
     // Sort from lowest to highest tax rate
-    this.lines.sort(function(a, b) {
+    service.lines.sort(function(a, b) {
       var yValueA = a.data[a.data.length - 1].y,
           yValueB = b.data[b.data.length - 1].y;
 
       return yValueB - yValueA;
     });
 
-    this.scaleYAxis();
-    this.updateHoverLabel(-1);
+    service.scaleYAxis();
+    service.updateHoverLabel(-1);
 
     for (i = 0; i < len; i++) {
-      this.drawLine(this.lines[i].data, this.lines[i].isInterpolated);
-      this.changeColor();
+      service.drawLine(service.lines[i].data, service.lines[i].isInterpolated);
+      service.changeColor();
     }
 
-    this.colorIndex = 0;
+    service.colorIndex = 0;
 
     // Make sure tooltips are rendered after lines (and appear on top of lines)
     for (i = 0; i < len; i++) {
-      this.drawTooltip(this.lines[i].tooltipFn, this.lines[i].label);
-      this.changeColor();
+      service.drawTooltip(service.lines[i].tooltipFn, service.lines[i].label);
+      service.changeColor();
     }
 
-    if (this.settings.animationTime < 100) {
-      this.moveHoverLineToEnd();
+    if (service.settings.animationTime < 100) {
+      service.moveHoverLineToEnd();
     }
   };
 
   // Automatically scales the y-axis based on the input data
-  this.scaleYAxis = function() {
-    var highestLine = this.lines[0],
+  service.scaleYAxis = function() {
+    var highestLine = service.lines[0],
         firstY = highestLine.data[0].y,
         lastY = highestLine.data[highestLine.data.length - 1].y,
         highestY = (firstY > lastY) ? firstY : lastY,
         yMax = Math.ceil((highestY + 0.05) * 10) * 10;
 
-    this.updateYAxis(yMax);
+    service.updateYAxis(yMax);
   };
         
-  this.drawLine = function(data, isInterpolated) {
+  service.drawLine = function(data, isInterpolated) {
     var line = d3.svg.line()
       .x(function(d) { return this.x(d.x); }.bind(this))
       .y(function(d) { return this.y(d.y); }.bind(this));
@@ -315,38 +318,38 @@ module.exports = /* @ngInject */ function(d3, _, screenService, saveService) {
       line.interpolate('basis');
     }
 
-    var path = this.data.append('svg:path')
-      .attr('class', this.classes.line)
+    var path = service.data.append('svg:path')
+      .attr('class', service.classes.line)
       .attr('fill', 'none')
-      .attr('stroke', this.settings.colors[this.colorIndex])
+      .attr('stroke', service.settings.colors[service.colorIndex])
       .attr('d', line(data));
 
-    if (this.settings.animationTime > 100) {
-      this.animatePath(path);
+    if (service.settings.animationTime > 100) {
+      service.animatePath(path);
     }
   };
 
-  this.animatePath = function(path) {
+  service.animatePath = function(path) {
     var length = path.node().getTotalLength();
 
     path.attr('stroke-dasharray', length + ' ' + length)
       .attr('stroke-dashoffset', length)
       .transition()
-      .duration(this.settings.animationTime)
+      .duration(service.settings.animationTime)
       .ease('linear')
       .attr('stroke-dashoffset', 0)
-      .each('end', this.moveHoverLineToEnd.bind(this));
+      .each('end', service.moveHoverLineToEnd);
   };
 
-  this.drawTooltip = function(tooltipFn, label) {
+  service.drawTooltip = function(tooltipFn, label) {
     // http://bl.ocks.org/mbostock/3902569
-    var tooltip = this.data.append('g')
-      .attr('class', this.classes.tooltip)
-      .classed(this.classes.hide, true);
+    var tooltip = service.data.append('g')
+      .attr('class', service.classes.tooltip)
+      .classed(service.classes.hide, true);
 
     tooltip.append('circle')
-      .attr('class', this.classes.circle)
-      .attr('fill', this.settings.colors[this.colorIndex])
+      .attr('class', service.classes.circle)
+      .attr('fill', service.settings.colors[service.colorIndex])
       .attr('r', 4);
 
     tooltip.append('path');
@@ -356,98 +359,99 @@ module.exports = /* @ngInject */ function(d3, _, screenService, saveService) {
       .attr('y', -5);
 
     text.append('tspan')
-      .attr('class', this.classes.lineLabel)
+      .attr('class', service.classes.lineLabel)
       .text(label);
 
     text.append('tspan')
-      .attr('class', this.classes.lineValue)
+      .attr('class', service.classes.lineValue)
       .attr('x', 8)
       .attr('dy', '1.2em');
 
-    this.tooltips.push(tooltip);
+    service.tooltips.push(tooltip);
 
     if (tooltipFn) {
-      this.tooltipFns.push(tooltipFn);
+      service.tooltipFns.push(tooltipFn);
     } else {
-      this.tooltipFns.push(angular.noop);
+      service.tooltipFns.push(angular.noop);
     }
   };
 
-  this.changeColor = function() {
-    this.colorIndex = (this.colorIndex + 1) % this.settings.colors.length;
+  service.changeColor = function() {
+    var len = service.settings.colors.length;
+    service.colorIndex = (service.colorIndex + 1) % len;
   };
 
-  this.setupEventHandlers = function() {
-    var self = this;
+  service.setupEventHandlers = function() {
+    var self = service;
 
-    this.svg.on('mousemove', function() {
+    service.svg.on('mousemove', function() {
       var xPos = d3.mouse(this)[0] - self.m[3];
       self.updateHoverLine(xPos);
       self.updateHoverLabel(xPos);
     });
 
-    screenService.addResizeEvent(this.redrawGraph.bind(this));
+    screenService.addResizeEvent(service.redrawGraph);
   };
 
-  this.redrawGraph = function() {
-    this.setSize();
-    this.positionTitle();
-    this.updateXAxis();
-    this.removeRenderedData();
-    this.drawLines();
-    this.updateHoverLine(-1);
+  service.redrawGraph = function() {
+    service.setSize();
+    service.positionTitle();
+    service.updateXAxis();
+    service.removeRenderedData();
+    service.drawLines();
+    service.updateHoverLine(-1);
   };
 
-  this.updateHoverLine = function(xPos) {
-    var xChange = Math.abs(xPos - this.hoverLine.attr('x1'));
-    if (xChange < 0.5 || xPos > this.w) {
+  service.updateHoverLine = function(xPos) {
+    var xChange = Math.abs(xPos - service.hoverLine.attr('x1'));
+    if (xChange < 0.5 || xPos > service.w) {
       return;
     }
 
     if (xPos < 0) {
-      this.hoverLine.classed(this.classes.hide, true)
+      service.hoverLine.classed(service.classes.hide, true)
         .attr('x1', -1).attr('x2', -1);
     } else {
-      this.hoverLine.classed(this.classes.hide, false)
+      service.hoverLine.classed(service.classes.hide, false)
         .attr('x1', xPos).attr('x2', xPos)
-        .attr('y1', 0).attr('y2', this.h);
+        .attr('y1', 0).attr('y2', service.h);
     }
 
-    this.updateTooltips(xPos);
+    service.updateTooltips(xPos);
   };
 
-  this.moveHoverLineToEnd = function() {
-    if (this.hoverLine.attr('x1') < 0) {
-      this.updateHoverLine(this.w);
+  service.moveHoverLineToEnd = function() {
+    if (service.hoverLine.attr('x1') < 0) {
+      service.updateHoverLine(service.w);
     }
 
-    this.graph.selectAll(this.selectors.label)
-      .classed(this.classes.hide, false);
+    service.graph.selectAll(service.selectors.label)
+      .classed(service.classes.hide, false);
   };
 
-  this.updateHoverLabel = function(xPos) {
-    var xChange = Math.abs(xPos - this.hoverLabel.attr('x')),
-        xScale = this.settings.xMax / this.w,
+  service.updateHoverLabel = function(xPos) {
+    var xChange = Math.abs(xPos - service.hoverLabel.attr('x')),
+        xScale = service.settings.xMax / service.w,
         xValue = Math.round(xPos * xScale);
 
-    if (xChange < 0.5 || xPos > this.w) {
+    if (xChange < 0.5 || xPos > service.w) {
       return;
     }
 
     if (xPos < 0) {
-      this.hoverLabel.classed(this.classes.hide, true)
+      service.hoverLabel.classed(service.classes.hide, true)
         .attr('x', -1);
     } else {
-      this.hoverLabel.classed(this.classes.hide, false)
+      service.hoverLabel.classed(service.classes.hide, false)
         .attr('x', xPos - 35)
-        .attr('y', this.h + 50)
+        .attr('y', service.h + 50)
         .text(d3.format('$0,000')(xValue));
     }
   };
 
-  this.updateTooltips = function(xPos) {
-    var xScale = this.settings.xMax / this.w,
-        yScale = this.settings.yMax / this.h,
+  service.updateTooltips = function(xPos) {
+    var xScale = service.settings.xMax / service.w,
+        yScale = service.settings.yMax / service.h,
         xValue = Math.round(xPos * xScale),
         textPos = [],
         textYPos = -35,
@@ -463,36 +467,36 @@ module.exports = /* @ngInject */ function(d3, _, screenService, saveService) {
         textHeight,
         d;
 
-    if (xPos > this.w) {
+    if (xPos > service.w) {
       return;
     }
 
-    for (var i = 0, len = this.tooltips.length; i < len; i++) {
+    for (var i = 0, len = service.tooltips.length; i < len; i++) {
       hide = (xPos < 0);
-      this.tooltips[i].classed(this.classes.hide, hide);
+      service.tooltips[i].classed(service.classes.hide, hide);
 
-      yValue = this.tooltipFns[i](xValue);
+      yValue = service.tooltipFns[i](xValue);
 
       if (!yValue) {
         yValue = 0;
       }
 
-      yPos = this.h - (yValue / yScale * 100);
+      yPos = service.h - (yValue / yScale * 100);
       text = Math.round10(yValue * 100, -2);
 
-      if (this.settings.calculateAmount) {
+      if (service.settings.calculateAmount) {
         text = '$' + Math.round(xValue * yValue) + ' (' + text + '%)';
       } else {
         text += '%';
       }
 
-      tooltipText = this.tooltips[i]
+      tooltipText = service.tooltips[i]
         .attr('transform', 'translate(' + xPos + ',' + yPos + ')')
         .select('text')
         .attr('x', textXPos)
         .attr('y', textYPos);
       
-      tooltipText.select(this.selectors.lineValue)
+      tooltipText.select(service.selectors.lineValue)
         .attr('x', textXPos)
         .text(text);
 
@@ -511,9 +515,10 @@ module.exports = /* @ngInject */ function(d3, _, screenService, saveService) {
 
       textWidth = box.width + 10;
       textHeight = box.height + 3;
-      d = this.createTooltipPath(textWidth, textHeight, textXPos - 2, yOffset);
+      d = service.createTooltipPath(textWidth, textHeight,
+        textXPos - 2, yOffset);
 
-      this.tooltips[i].select('path')
+      service.tooltips[i].select('path')
         .attr('d', d);
 
       textPos.push({
@@ -524,10 +529,11 @@ module.exports = /* @ngInject */ function(d3, _, screenService, saveService) {
       });
     }
 
-    this.fixTooltipOverlaps(textPos);
+    service.fixTooltipOverlaps(textPos);
   };
 
-  this.createTooltipPath = function(textWidth, textHeight, xOffset, yOffset) {
+  service.createTooltipPath = function(textWidth, textHeight, xOffset,
+   yOffset) {
     var openingWidth = 6;
 
     var d = [
@@ -544,13 +550,13 @@ module.exports = /* @ngInject */ function(d3, _, screenService, saveService) {
     return d;
   };
 
-  this.fixTooltipOverlaps = function(textPos) {
+  service.fixTooltipOverlaps = function(textPos) {
     var textYPos = -35,
         textXPos = 8,
         yOffset = -10,
         tooltipHeight = 45,
         maxNumLines = 14,
-        dataEl = this.data.node(),
+        dataEl = service.data.node(),
         yDist,
         diff,
         d;
@@ -565,14 +571,14 @@ module.exports = /* @ngInject */ function(d3, _, screenService, saveService) {
       if (len < maxNumLines && yDist < tooltipHeight) {
         diff = yDist - tooltipHeight;
 
-        this.tooltips[textPos[i-1].i].select('text')
+        service.tooltips[textPos[i-1].i].select('text')
           .attr('y', textYPos + diff);
 
-        d = this.createTooltipPath(textPos[i-1].textWidth,
+        d = service.createTooltipPath(textPos[i-1].textWidth,
           textPos[i-1].textHeight, textXPos - 3, 
           yOffset + diff);
 
-        this.tooltips[textPos[i-1].i].select('path')
+        service.tooltips[textPos[i-1].i].select('path')
           .attr('d', d);
 
         textPos[i-1].tooltipY += diff;
@@ -582,35 +588,39 @@ module.exports = /* @ngInject */ function(d3, _, screenService, saveService) {
     // Remove path overlaps by rearranging the node order in the DOM
     if (len < maxNumLines) {
       for (i = 0; i <= len; i++) {
-        dataEl.appendChild(this.tooltips[textPos[i].i].node());
+        dataEl.appendChild(service.tooltips[textPos[i].i].node());
       }
     // If too many lines, then just make sure to show the first and last node
     } else {
-      dataEl.appendChild(this.tooltips[textPos[0].i].node());
-      dataEl.appendChild(this.tooltips[textPos[len].i].node());
+      dataEl.appendChild(service.tooltips[textPos[0].i].node());
+      dataEl.appendChild(service.tooltips[textPos[len].i].node());
     }
   };
 
-  this.save = function() {
-    saveService.saveSvgAsPng(this.svg.node(), 'graph.png');
+  service.save = function() {
+    saveService.saveSvgAsPng(service.svg.node(), 'graph.png');
   };
 
-  this.removeRenderedData = function() {
-    this.updateHoverLine(-1);
-    this.tooltips.length = 0;
-    this.tooltipFns.length = 0;
-    this.colorIndex = 0;
-    this.graph.selectAll(this.selectors.tooltip).remove();
-    this.graph.selectAll(this.selectors.line).transition().duration(0);
-    this.graph.selectAll(this.selectors.line).remove();
+  service.removeRenderedData = function() {
+    service.updateHoverLine(-1);
+    service.tooltips.length = 0;
+    service.tooltipFns.length = 0;
+    service.colorIndex = 0;
+    service.graph.selectAll(service.selectors.tooltip).remove();
+    service.graph.selectAll(service.selectors.line).transition().duration(0);
+    service.graph.selectAll(service.selectors.line).remove();
   };
 
-  this.resetData = function() {
-    this.lines.length = 0; 
+  service.resetData = function() {
+    service.lines.length = 0; 
   };
 
-  this.clear = function() {
-    this.removeRenderedData();
-    this.resetData();
+  service.clear = function() {
+    service.removeRenderedData();
+    service.resetData();
   };
-};
+
+  return service;
+}
+
+module.exports = graph;
