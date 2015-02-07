@@ -38,6 +38,8 @@ function graph(d3, _, screenService, saveService) {
     hoverLine: 'hover',
     hoverLabel: 'hoverlabel',
     tooltip: 'tooltip',
+    tooltipOutline: 'tooltip-outline',
+    tooltipTrim: 'tooltip-trim',
     circle: 'point',
     lineLabel: 'label',
     lineValue: 'value',
@@ -311,8 +313,8 @@ function graph(d3, _, screenService, saveService) {
         
   service.drawLine = function(data, isInterpolated) {
     var line = d3.svg.line()
-      .x(function(d) { return this.x(d.x); }.bind(this))
-      .y(function(d) { return this.y(d.y); }.bind(this));
+      .x(function(d) { return service.x(d.x); })
+      .y(function(d) { return service.y(d.y); });
 
     if (isInterpolated) {
       line.interpolate('basis');
@@ -352,7 +354,12 @@ function graph(d3, _, screenService, saveService) {
       .attr('fill', service.settings.colors[service.colorIndex])
       .attr('r', 4);
 
-    tooltip.append('path');
+    tooltip.append('path')
+      .attr('class', service.classes.tooltipOutline);
+
+    tooltip.append('path')
+      .attr('class', service.classes.tooltipTrim)
+      .attr('stroke', service.settings.colors[service.colorIndex]);
 
     var text = tooltip.append('text')
       .attr('x', 5)
@@ -454,7 +461,7 @@ function graph(d3, _, screenService, saveService) {
         yScale = service.settings.yMax / service.h,
         xValue = Math.round(xPos * xScale),
         textPos = [],
-        textYPos = -35,
+        textYPos = -34,
         textXPos = 10,
         yOffset = -10,
         box,
@@ -465,6 +472,7 @@ function graph(d3, _, screenService, saveService) {
         text,
         textWidth,
         textHeight,
+        opts,
         d;
 
     if (xPos > service.w) {
@@ -515,10 +523,14 @@ function graph(d3, _, screenService, saveService) {
 
       textWidth = box.width + 10;
       textHeight = box.height + 3;
-      d = service.createTooltipPath(textWidth, textHeight,
-        textXPos - 2, yOffset);
+      opts = [textWidth, textHeight, textXPos - 2, yOffset];
 
-      service.tooltips[i].select('path')
+      d = service.createTooltipPath.apply(service, opts);
+      service.tooltips[i].select(service.selectors.tooltipOutline)
+        .attr('d', d);
+
+      d = service.createTooltipTrim.apply(service, opts);
+      service.tooltips[i].select(service.selectors.tooltipTrim)
         .attr('d', d);
 
       textPos.push({
@@ -550,6 +562,16 @@ function graph(d3, _, screenService, saveService) {
     return d;
   };
 
+  service.createTooltipTrim = function(textWidth, textHeight, xOffset, 
+   yOffset) {
+    var d = [
+      'M' + xOffset + ',' + (yOffset - textHeight),
+      'L' + (xOffset + textWidth) + ',' + (yOffset - textHeight)
+    ].join('');
+
+    return d;
+  };
+
   service.fixTooltipOverlaps = function(textPos) {
     var textYPos = -35,
         textXPos = 8,
@@ -559,6 +581,7 @@ function graph(d3, _, screenService, saveService) {
         dataEl = service.data.node(),
         yDist,
         diff,
+        opts,
         d;
 
     textPos.sort(function(a, b) {
@@ -574,11 +597,21 @@ function graph(d3, _, screenService, saveService) {
         service.tooltips[textPos[i-1].i].select('text')
           .attr('y', textYPos + diff);
 
-        d = service.createTooltipPath(textPos[i-1].textWidth,
-          textPos[i-1].textHeight, textXPos - 3, 
-          yOffset + diff);
+        opts = [
+          textPos[i-1].textWidth,
+          textPos[i-1].textHeight, 
+          textXPos - 3, 
+          yOffset + diff
+        ];
 
-        service.tooltips[textPos[i-1].i].select('path')
+        d = service.createTooltipPath.apply(service, opts);
+        service.tooltips[textPos[i-1].i]
+          .select(service.selectors.tooltipOutline)
+          .attr('d', d);
+
+        d = service.createTooltipTrim.apply(service, opts);
+        service.tooltips[textPos[i-1].i]
+          .select(service.selectors.tooltipTrim)
           .attr('d', d);
 
         textPos[i-1].tooltipY += diff;
