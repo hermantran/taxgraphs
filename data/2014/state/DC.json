@@ -12,5 +12,31 @@
         "url": "//taxfoundation.org/article/state-personal-income-tax-rates-and-brackets-2014-update"
       }
     }
+  },
+  "deductions": {
+    "standardDeduction": {
+      "amount": {
+        "single": 2000,
+        "married": 4000
+      },
+      "source": {
+        "name": "Tax Foundation - State Individual Income Tax Rates",
+        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
+      }
+    },
+    "personalExemption": {
+      "amount": 1675,
+      "source": {
+        "name": "Tax Foundation - State Individual Income Tax Rates",
+        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
+      }
+    },
+    "dependents": {
+      "amount": 1675,
+      "source": {
+        "name": "Tax Foundation - State Individual Income Tax Rates",
+        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
+      }
+    }
   }
 }

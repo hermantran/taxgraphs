@@ -16,7 +16,7 @@ app.constant('d3', d3)
   .constant('saveService', saveService)
   .constant('ga', ga)
   .constant('GA_TRACKING_ID', 'UA-55615931-1')
-  .constant('TAX_API', 'data/2014.json')
+  .constant('TAX_API', 'data/taxes.json')
   .constant('DOMAIN', domain)
   .config(routes)
   .run(rootScope);

@@ -20,5 +20,31 @@
         "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
       }
     }
+  },
+  "deductions": {
+    "standardDeduction": {
+      "amount": {
+        "single": 6200,
+        "married": 12400
+      },
+      "source": {
+        "name": "Tax Foundation - State Individual Income Tax Rates",
+        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
+      }
+    },
+    "personalExemption": {
+      "amount": 3900,
+      "source": {
+        "name": "Tax Foundation - State Individual Income Tax Rates",
+        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
+      }
+    },
+    "dependents": {
+      "amount": 3900,
+      "source": {
+        "name": "Tax Foundation - State Individual Income Tax Rates",
+        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
+      }
+    }
   }
 }

@@ -6,6 +6,7 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
+  $scope.years = taxData.years;
   $scope.states = taxData.states;
   $scope.filingStatuses = taxData.filingStatuses;
   $scope.deductions = taxData.deductions;
@@ -20,6 +21,7 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
         NY: true,
         TX: true
       },
+      year: taxData.year,
       status: 'single',
       deductions: {
         standardDeduction: true,
@@ -57,12 +59,14 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
   };
 
   $scope.drawGraph = function() {
-    var filingStatus = $scope.data.status,
+    var year = $scope.data.year,
+        filingStatus = $scope.data.status,
         xMax = $scope.settings.xMax,
         graphLines = $scope.data.graphLines,
         deductions = [],
         total = [],
         stateNames = [],
+        taxNames,
         fedIncomeIndex,
         primaryTitle,
         secondaryTitle,
@@ -81,8 +85,9 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
     for (var state in $scope.data.states) {
       if ($scope.data.states[state]) {
         stateNames.push(state);
-        taxes = taxData.getTaxes(state);
-        fedIncomeIndex = taxData.getTaxNames(state).indexOf('Federal Income');
+        taxes = taxData.getTaxes(state, year);
+        taxNames = taxData.getTaxNames(state, year);
+        fedIncomeIndex = taxNames.indexOf('Federal Income');
         taxes[fedIncomeIndex] = taxService.modifyTaxBracket(
           taxes[fedIncomeIndex], filingStatus, deductions
         );
@@ -111,7 +116,7 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
     }
 
     graph.drawLines();
-    primaryTitle = 'State Income Tax Rates, 2014';
+    primaryTitle = 'State Income Tax Rates, ' + year;
     secondaryTitle = [
       $filter('splitCamelCase')(filingStatus),
       'Filing Status,',

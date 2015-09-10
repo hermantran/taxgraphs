@@ -8,7 +8,9 @@ function taxData($http, $q, $filter, TAX_API) {
   service.states = [];
   service.filingStatuses = [];
   service.deductions = [];
+  service.years = [];
   service.taxTypes = ['effective', 'marginal'];
+  service.year = '2015';
 
   service.stateNames = {
     AL: 'Alabama',
@@ -70,7 +72,7 @@ function taxData($http, $q, $filter, TAX_API) {
     if (!service.data) {
       service.fetch(TAX_API, deferred);
     } else {
-      deferred.resolve(service.data);
+      deferred.resolve(service.data[service.year]);
     }
 
     return deferred.promise;
@@ -80,11 +82,17 @@ function taxData($http, $q, $filter, TAX_API) {
     $http.get(url).then(function(resp) {
       service.data = resp.data;
       service.fillMetadata(service.data);
-      deferred.resolve(service.data);
+      deferred.resolve(service.data[service.year]);
     });
   };
 
   service.fillMetadata = function(data) {
+    for (var year in data) {
+      service.years.push(year);
+    }
+
+    data = data[service.year];
+
     for (var state in data.state) {
       service.states.push(state);
     }
@@ -98,31 +106,39 @@ function taxData($http, $q, $filter, TAX_API) {
     }
   };
 
-  service.getTaxes = function(state) {
-    var taxes = [];
+  service.getTaxes = function(state, year) {
+    var taxes = [],
+        data;
 
-    for (var tax in service.data.federal.taxes) {
-      taxes.push(service.data.federal.taxes[tax].rate);
+    year = year || service.year;
+    data = service.data[year];
+
+    for (var tax in data.federal.taxes) {
+      taxes.push(data.federal.taxes[tax].rate);
     }
 
-    for (tax in service.data.state[state].taxes) {
-      if (service.data.state[state].taxes.hasOwnProperty(tax)) {
-        taxes.push(service.data.state[state].taxes[tax].rate);
+    for (tax in data.state[state].taxes) {
+      if (data.state[state].taxes.hasOwnProperty(tax)) {
+        taxes.push(data.state[state].taxes[tax].rate);
       }
     }
 
     return taxes;
   };
 
-  service.getTaxNames = function(state) {
-    var taxes = [];
+  service.getTaxNames = function(state, year) {
+    var taxes = [],
+        data;
 
-    for (var tax in service.data.federal.taxes) {
+    year = year || service.year;
+    data = service.data[year];
+
+    for (var tax in data.federal.taxes) {
       taxes.push(splitCamelCase(tax));
     }
 
-    for (tax in service.data.state[state].taxes) {
-      if (service.data.state[state].taxes.hasOwnProperty(tax)) {
+    for (tax in data.state[state].taxes) {
+      if (data.state[state].taxes.hasOwnProperty(tax)) {
         taxes.push(state + ' ' + splitCamelCase(tax));
       }
     }
@@ -131,7 +147,7 @@ function taxData($http, $q, $filter, TAX_API) {
   };
 
   service.getDeduction = function(deduction) {
-    return service.data.federal.deductions[deduction].amount;
+    return service.data[service.year].federal.deductions[deduction].amount;
   };
 
   return service;

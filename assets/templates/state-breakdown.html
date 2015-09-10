@@ -9,6 +9,13 @@
   </div>
 
   <div>
+    <label for="year">Tax Year:</label>
+    <select ng-model="data.year" id="year" name="year"
+     ng-options="v as v for v in years">
+    </select>
+  </div>
+
+  <div>
     <label for="status">Filing Status:</label>
     <select ng-model="data.status" id="status" name="status" 
      ng-options="v as (v | capitalize) for v in filingStatuses">

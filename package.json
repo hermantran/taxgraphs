@@ -1,6 +1,6 @@
 {
   "name": "taxgraphs",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Visualization of US individual income tax rates",
   "author": "Herman Tran <hermanctran@gmail.com>",
   "license": "MIT",
@@ -23,9 +23,9 @@
     "url": "https://github.com/hermantran/taxgraphs/issues"
   },
   "dependencies": {
-    "angular": "~1.2.23",
+    "angular": "~1.4.5",
     "angular-local-storage": "~0.1.2",
-    "angular-route": "~1.2.17-build.163.1",
+    "angular-route": "~1.4.5",
     "browserify": "~5.11.2",
     "browserify-ngannotate": "~0.4.0",
     "browserify-shim": "~3.7.0",

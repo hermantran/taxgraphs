@@ -24,5 +24,31 @@
         "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
       }
     }
+  },
+  "deductions": {
+    "personalExemption": {
+      "amount": {
+        "single": 14000,
+        "married": 24000
+      },
+      "phaseout": {
+        "single": {
+          "start": 29000,
+          "step": 1000,
+          "reduction": 1000,
+          "minimum": 0
+        },
+        "married": {
+          "start": 29000,
+          "step": 1000,
+          "reduction": 1000,
+          "minimum": 0
+        }
+      },
+      "source": {
+        "name": "Tax Foundation - State Individual Income Tax Rates",
+        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
+      }
+    }
   }
 }

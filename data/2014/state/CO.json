@@ -2,6 +2,7 @@
   "taxes": {
     "income": {
       "rate": 0.0463,
+      "useFederalAGI": true,
       "source": {
         "name": "Colorado - Department of Revenue",
         "url": "//www.colorado.gov/cs/Satellite/Revenue/REVX/1176842266485"

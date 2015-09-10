@@ -25,10 +25,10 @@ module.exports = function(grunt) {
     },
     tpl: {
       files: ['assets/templates/**/*.html'],
-      tasks: ['jst:dev']
+      tasks: ['ngtemplates']
     },
     json: {
-      files: ['data/**/*.json', '!data/2014.json'],
+      files: ['data/**/*.json', '!data/taxes.json'],
       tasks: ['json_bake:dist', 'preprocessTax:dist']
     },
     pipeline: {

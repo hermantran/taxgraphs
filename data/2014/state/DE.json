@@ -15,5 +15,31 @@
         "url": "//revenue.delaware.gov/services/Developer/cyr_pers/sd_pitcomp.shtml"
       }
     }
+  },
+  "deductions": {
+    "standardDeduction": {
+      "amount": {
+        "single": 3250,
+        "married": 6500
+      },
+      "source": {
+        "name": "Tax Foundation - State Individual Income Tax Rates",
+        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
+      }
+    },
+    "personalExemption": {
+      "amount": 110,
+      "source": {
+        "name": "Tax Foundation - State Individual Income Tax Rates",
+        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
+      }
+    },
+    "dependents": {
+      "amount": 110,
+      "source": {
+        "name": "Tax Foundation - State Individual Income Tax Rates",
+        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
+      }
+    }
   }
 }

@@ -1,0 +1,18 @@
+{
+  "taxes": {
+    "income": {
+      "rate": 0.0307,
+      "source": {
+        "name": "Tax Foundation - State Individual Income Tax Rates and Brackets for 2015",
+        "url": "//taxfoundation.org/article/state-individual-income-tax-rates-and-brackets-2015"
+      }
+    },
+    "stateUnemploymentInsurance": {
+      "rate": 0.0007,
+      "source": {
+        "name": "Pennsylvania Department of Labor & Industry",
+        "url": "//www.portal.state.pa.us/portal/server.pt/community/filing_information/14667/calculating_contributions/599704"
+      }
+    }
+  }
+}

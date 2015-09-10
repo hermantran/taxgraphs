@@ -6,6 +6,7 @@ function StateBreakdownCtrl($scope, $filter, taxData, taxService, graph,
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
+  $scope.years = taxData.years;
   $scope.states = taxData.states;
   $scope.filingStatuses = taxData.filingStatuses;
   $scope.stateNames = taxData.stateNames;
@@ -14,6 +15,7 @@ function StateBreakdownCtrl($scope, $filter, taxData, taxService, graph,
   if (!cache.get('stateBreakdownData')) {
     cache.set('stateBreakdownData', {
       state: 'CA',
+      year: taxData.year,
       status: 'single',
       deductions: {
         standardDeduction: true,
@@ -42,12 +44,13 @@ function StateBreakdownCtrl($scope, $filter, taxData, taxService, graph,
 
   $scope.drawGraph = function() {
     var state = $scope.data.state,
+        year = $scope.data.year,
         filingStatus = $scope.data.status,
         xMax = $scope.settings.xMax,
         graphLines = $scope.data.graphLines,
-        taxes = taxData.getTaxes(state),
-        taxNames = taxData.getTaxNames(state),
-        fedIncomeIndex = taxData.getTaxNames(state).indexOf('Federal Income'),
+        taxes = taxData.getTaxes(state, year),
+        taxNames = taxData.getTaxNames(state, year),
+        fedIncomeIndex = taxNames.indexOf('Federal Income'),
         deductions = [],
         primaryTitle,
         secondaryTitle,
@@ -109,7 +112,11 @@ function StateBreakdownCtrl($scope, $filter, taxData, taxService, graph,
     }
 
     graph.drawLines();
-    primaryTitle = $scope.stateNames[state] + ' Income Tax Rates, 2014';
+    primaryTitle = [
+      $scope.stateNames[state],
+      'Income Tax Rates,',
+      year
+    ].join(' ');
     secondaryTitle = [
       $filter('splitCamelCase')(filingStatus),
       'Filing Status,',

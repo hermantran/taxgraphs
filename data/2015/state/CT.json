@@ -1,0 +1,54 @@
+{
+  "taxes": {
+    "income": {
+      "rate": {
+        "single": [
+          [0, 0.03],
+          [10000, 0.05],
+          [50000, 0.055],
+          [100000, 0.06],
+          [200000, 0.065],
+          [250000, 0.067]
+        ],
+        "married": [
+          [0, 0.03],
+          [20000, 0.05],
+          [100000, 0.055],
+          [200000, 0.06],
+          [400000, 0.065],
+          [500000, 0.067]
+        ]
+      },
+      "source": {
+        "name": "Tax Foundation - State Individual Income Tax Rates and Brackets for 2015",
+        "url": "//taxfoundation.org/article/state-individual-income-tax-rates-and-brackets-2015"
+      }
+    }
+  },
+  "deductions": {
+    "personalExemption": {
+      "amount": {
+        "single": 15000,
+        "married": 24000
+      },
+      "phaseout": {
+        "single": {
+          "start": 29000,
+          "step": 1000,
+          "reduction": 1000,
+          "minimum": 0
+        },
+        "married": {
+          "start": 29000,
+          "step": 1000,
+          "reduction": 1000,
+          "minimum": 0
+        }
+      },
+      "source": {
+        "name": "Tax Foundation - State Individual Income Tax Rates and Brackets for 2015",
+        "url": "//taxfoundation.org/article/state-individual-income-tax-rates-and-brackets-2015"
+      }
+    }
+  }
+}

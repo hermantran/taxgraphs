@@ -5,6 +5,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, cache) {
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
+  $scope.years = taxData.years;
   $scope.states = taxData.states;
   $scope.filingStatuses = taxData.filingStatuses;
   $scope.stateNames = taxData.stateNames;
@@ -13,6 +14,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, cache) {
   if (!cache.get('takeHomePayData')) {
     cache.set('takeHomePayData', {
       state: 'CA',
+      year: taxData.year,
       deductions: {
         standardDeduction: true,
         personalExemption: true
@@ -35,9 +37,11 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, cache) {
 
   $scope.drawGraph = function() {
     var state = $scope.data.state,
+        year = $scope.data.year,
         xMax = $scope.settings.xMax,
-        taxes = taxData.getTaxes(state),
-        fedIncomeIndex = taxData.getTaxNames(state).indexOf('Federal Income'),
+        taxes = taxData.getTaxes(state, year),
+        taxNames = taxData.getTaxNames(state, year),
+        fedIncomeIndex = taxNames.indexOf('Federal Income'),
         deductions = [],
         itemized = parseInt($scope.data.itemized, 10),
         capitalize = $filter('capitalize'),
@@ -81,7 +85,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, cache) {
     
     graph.drawLines();
 
-    primaryTitle = $scope.stateNames[state] + ' Take Home Pay, 2014';
+    primaryTitle = $scope.stateNames[state] + ' Take Home Pay, ' + year;
     secondaryTitle = [
       (deductions.length ? ' Standard Deduction' : 'no deductions'),
       (itemized > 0 ? ', $' + itemized + ' Itemized Deduction' : '')
