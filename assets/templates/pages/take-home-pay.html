@@ -1,0 +1,40 @@
+<div class="section">
+  <h3>Data</h3>
+
+  <div ng-include="'assets/templates/partials/state-select.html'"></div>
+  <div ng-include="'assets/templates/partials/tax-year.html'"></div>
+
+  <div>
+    <label class="valign-top">Deductions:</label>
+    <div class="inline-block">
+      <div ng-repeat="deduction in deductions">
+        <input type="checkbox" name="{{ deduction }}" id="{{ deduction }}"
+         ng-model="data.deductions[deduction]">
+        <label for="{{ deduction }}">{{ deduction | splitCamelCase }}</label>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <label for="itemized" class="valign-top">Itemized <br>Deduction:</label>
+    <input type="text" id="itemized" name="itemized" ng-model="data.itemized">
+  </div>
+
+  <div>
+    <label class="valign-top">Graph Lines:</label>
+    <div class="inline-block">
+      <div>
+        <input type="checkbox" name="single-income" id="single-income" 
+         ng-model="data.graphLines.single"> 
+        <label for="single-income">Single Filing Status</label>
+      </div>
+      <div>
+        <input type="checkbox" name="married-income" id="married-income"
+         ng-model="data.graphLines.married"> 
+        <label for="married-income">Married Filing Status</label>
+      </div>
+    </div>
+  </div>
+  
+  <div class="subsection" ng-include="'assets/templates/partials/graph-settings.html'"></div>
+</div>

@@ -91,6 +91,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, cache) {
       (itemized > 0 ? ', $' + itemized + ' Itemized Deduction' : '')
     ].join(' '); 
     graph.updateTitle(primaryTitle, secondaryTitle);
+    graph.updateAxisLabels('Gross Income', 'Percent');
     $scope.$emit('hideMobileControls');
   };
 

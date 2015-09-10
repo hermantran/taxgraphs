@@ -123,6 +123,7 @@ function StateBreakdownCtrl($scope, $filter, taxData, taxService, graph,
       (deductions.length ? ' Standard Deduction' : 'no deductions')
     ].join(' ');
     graph.updateTitle(primaryTitle, secondaryTitle);
+    graph.updateAxisLabels('Gross Income', 'Percent');
     $scope.$emit('hideMobileControls');
   };
 

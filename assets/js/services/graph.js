@@ -45,6 +45,8 @@ function graph(d3, _, screenService, saveService) {
     lineValue: 'value',
     xAxis: 'x axis',
     yAxis: 'y axis',
+    xAxisLabel: 'x axis-label',
+    yAxisLabel: 'y axis-label',
     hide: 'hide'
   };
 
@@ -99,7 +101,7 @@ function graph(d3, _, screenService, saveService) {
     if (screenService.width < screenService.sizes.md) {
       width = screenService.width - 20;
       height = screenService.height - 45;
-      service.m = [50, 80, 80, 50];
+      service.m = [50, 80, 80, 55];
     } else {
       service.m = [80, 180, 80, 70];
     }
@@ -116,6 +118,15 @@ function graph(d3, _, screenService, saveService) {
   };
 
   service.createGraph = function() {
+    service.createElements();
+    service.positionText();
+    service.updateXAxis();
+    service.updateYAxis();
+    service.drawHoverLine();
+    service.drawHoverLabel();
+  };
+
+  service.createElements = function() {
     service.title = service.graph
       .append('svg:g')
       .attr('class', service.classes.title);
@@ -130,6 +141,14 @@ function graph(d3, _, screenService, saveService) {
       .attr('x', 0)
       .attr('dy', '1.2em');
 
+    service.xAxisLabel = service.graph
+      .append('text')
+      .attr('class', service.classes.xAxisLabel);
+
+    service.yAxisLabel = service.graph
+      .append('text')
+      .attr('class', service.classes.yAxisLabel);
+
     service.controls = service.graph
       .append('svg:g')
       .attr('class', service.classes.controls);
@@ -137,17 +156,20 @@ function graph(d3, _, screenService, saveService) {
     service.data = service.graph
       .append('svg:g')
       .attr('class', service.classes.data);
-
-    service.positionTitle();
-    service.updateXAxis();
-    service.updateYAxis();
-    service.drawHoverLine();
-    service.drawHoverLabel();
   };
 
-  service.positionTitle = function() {
+  service.positionText = function() {
     service.title.attr('transform', 'translate(' +
         (service.w / 2) + ',' + (-service.m[0] / 2) + ')');
+    
+    service.xAxisLabel
+      .attr('x', service.w / 2)
+      .attr('y', service.h + 75);
+
+    service.yAxisLabel
+      .attr('transform', 'rotate(-90)')
+      .attr('x', -service.h / 2)
+      .attr('y', -40);
   };
 
   service.updateXAxis = function(xMax) {
@@ -232,6 +254,11 @@ function graph(d3, _, screenService, saveService) {
   service.updateTitle = function(primary, secondary) {
     service.title.select(service.selectors.primaryTitle).text(primary);
     service.title.select(service.selectors.secondaryTitle).text(secondary);
+  };
+
+  service.updateAxisLabels = function(xAxisLabel, yAxisLabel) {
+    service.xAxisLabel.text(xAxisLabel);
+    service.yAxisLabel.text(yAxisLabel);
   };
 
   service.updateAnimationTime = function(time) {
@@ -402,7 +429,7 @@ function graph(d3, _, screenService, saveService) {
 
   service.redrawGraph = function() {
     service.setSize();
-    service.positionTitle();
+    service.positionText();
     service.updateXAxis();
     service.removeRenderedData();
     service.drawLines();

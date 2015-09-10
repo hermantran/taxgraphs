@@ -4,17 +4,17 @@
 function routes($routeProvider) {
   $routeProvider
     .when('/', {
-      templateUrl: 'assets/templates/state-comparison.html',
+      templateUrl: 'assets/templates/pages/state-comparison.html',
       controller: 'StateComparisonCtrl',
       title: 'State Comparison'
     })
     .when('/state', {
-      templateUrl: 'assets/templates/state-breakdown.html',
+      templateUrl: 'assets/templates/pages/state-breakdown.html',
       controller: 'StateBreakdownCtrl',
       title: 'State Breakdown'
     })
     .when('/take-home-pay', {
-      templateUrl: 'assets/templates/take-home-pay.html',
+      templateUrl: 'assets/templates/pages/take-home-pay.html',
       controller: 'TakeHomePayCtrl',
       title: 'Take Home Pay'
     })
