@@ -11,44 +11,59 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
   $scope.filingStatuses = taxData.filingStatuses;
   $scope.deductions = taxData.deductions;
   $scope.toggleState = false;
+  $scope.toggleStates = toggleStates;
+  $scope.keepUnchecked = keepUnchecked;
+  $scope.drawGraph = drawGraph;
 
-  if (!cache.get('stateComparisonData')) {
-    cache.set('stateComparisonData', {
-      states: {
-        CA: true,
-        IL: true,
-        PA: true,
-        NY: true,
-        TX: true
-      },
-      year: taxData.year,
-      status: 'single',
-      deductions: {
-        standardDeduction: true,
-        personalExemption: true
-      },
-      graphLines: {
-        effective: true,
-        marginal: false
-      }
-    });
+  taxData.get().then(init);
+
+  function init() {
+    setData();
+    graph.init();
+    drawGraph();
   }
 
-  $scope.data = cache.get('stateComparisonData');
+  function setData() {
+    var key = 'stateComparisonData';
 
-  $scope.toggleStates = function(bool) {
+    if (!cache.get(key)) {
+      cache.set(key, {
+        states: {
+          CA: true,
+          IL: true,
+          PA: true,
+          NY: true,
+          TX: true
+        },
+        year: taxData.year,
+        status: 'single',
+        deductions: {
+          standardDeduction: true,
+          personalExemption: true
+        },
+        graphLines: {
+          effective: true,
+          marginal: false
+        }
+      });
+    }
+
+    $scope.data = cache.get(key);
+  }
+
+  function toggleStates(bool) {
     var state;
     for (var i = 0, len = $scope.states.length; i < len; i++) {
       state = $scope.states[i];
       $scope.data.states[state] = bool;
     }
-  };
+  }
 
-  $scope.keepUnchecked = function() {
+  function keepUnchecked() {
     $scope.toggleState = false;
-  };
+  }
 
-  $scope.createTaxRateFn = function(tax, filingStatus, isEffective) {
+  function createTaxRateFn(tax, filingStatus, isEffective) {
     return function(income) {
       if (isEffective) {
         return taxService.calcEffectiveTaxRate(tax, income, filingStatus);
@@ -56,9 +71,13 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
         return taxService.calcMarginalTaxRate(tax, income, filingStatus);
       }
     };
-  };
+  }
 
-  $scope.drawGraph = function() {
+  function rateFormatter(income, rate) {
+    return $filter('percentage')(rate, 2);
+  }
+
+  function drawGraph() {
     var year = $scope.data.year,
         filingStatus = $scope.data.status,
         xMax = $scope.settings.xMax,
@@ -70,9 +89,7 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
         fedIncomeIndex,
         primaryTitle,
         secondaryTitle,
-        taxes,
-        tooltipFn,
-        data;
+        taxes;
 
     xMax = isNaN(xMax) ? graph.defaults.xMax : xMax;
 
@@ -103,15 +120,22 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
 
     for (var i = 0, len = total.length; i < len; i++) {
       if (graphLines.effective) {
-        data = taxService.createEffectiveTaxData(total[i], xMax);
-        tooltipFn = $scope.createTaxRateFn(total[i], filingStatus, true);
-        graph.addLine(data, stateNames[i] + ' Effective', tooltipFn, true);
+        graph.addLine({
+          data: taxService.createEffectiveTaxData(total[i], xMax), 
+          label: stateNames[i] + ' Effective', 
+          tooltipFn: createTaxRateFn(total[i], filingStatus, true),
+          formattedFn: rateFormatter,
+          isInterpolated: true
+        });
       }
 
       if (graphLines.marginal) {
-        data = taxService.createMarginalTaxData(total[i], xMax);
-        tooltipFn = $scope.createTaxRateFn(total[i], filingStatus);
-        graph.addLine(data, stateNames[i] + ' Marginal', tooltipFn);
+        graph.addLine({
+          data: taxService.createMarginalTaxData(total[i], xMax), 
+          label: stateNames[i] + ' Marginal', 
+          tooltipFn: createTaxRateFn(total[i], filingStatus),
+          formattedFn: rateFormatter,
+        });
       }
     }
 
@@ -125,15 +149,7 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
     graph.updateTitle(primaryTitle, secondaryTitle);
     graph.updateAxisLabels('Gross Income', 'Percent');
     $scope.$emit('hideMobileControls');
-  };
-
-  $scope.init = function() {
-    graph.init();
-    $scope.settings.calculateAmount = false;
-    $scope.drawGraph();
-  };
-
-  taxData.get().then($scope.init);
+  }
 }
 
 module.exports = StateComparisonCtrl;

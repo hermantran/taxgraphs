@@ -10,32 +10,52 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, cache) {
   $scope.filingStatuses = taxData.filingStatuses;
   $scope.stateNames = taxData.stateNames;
   $scope.deductions = taxData.deductions;
+  $scope.drawGraph = drawGraph;
 
-  if (!cache.get('takeHomePayData')) {
-    cache.set('takeHomePayData', {
-      state: 'CA',
-      year: taxData.year,
-      deductions: {
-        standardDeduction: true,
-        personalExemption: true
-      },
-      itemized: 0,
-      graphLines: {
-        single: true,
-        married: true
-      }
-    });
+  taxData.get().then(init);
+
+  function init() {
+    setData();
+    graph.init();
+    drawGraph();
   }
 
-  $scope.data = cache.get('takeHomePayData');
+  function setData() {
+    var key = 'takeHomePayData';
+    
+    if (!cache.get(key)) {
+      cache.set(key, {
+        state: 'CA',
+        year: taxData.year,
+        deductions: {
+          standardDeduction: true,
+          personalExemption: true
+        },
+        itemized: 0,
+        graphLines: {
+          single: true,
+          married: true
+        }
+      });
+    }
 
-  $scope.createTaxRateFn = function(tax, filingStatus) {
+    $scope.data = cache.get(key);
+  }
+
+  function createTaxRateFn(tax, filingStatus) {
     return function(income) {
       return 1 - taxService.calcEffectiveTaxRate(tax, income, filingStatus);
     };
-  };
+  }
 
-  $scope.drawGraph = function() {
+  function rateFormatter(income, rate) {
+    return [
+      $filter('currency')(income * rate, '$', 0),
+      '(' + $filter('percentage')(rate, 2) + ')'
+    ].join(' ');
+  }
+
+  function drawGraph() {
     var state = $scope.data.state,
         year = $scope.data.year,
         xMax = $scope.settings.xMax,
@@ -45,11 +65,8 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, cache) {
         deductions = [],
         itemized = parseInt($scope.data.itemized, 10),
         capitalize = $filter('capitalize'),
-        label,
         primaryTitle,
         secondaryTitle,
-        tooltipFn,
-        data,
         total;
 
     xMax = isNaN(xMax) ? graph.defaults.xMax : xMax;
@@ -76,10 +93,14 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, cache) {
         );
 
         total = taxService.calcTotalMarginalTaxBrackets(taxes, xMax, status);
-        data = taxService.createTakeHomePayData(total, xMax);
-        label = 'Net Income - ' + capitalize(status) + ' Status';
-        tooltipFn = $scope.createTaxRateFn(total, status, true);
-        graph.addLine(data, label, tooltipFn, true);
+
+        graph.addLine({
+          data: taxService.createTakeHomePayData(total, xMax),
+          label: 'Net Income - ' + capitalize(status) + ' Status',
+          tooltipFn: createTaxRateFn(total, status, true),
+          formattedFn: rateFormatter,
+          isInterpolated: true
+        });
       }
     }
     
@@ -93,15 +114,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, cache) {
     graph.updateTitle(primaryTitle, secondaryTitle);
     graph.updateAxisLabels('Gross Income', 'Percent');
     $scope.$emit('hideMobileControls');
-  };
-
-  $scope.init = function() {
-    graph.init();
-    $scope.settings.calculateAmount = true;
-    $scope.drawGraph();
-  };
-
-  taxData.get().then($scope.init);
+  }
 }
 
 module.exports = TakeHomePayCtrl;

@@ -62,8 +62,7 @@ function graph(d3, _, screenService, saveService) {
     yMin: 0,
     yMax: 60,
     animationTime: 2000,
-    colors: service.colors.multi,
-    calculateAmount: false
+    colors: service.colors.multi
   };
 
   service.defaults = _.cloneDeep(service.settings);
@@ -280,18 +279,14 @@ function graph(d3, _, screenService, saveService) {
     }
   };
 
-  service.addLine = function(data, label, tooltipFn, isInterpolated) {
+  service.addLine = function(line) {
+    var data = line.data;
     // Don't draw lines that start at y = 0 and end at y = 0
     if (data[0].y === 0 && data[data.length - 1].y === 0) {
       return;
     }
     
-    service.lines.push({
-      data: data,
-      label: label,
-      tooltipFn: tooltipFn,
-      isInterpolated: isInterpolated
-    });
+    service.lines.push(line);
   };
 
   service.drawLines = function() {
@@ -416,12 +411,10 @@ function graph(d3, _, screenService, saveService) {
   };
 
   service.setupEventHandlers = function() {
-    var self = service;
-
     service.svg.on('mousemove', function() {
-      var xPos = d3.mouse(this)[0] - self.m[3];
-      self.updateHoverLine(xPos);
-      self.updateHoverLabel(xPos);
+      var xPos = d3.mouse(this)[0] - service.m[3];
+      service.updateHoverLine(xPos);
+      service.updateHoverLabel(xPos);
     });
 
     screenService.addResizeEvent(service.redrawGraph);
@@ -430,7 +423,7 @@ function graph(d3, _, screenService, saveService) {
   service.redrawGraph = function() {
     service.setSize();
     service.positionText();
-    service.updateXAxis();
+    service.update(service.settings);
     service.removeRenderedData();
     service.drawLines();
     service.updateHoverLine(-1);
@@ -517,12 +510,11 @@ function graph(d3, _, screenService, saveService) {
       }
 
       yPos = service.h - (yValue / yScale * 100);
-      text = Math.round10(yValue * 100, -2);
 
-      if (service.settings.calculateAmount) {
-        text = '$' + Math.round(xValue * yValue) + ' (' + text + '%)';
+      if (service.lines[i].formattedFn) {
+        text = service.lines[i].formattedFn(xValue, yValue);
       } else {
-        text += '%';
+        text = yValue;
       }
 
       tooltipText = service.tooltips[i]
