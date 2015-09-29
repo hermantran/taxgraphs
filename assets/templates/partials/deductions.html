@@ -1,0 +1,10 @@
+<div>
+  <label class="valign-top">Deductions:</label>
+  <div class="inline-block">
+    <div ng-repeat="deduction in deductions">
+      <input type="checkbox" name="{{ deduction }}" id="{{ deduction }}"
+       ng-model="data.deductions.federal.federalIncome[deduction]">
+      <label for="{{ deduction }}">{{ deduction | splitCamelCase }}</label>
+    </div>
+  </div>
+</div>

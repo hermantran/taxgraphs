@@ -25,7 +25,10 @@ module.exports = function(grunt) {
     },
     tpl: {
       files: ['assets/templates/**/*.html'],
-      tasks: ['ngtemplates']
+      tasks: ['ngtemplates'],
+      options: {
+        livereload: false
+      }
     },
     json: {
       files: ['data/**/*.json', '!data/taxes.json'],

@@ -5,12 +5,12 @@ var app = require('../app'),
     taxData = require('./taxData'),
     graph = require('./graph'),
     screenService = require('./screenService'),
-    cache = require('./cache'),
+    settings = require('./settings'),
     tips = require('./tips');
 
 app.service('taxService', taxService)
   .service('taxData', taxData)
   .service('graph', graph)
   .service('screenService', screenService)
-  .service('cache', cache)
+  .service('settings', settings)
   .service('tips', tips);

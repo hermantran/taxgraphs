@@ -2,7 +2,7 @@
 
 /* @ngInject */
 function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
- cache) {
+ settings) {
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
@@ -25,30 +25,7 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
 
   function setData() {
     var key = 'stateComparisonData';
-
-    if (!cache.get(key)) {
-      cache.set(key, {
-        states: {
-          CA: true,
-          IL: true,
-          PA: true,
-          NY: true,
-          TX: true
-        },
-        year: taxData.year,
-        status: 'single',
-        deductions: {
-          standardDeduction: true,
-          personalExemption: true
-        },
-        graphLines: {
-          effective: true,
-          marginal: false
-        }
-      });
-    }
-
-    $scope.data = cache.get(key);
+    $scope.data = settings.get(key);
   }
 
   function toggleStates(bool) {
@@ -63,13 +40,11 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
     $scope.toggleState = false;
   }
 
-  function createTaxRateFn(tax, filingStatus, isEffective) {
+  function createTaxRateFn(tax, status, isEffective) {
+    var fnProp = isEffective ? 'calcEffectiveTaxRate' : 'calcMarginalTaxRate';
+
     return function(income) {
-      if (isEffective) {
-        return taxService.calcEffectiveTaxRate(tax, income, filingStatus);
-      } else {
-        return taxService.calcMarginalTaxRate(tax, income, filingStatus);
-      }
+      return taxService[fnProp](tax, income, status);
     };
   }
 
@@ -77,77 +52,65 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
     return $filter('percentage')(rate, 2);
   }
 
+  function updateGraphText(year, status) {
+    var data = $scope.data,
+        hasDeduction = data.deductions.federal.federalIncome.standardDeduction,
+        primaryTitle,
+        secondaryTitle;
+
+    primaryTitle = 'State Income Tax Rates, ' + year;
+    secondaryTitle = [
+      $filter('splitCamelCase')(status),
+      'Filing Status,',
+      (hasDeduction ? ' Standard Deduction' : 'no deductions')
+    ].join(' ');
+    graph.updateTitle(primaryTitle, secondaryTitle);
+    graph.updateAxisLabels('Gross Income', 'Percent');
+  }
+
   function drawGraph() {
     var year = $scope.data.year,
-        filingStatus = $scope.data.status,
+        status = $scope.data.status,
         xMax = $scope.settings.xMax,
         graphLines = $scope.data.graphLines,
-        deductions = [],
-        total = [],
-        stateNames = [],
-        taxNames,
-        fedIncomeIndex,
-        primaryTitle,
-        secondaryTitle,
-        taxes;
+        deductionSettings = $scope.data.deductions,
+        states = $scope.data.states,
+        total,
+        rates;
 
     xMax = isNaN(xMax) ? graph.defaults.xMax : xMax;
-
-    for (var deduction in $scope.data.deductions) {
-      if ($scope.data.deductions[deduction]) {
-        deductions.push(taxData.getDeduction(deduction));
-      }
-    }
-
-    for (var state in $scope.data.states) {
-      if ($scope.data.states[state]) {
-        stateNames.push(state);
-        taxes = taxData.getTaxes(state, year);
-        taxNames = taxData.getTaxNames(state, year);
-        fedIncomeIndex = taxNames.indexOf('Federal Income');
-        taxes[fedIncomeIndex] = taxService.modifyTaxBracket(
-          taxes[fedIncomeIndex], filingStatus, deductions
-        );
-
-        total.push(taxService.calcTotalMarginalTaxBrackets(
-          taxes, xMax, filingStatus
-        ));
-      }
-    }
 
     graph.clear();
     graph.update($scope.settings);
 
-    for (var i = 0, len = total.length; i < len; i++) {
-      if (graphLines.effective) {
-        graph.addLine({
-          data: taxService.createEffectiveTaxData(total[i], xMax), 
-          label: stateNames[i] + ' Effective', 
-          tooltipFn: createTaxRateFn(total[i], filingStatus, true),
-          formattedFn: rateFormatter,
-          isInterpolated: true
-        });
-      }
+    for (var state in states) {
+      if (states[state]) {
+        rates = taxData.getAllRates(state, year, status, deductionSettings);
+        total = taxService.calcTotalMarginalTaxBrackets(rates, xMax, status);
 
-      if (graphLines.marginal) {
-        graph.addLine({
-          data: taxService.createMarginalTaxData(total[i], xMax), 
-          label: stateNames[i] + ' Marginal', 
-          tooltipFn: createTaxRateFn(total[i], filingStatus),
-          formattedFn: rateFormatter,
-        });
+        if (graphLines.effective) {
+          graph.addLine({
+            data: taxService.createEffectiveTaxData(total, xMax), 
+            label: state + ' Effective', 
+            tooltipFn: createTaxRateFn(total, status, true),
+            formattedFn: rateFormatter,
+            isInterpolated: true
+          });
+        }
+
+        if (graphLines.marginal) {
+          graph.addLine({
+            data: taxService.createMarginalTaxData(total, xMax), 
+            label: state + ' Marginal', 
+            tooltipFn: createTaxRateFn(total, status),
+            formattedFn: rateFormatter,
+          });
+        }
       }
     }
 
     graph.drawLines();
-    primaryTitle = 'State Income Tax Rates, ' + year;
-    secondaryTitle = [
-      $filter('splitCamelCase')(filingStatus),
-      'Filing Status,',
-      (deductions.length ? ' Standard Deduction' : 'no deductions')
-    ].join(' ');
-    graph.updateTitle(primaryTitle, secondaryTitle);
-    graph.updateAxisLabels('Gross Income', 'Percent');
+    updateGraphText(year, status);
     $scope.$emit('hideMobileControls');
   }
 }

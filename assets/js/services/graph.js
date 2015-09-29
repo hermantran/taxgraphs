@@ -94,14 +94,13 @@ function graph(d3, _, screenService, saveService) {
       return this.parentNode; 
     });
 
-    width = parseInt(parent.style('width'), 10) - 10;
-    height = parseInt(parent.style('height'), 10) - 10;
-
     if (screenService.width < screenService.sizes.md) {
-      width = screenService.width - 20;
+      width = screenService.width - 5;
       height = screenService.height - 45;
-      service.m = [50, 80, 80, 55];
+      service.m = [50, 100, 80, 60];
     } else {
+      width = parseInt(parent.style('width'), 10) - 5;
+      height = parseInt(parent.style('height'), 10) - 5;
       service.m = [80, 180, 80, 70];
     }
 
@@ -168,7 +167,7 @@ function graph(d3, _, screenService, saveService) {
     service.yAxisLabel
       .attr('transform', 'rotate(-90)')
       .attr('x', -service.h / 2)
-      .attr('y', -40);
+      .attr('y', -45);
   };
 
   service.updateXAxis = function(xMax) {

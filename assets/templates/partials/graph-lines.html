@@ -1,0 +1,10 @@
+<div>
+  <label class="valign-top">Graph Lines:</label>
+  <div class="inline-block">
+    <div ng-repeat="graphLine in graphLines">
+      <input type="checkbox" name="{{::graphLine.id}}" id="{{::graphLine.id}}"
+       ng-model="data.graphLines[graphLine.prop]"> 
+      <label for="{{::graphLine.id}}">{{::graphLine.label}}</label>
+    </div>
+  </div>
+</div>

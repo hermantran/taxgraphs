@@ -12,10 +12,12 @@ header.pure-menu.pure-menu-horizontal {
   }
 
   li a {
+    cursor: pointer;
+
     &:hover {
       background: darken(@blue, 5%);
     }
-    &.active {
+    &.active, &:focus {
       background: darken(@blue, 10%);
       outline: 0;
     }

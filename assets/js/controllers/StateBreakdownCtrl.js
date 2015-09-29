@@ -2,7 +2,7 @@
 
 /* @ngInject */
 function StateBreakdownCtrl($scope, $filter, taxData, taxService, graph,
- cache) {
+ settings) {
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
@@ -23,26 +23,8 @@ function StateBreakdownCtrl($scope, $filter, taxData, taxService, graph,
 
   function setData() {
     var key = 'stateBreakdownData';
-
-    if (!cache.get(key)) {
-      cache.set(key, {
-        state: 'CA',
-        year: taxData.year,
-        status: 'single',
-        deductions: {
-          standardDeduction: true,
-          personalExemption: true
-        },
-        graphLines: {
-          effective: true,
-          marginal: false,
-          totalEffective: true,
-          totalMarginal: true
-        }
-      });
-    }
-
-    $scope.data = cache.get(key);
+    $scope.data = settings.get(key);
+    console.log($scope.data);
   }
 
   function createTaxRateFn(tax, filingStatus, isEffective) {
@@ -57,50 +39,51 @@ function StateBreakdownCtrl($scope, $filter, taxData, taxService, graph,
     return $filter('percentage')(rate, 2);
   }
 
+  function updateGraphText(state, year, status) {
+    var data = $scope.data,
+        hasDeduction = data.deductions.federal.federalIncome.standardDeduction,
+        primaryTitle,
+        secondaryTitle;
+
+    primaryTitle = [
+      $scope.stateNames[state],
+      'Income Tax Rates,',
+      year
+    ].join(' ');
+    secondaryTitle = [
+      $filter('splitCamelCase')(status),
+      'Filing Status,',
+      (hasDeduction ? ' Standard Deduction' : 'no deductions')
+    ].join(' ');
+    graph.updateTitle(primaryTitle, secondaryTitle);
+    graph.updateAxisLabels('Gross Income', 'Percent');
+  }
+
   function drawGraph() {
     var state = $scope.data.state,
         year = $scope.data.year,
-        filingStatus = $scope.data.status,
+        status = $scope.data.status,
         xMax = $scope.settings.xMax,
         graphLines = $scope.data.graphLines,
-        taxes = taxData.getTaxes(state, year),
-        taxNames = taxData.getTaxNames(state, year),
-        fedIncomeIndex = taxNames.indexOf('Federal Income'),
-        deductions = [],
-        primaryTitle,
-        secondaryTitle,
+        deductionSettings = $scope.data.deductions,
+        rates = taxData.getAllRates(state, year, status, deductionSettings),
+        taxes = taxData.getAllTaxes(state, year, status, deductionSettings),
         total,
         args;
 
     xMax = isNaN(xMax) ? graph.defaults.xMax : xMax;
 
-    for (var deduction in $scope.data.deductions) {
-      if ($scope.data.deductions[deduction]) {
-        deductions.push(taxData.getDeduction(deduction));
-      }
-    }
-
-    taxes[fedIncomeIndex] = taxService.modifyTaxBracket(
-      taxes[fedIncomeIndex], filingStatus, deductions
-    );
-
-    if (graphLines.totalEffective || graphLines.totalMarginal) {
-      total = taxService.calcTotalMarginalTaxBrackets(
-        taxes, xMax, filingStatus
-      );
-    }
-
     graph.clear();
     graph.update($scope.settings);
 
-    for (var i = 0; i < taxes.length; i++) {
-      args = [taxes[i], xMax, filingStatus];
+    taxes.forEach(function(tax) {
+      args = [tax.rate, xMax, status];
 
       if (graphLines.effective) {
         graph.addLine({
-          label: taxNames[i] + (graphLines.marginal ? ' (E)' : ''),
+          label: tax.name + (graphLines.marginal ? ' (E)' : ''),
           data: taxService.createEffectiveTaxData.apply(taxService, args),
-          tooltipFn: createTaxRateFn(taxes[i], filingStatus, true),
+          tooltipFn: createTaxRateFn(tax.rate, status, true),
           formattedFn: rateFormatter,
           isInterpolated: true
         });
@@ -108,19 +91,23 @@ function StateBreakdownCtrl($scope, $filter, taxData, taxService, graph,
 
       if (graphLines.marginal) {
         graph.addLine({
-          label: taxNames[i] + (graphLines.effective ? ' (M)' : ''),
+          label: tax.name + (graphLines.effective ? ' (M)' : ''),
           data: taxService.createMarginalTaxData.apply(taxService, args),
-          tooltipFn: createTaxRateFn(taxes[i], filingStatus),
+          tooltipFn: createTaxRateFn(tax.rate, status),
           formattedFn: rateFormatter,
         });
       }
+    });
+
+    if (graphLines.totalEffective || graphLines.totalMarginal) {
+      total = taxService.calcTotalMarginalTaxBrackets(rates, xMax, status);
     }
 
     if (graphLines.totalMarginal) {
       graph.addLine({
         label: 'Total Marginal',
         data: taxService.createMarginalTaxData(total, xMax),
-        tooltipFn: createTaxRateFn(total, filingStatus),
+        tooltipFn: createTaxRateFn(total, status),
         formattedFn: rateFormatter,
       });
     }
@@ -129,25 +116,14 @@ function StateBreakdownCtrl($scope, $filter, taxData, taxService, graph,
       graph.addLine({
         label: 'Total Effective',
         data: taxService.createEffectiveTaxData(total, xMax),
-        tooltipFn: createTaxRateFn(total, filingStatus, true),
+        tooltipFn: createTaxRateFn(total, status, true),
         formattedFn: rateFormatter,
         isInterpolated: true
       });
     }
 
     graph.drawLines();
-    primaryTitle = [
-      $scope.stateNames[state],
-      'Income Tax Rates,',
-      year
-    ].join(' ');
-    secondaryTitle = [
-      $filter('splitCamelCase')(filingStatus),
-      'Filing Status,',
-      (deductions.length ? ' Standard Deduction' : 'no deductions')
-    ].join(' ');
-    graph.updateTitle(primaryTitle, secondaryTitle);
-    graph.updateAxisLabels('Gross Income', 'Percent');
+    updateGraphText(state, year, status);
     $scope.$emit('hideMobileControls');
   }
 }

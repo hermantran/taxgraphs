@@ -328,6 +328,9 @@ function taxService(_) {
     var deductionAmount = calcTotalDeduction(deductions, filingStatus),
         copy = [ [0, 0, 0] ];
 
+    if (_.isNumber(tax)) {
+      copy.push([0, tax]);
+    }
     if (_.isArray(tax)) {
       copy.push.apply(copy, _.cloneDeep(tax));
     }

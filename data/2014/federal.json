@@ -47,25 +47,17 @@
           [457600, 0.396]
         ]
       },
-      "source": {
-        "name": "Tax Foundation - The 2014 Tax Brackets",
-        "url": "//taxfoundation.org/article/2014-tax-brackets"
-      }
-    }
-  },
-  "deductions": {
-    "standardDeduction": {
-      "amount": {
-        "single": 6200,
-        "married": 12400
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 6200,
+            "married": 12400
+          }
+        },
+        "personalExemption": {
+          "amount": 3950
+        }
       },
-      "source": {
-        "name": "Tax Foundation - The 2014 Tax Brackets",
-        "url": "//taxfoundation.org/article/2014-tax-brackets"
-      }
-    },
-    "personalExemption": {
-      "amount": 3950,
       "source": {
         "name": "Tax Foundation - The 2014 Tax Brackets",
         "url": "//taxfoundation.org/article/2014-tax-brackets"

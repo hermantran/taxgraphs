@@ -1,46 +1,19 @@
 <div class="section">
   <h3>Data</h3>
-
   <div ng-include="'assets/templates/partials/state-select.html'"></div>
   <div ng-include="'assets/templates/partials/tax-year.html'"></div>
   <div ng-include="'assets/templates/partials/filing-status.html'"></div>
-
-  <div>
-    <label class="valign-top">Deductions:</label>
-    <div class="inline-block">
-      <div ng-repeat="deduction in deductions">
-        <input type="checkbox" name="{{ deduction }}" id="{{ deduction }}"
-         ng-model="data.deductions[deduction]">
-        <label for="{{ deduction }}">{{ deduction | splitCamelCase }}</label>
-      </div>
-    </div>
+  <div ng-include="'assets/templates/partials/graph-lines.html'" 
+    ng-init="graphLines = [
+    { id: 'effective-taxes', prop: 'effective', label: 'Effective Taxes' },
+    { id: 'marginal-taxes', prop: 'marginal', label: 'Marginal Taxes' },
+    { id: 'total-effective', prop: 'totalEffective', label: 'Total Effective Tax' },
+    { id: 'total-marginal', prop: 'totalMarginal', label: 'Total Marginal Tax' }
+    ]">
   </div>
 
-  <div>
-    <label class="valign-top">Graph Lines:</label>
-    <div class="inline-block">
-      <div>
-        <input type="checkbox" name="effective-taxes" id="effective-taxes"
-         ng-model="data.graphLines.effective"> 
-        <label for="effective-taxes">Effective Taxes</label>
-      </div>
-      <div>
-        <input type="checkbox" name="marginal-taxes" id="marginal-taxes"
-         ng-model="data.graphLines.marginal"> 
-        <label for="marginal-taxes">Marginal Taxes</label>
-      </div>
-      <div>
-        <input type="checkbox" name="total-effective" id="total-effective"
-         ng-model="data.graphLines.totalEffective"> 
-        <label for="total-effective">Total Effective Tax</label>
-      </div>
-      <div>
-        <input type="checkbox" name="total-marginal" id="total-marginal"
-         ng-model="data.graphLines.totalMarginal"> 
-        <label for="total-marginal">Total Marginal Tax</label>
-      </div>
-    </div>
-  </div>
+  <h3>Adjustments</h3>
+  <div ng-include="'assets/templates/partials/deductions.html'"></div>
 
   <div class="subsection" ng-include="'assets/templates/partials/graph-settings.html'"></div>
 </div>

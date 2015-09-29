@@ -1,7 +1,8 @@
 'use strict';
 
 /* @ngInject */
-function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, cache) {
+function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph,
+ settings) {
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
@@ -22,24 +23,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, cache) {
 
   function setData() {
     var key = 'takeHomePayData';
-    
-    if (!cache.get(key)) {
-      cache.set(key, {
-        state: 'CA',
-        year: taxData.year,
-        deductions: {
-          standardDeduction: true,
-          personalExemption: true
-        },
-        itemized: 0,
-        graphLines: {
-          single: true,
-          married: true
-        }
-      });
-    }
-
-    $scope.data = cache.get(key);
+    $scope.data = settings.get(key);
   }
 
   function createTaxRateFn(tax, filingStatus) {
@@ -55,44 +39,50 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, cache) {
     ].join(' ');
   }
 
+  function formatItemized() {
+    var itemized = parseInt($scope.data.itemized, 10);
+    itemized = isNaN(itemized) ? 0 : itemized;
+    $scope.data.deductions.itemized = itemized;
+
+    return itemized;
+  }
+
+  function updateGraphText(state, year) {
+    var data = $scope.data,
+        itemized = data.itemized,
+        hasDeduction = data.deductions.federal.federalIncome.standardDeduction,
+        primaryTitle,
+        secondaryTitle;
+
+    primaryTitle = $scope.stateNames[state] + ' Take Home Pay, ' + year;
+    secondaryTitle = [
+      (hasDeduction ? ' Standard Deduction' : 'no deductions'),
+      (itemized > 0 ? ', $' + itemized + ' Itemized Deduction' : '')
+    ].join(' '); 
+    graph.updateTitle(primaryTitle, secondaryTitle);
+    graph.updateAxisLabels('Gross Income', 'Percent');
+  }
+
   function drawGraph() {
     var state = $scope.data.state,
         year = $scope.data.year,
         xMax = $scope.settings.xMax,
-        taxes = taxData.getTaxes(state, year),
-        taxNames = taxData.getTaxNames(state, year),
-        fedIncomeIndex = taxNames.indexOf('Federal Income'),
-        deductions = [],
-        itemized = parseInt($scope.data.itemized, 10),
+        graphLines = $scope.data.graphLines,
+        deductionSettings = $scope.data.deductions,
         capitalize = $filter('capitalize'),
-        primaryTitle,
-        secondaryTitle,
+        rates,
         total;
 
     xMax = isNaN(xMax) ? graph.defaults.xMax : xMax;
-    itemized = isNaN(itemized) ? 0 : itemized;
-    $scope.data.itemized = itemized;
-
-    for (var deduction in $scope.data.deductions) {
-      if ($scope.data.deductions[deduction]) {
-        deductions.push(taxData.getDeduction(deduction));
-      }
-    }
-
-    if (itemized > 0) {
-      deductions.push(itemized);
-    }
 
     graph.clear();
     graph.update($scope.settings);
+    formatItemized();
 
-    for (var status in $scope.data.graphLines) {
-      if ($scope.data.graphLines[status]) {
-        taxes[fedIncomeIndex] = taxService.modifyTaxBracket(
-          taxes[fedIncomeIndex], status, deductions
-        );
-
-        total = taxService.calcTotalMarginalTaxBrackets(taxes, xMax, status);
+    for (var status in graphLines) {
+      if (graphLines[status]) {
+        rates = taxData.getAllRates(state, year, status, deductionSettings);
+        total = taxService.calcTotalMarginalTaxBrackets(rates, xMax, status);
 
         graph.addLine({
           data: taxService.createTakeHomePayData(total, xMax),
@@ -105,14 +95,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, cache) {
     }
     
     graph.drawLines();
-
-    primaryTitle = $scope.stateNames[state] + ' Take Home Pay, ' + year;
-    secondaryTitle = [
-      (deductions.length ? ' Standard Deduction' : 'no deductions'),
-      (itemized > 0 ? ', $' + itemized + ' Itemized Deduction' : '')
-    ].join(' '); 
-    graph.updateTitle(primaryTitle, secondaryTitle);
-    graph.updateAxisLabels('Gross Income', 'Percent');
+    updateGraphText(state, year);
     $scope.$emit('hideMobileControls');
   }
 }
