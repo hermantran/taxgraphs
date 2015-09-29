@@ -7,17 +7,5 @@
         "url": "//www.nh.gov/residents/taxes.html"
       }
     }
-  },
-  "deductions": {
-    "personalExemption": {
-      "amount": {
-        "single": 2400,
-        "married": 4800
-      },
-      "source": {
-        "name": "Tax Foundation - State Individual Income Tax Rates",
-        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
-      }
-    }
   }
 }

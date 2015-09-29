@@ -13,50 +13,38 @@
           [6000, 0.05]
         ]
       },
-      "source": {
-        "name": "Alabama Department of Revenue - Form 40ES",
-        "url": "//revenue.alabama.gov/incometax/2013_forms/14f40esblk.pdf"
-      }
-    }
-  },
-  "deductions": {
-    "standardDeduction": {
-      "amount": {
-        "single": 2500,
-        "married": 7500
-      },
-      "phaseout": {
-        "single": {
-          "start": 20000,
-          "step": 500,
-          "reduction": 25,
-          "minimum": 2000
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 2500,
+            "married": 7500
+          },
+          "phaseout": {
+            "single": {
+              "start": 20000,
+              "step": 500,
+              "reduction": 25,
+              "minimum": 2000
+            },
+            "married": {
+              "start": 20000,
+              "step": 500,
+              "reduction": 175,
+              "minimum": 4000
+            }
+          }
         },
-        "married": {
-          "start": 20000,
-          "step": 500,
-          "reduction": 175,
-          "minimum": 4000
+        "personalExemption": {
+          "amount": 1500
+        },
+        "dependents": {
+          "amount": [
+            [0, 1000],
+            [20000, 500],
+            [100000, 300]
+          ]
         }
       },
-      "source": {
-        "name": "Tax Foundation - State Individual Income Tax Rates",
-        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
-      }
-    },
-    "personalExemption": {
-      "amount": 1500,
-      "source": {
-        "name": "Tax Foundation - State Individual Income Tax Rates",
-        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
-      }
-    },
-    "dependents": {
-      "amount": [
-        [0, 1000],
-        [20000, 500],
-        [100000, 300]
-      ],
       "source": {
         "name": "Tax Foundation - State Individual Income Tax Rates",
         "url": "//taxfoundation.org/article/state-individual-income-tax-rates"

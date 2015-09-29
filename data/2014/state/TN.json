@@ -7,17 +7,5 @@
         "url": "//www.tn.gov/revenue/tntaxes/indinc.shtml"
       }
     }
-  },
-  "deductions": {
-    "personalExemption": {
-      "amount": {
-        "single": 1250,
-        "married": 2500
-      },
-      "source": {
-        "name": "Tax Foundation - State Individual Income Tax Rates",
-        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
-      }
-    }
   }
 }

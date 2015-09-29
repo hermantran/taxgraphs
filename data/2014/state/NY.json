@@ -33,9 +33,20 @@
           [1543900, 0.0882]
         ]
       },
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 7700,
+            "married": 15400
+          }
+        },
+        "dependents": {
+          "amount": 1000
+        }
+      },
       "source": {
-        "name": "IT-201-I, NYS tax rate schedule",
-        "url": "//www.tax.ny.gov/pdf/current_forms/it/it201i_tax_rate_schedule.pdf"
+        "name": "Tax Foundation - State Individual Income Tax Rates",
+        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
       }
     },
     "stateDisabilityInsurance": {
@@ -46,25 +57,6 @@
       "source": {
         "name": "Payroll Taxes - New York State Tax Information",
         "url": "//www.payroll-taxes.com/state-tax/new-york"
-      }
-    }
-  },
-  "deductions": {
-    "standardDeduction": {
-      "amount": {
-        "single": 7700,
-        "married": 15400
-      },
-      "source": {
-        "name": "Tax Foundation - State Individual Income Tax Rates",
-        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
-      }
-    },
-    "dependents": {
-      "amount": 1000,
-      "source": {
-        "name": "Tax Foundation - State Individual Income Tax Rates",
-        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
       }
     }
   }

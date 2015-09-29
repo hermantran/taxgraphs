@@ -15,35 +15,23 @@
           [320250, 0.0765]
         ]
       },
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 9930,
+            "married": 17880
+          }
+        },
+        "personalExemption": {
+          "amount": 700
+        },
+        "dependents": {
+          "amount": 700
+        }
+      },
       "source": {
         "name": "Wisconsin Department of Revenue",
         "url": "//www.revenue.wi.gov/taxpro/calctbls.html"
-      }
-    }
-  },
-  "deductions": {
-    "standardDeduction": {
-      "amount": {
-        "single": 9930,
-        "married": 17880
-      },
-      "source": {
-        "name": "Tax Foundation - State Individual Income Tax Rates",
-        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
-      }
-    },
-    "personalExemption": {
-      "amount": 700,
-      "source": {
-        "name": "Tax Foundation - State Individual Income Tax Rates",
-        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
-      }
-    },
-    "dependents": {
-      "amount": 700,
-      "source": {
-        "name": "Tax Foundation - State Individual Income Tax Rates",
-        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
       }
     }
   }

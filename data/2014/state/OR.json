@@ -15,32 +15,20 @@
           [250000, 0.099]
         ]
       },
-      "source": {
-        "name": "Tax Foundation - State Individual Income Tax Rates",
-        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
-      }
-    }
-  },
-  "deductions": {
-    "standardDeduction": {
-      "amount": {
-        "single": 2025,
-        "married": 4055
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 2025,
+            "married": 4055
+          }
+        },
+        "personalExemption": {
+          "amount": 188
+        },
+        "dependents": {
+          "amount": 188
+        }
       },
-      "source": {
-        "name": "Tax Foundation - State Individual Income Tax Rates",
-        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
-      }
-    },
-    "personalExemption": {
-      "amount": 188,
-      "source": {
-        "name": "Tax Foundation - State Individual Income Tax Rates",
-        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
-      }
-    },
-    "dependents": {
-      "amount": 188,
       "source": {
         "name": "Tax Foundation - State Individual Income Tax Rates",
         "url": "//taxfoundation.org/article/state-individual-income-tax-rates"

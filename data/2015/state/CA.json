@@ -45,61 +45,49 @@
           [1039374, 0.123]
         ]
       },
-      "source": {
-        "name": "Tax Foundation - State Individual Income Tax Rates and Brackets for 2015",
-        "url": "//taxfoundation.org/article/state-individual-income-tax-rates-and-brackets-2015"
-      }
-    }
-  },
-  "deductions": {
-    "standardDeduction": {
-      "amount": {
-        "single": 3992,
-        "married": 7984
-      },
-      "source": {
-        "name": "Tax Foundation - State Individual Income Tax Rates and Brackets for 2015",
-        "url": "//taxfoundation.org/article/state-individual-income-tax-rates-and-brackets-2015"
-      }
-    },
-    "personalExemption": {
-      "amount": {
-        "single": 108,
-        "married": 216
-      },
-      "phaseout": {
-        "single": {
-          "start": 169730,
-          "step": 2500,
-          "reduction": 6,
-          "minimum": 0
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 3992,
+            "married": 7984
+          }
         },
-        "married": {
-          "start": 339464,
-          "step": 2500,
-          "reduction": 12,
-          "minimum": 0
-        }
-      },
-      "source": {
-        "name": "Tax Foundation - State Individual Income Tax Rates and Brackets for 2015",
-        "url": "//taxfoundation.org/article/state-individual-income-tax-rates-and-brackets-2015"
-      }
-    },
-    "dependents": {
-      "amount": 333,
-      "phaseout": {
-        "single": {
-          "start": 169730,
-          "step": 2500,
-          "reduction": 6,
-          "minimum": 0
+        "personalExemption": {
+          "amount": {
+            "single": 108,
+            "married": 216
+          },
+          "phaseout": {
+            "single": {
+              "start": 169730,
+              "step": 2500,
+              "reduction": 6,
+              "minimum": 0
+            },
+            "married": {
+              "start": 339464,
+              "step": 2500,
+              "reduction": 12,
+              "minimum": 0
+            }
+          }
         },
-        "married": {
-          "start": 339464,
-          "step": 2500,
-          "reduction": 12,
-          "minimum": 0
+        "dependents": {
+          "amount": 333,
+          "phaseout": {
+            "single": {
+              "start": 169730,
+              "step": 2500,
+              "reduction": 6,
+              "minimum": 0
+            },
+            "married": {
+              "start": 339464,
+              "step": 2500,
+              "reduction": 12,
+              "minimum": 0
+            }
+          }
         }
       },
       "source": {

@@ -2,22 +2,14 @@
   "taxes": {
     "income": {
       "rate": 0.052,
-      "source": {
-        "name": "Tax Foundation - State Individual Income Tax Rates",
-        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
-      }
-    }
-  },
-  "deductions": {
-    "personalExemption": {
-      "amount": 4400,
-      "source": {
-        "name": "Tax Foundation - State Individual Income Tax Rates",
-        "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
-      }
-    },
-    "dependents": {
-      "amount": 1000,
+      "deductions": {
+        "personalExemption": {
+          "amount": 4400
+        },
+        "dependents": {
+          "amount": 1000
+        }
+      },
       "source": {
         "name": "Tax Foundation - State Individual Income Tax Rates",
         "url": "//taxfoundation.org/article/state-individual-income-tax-rates"
