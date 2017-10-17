@@ -3,6 +3,7 @@
 /* @ngInject */
 function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
  settings) {
+  $scope.key = 'stateComparisonData';
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
@@ -24,8 +25,7 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
   }
 
   function setData() {
-    var key = 'stateComparisonData';
-    $scope.data = settings.get(key);
+    $scope.data = settings.get($scope.key);
   }
 
   function toggleStates(bool) {
@@ -58,7 +58,7 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
         primaryTitle,
         secondaryTitle;
 
-    primaryTitle = 'State Income Tax Rates, ' + year;
+    primaryTitle = 'Federal+State Income Tax Rates, ' + year;
     secondaryTitle = [
       $filter('splitCamelCase')(status),
       'Filing Status,',
@@ -112,6 +112,7 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
     graph.drawLines();
     updateGraphText(year, status);
     $scope.$emit('hideMobileControls');
+    settings.set($scope.key, $scope.data);
   }
 }
 

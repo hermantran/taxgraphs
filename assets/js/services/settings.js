@@ -1,7 +1,14 @@
 'use strict';
 
-module.exports = function() {
-  var cache = {
+/* @ngInject */
+module.exports = function(localStorageService) {
+  var service = {};
+
+  service.key = 'taxGraphsSettings';
+  service.get = get;
+  service.set = set;
+
+  var defaults = {
     stateBreakdownData: {
       state: 'CA',
       year: '2015',
@@ -80,12 +87,17 @@ module.exports = function() {
       }
     }
   };
+  
+  var cache = localStorageService.get(service.key) || defaults;
 
-  this.get = function(key) {
+  function get(key) {
     return cache[key];
-  };
+  }
 
-  this.set = function(key, value) {
+  function set(key, value) {
     cache[key] = value;
-  };
+    localStorageService.set(service.key, cache);
+  }
+
+  return service;
 };

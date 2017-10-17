@@ -3,6 +3,7 @@
 /* @ngInject */
 function StateBreakdownCtrl($scope, $filter, taxData, taxService, graph,
  settings) {
+  $scope.key = 'stateBreakdownData';
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
@@ -22,9 +23,7 @@ function StateBreakdownCtrl($scope, $filter, taxData, taxService, graph,
   }
 
   function setData() {
-    var key = 'stateBreakdownData';
-    $scope.data = settings.get(key);
-    console.log($scope.data);
+    $scope.data = settings.get($scope.key);
   }
 
   function createTaxRateFn(tax, filingStatus, isEffective) {
@@ -125,6 +124,7 @@ function StateBreakdownCtrl($scope, $filter, taxData, taxService, graph,
     graph.drawLines();
     updateGraphText(state, year, status);
     $scope.$emit('hideMobileControls');
+    settings.set($scope.key, $scope.data);
   }
 }
 

@@ -3,6 +3,7 @@
 /* @ngInject */
 function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph,
  settings) {
+  $scope.key = 'takeHomePayData';
   $scope.settings = graph.settings;
   $scope.colors = graph.colors;
   $scope.animationTimes = graph.animationTimes;
@@ -22,8 +23,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph,
   }
 
   function setData() {
-    var key = 'takeHomePayData';
-    $scope.data = settings.get(key);
+    $scope.data = settings.get($scope.key);
   }
 
   function createTaxRateFn(tax, filingStatus) {
@@ -97,6 +97,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph,
     graph.drawLines();
     updateGraphText(state, year);
     $scope.$emit('hideMobileControls');
+    settings.set($scope.key, $scope.data);
   }
 }
 
