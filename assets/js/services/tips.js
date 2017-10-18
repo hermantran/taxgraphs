@@ -5,7 +5,7 @@ function tips(localStorageService) {
   var service = {},
       list;
 
-  service.key = 'taxGraphsTips';
+  service.key = 'taxGraphsAppTips';
 
   if (!localStorageService.get(service.key)) {
     list = [

@@ -1,0 +1,17 @@
+{
+  "taxes": {
+    "income": {
+      "rate": 0.0425,
+      "useFederalAGI": true,
+      "deductions": {
+        "personalExemption": {
+          "amount": 4000
+        }
+      },
+      "source": {
+        "name": "State Individual Income Tax Rates and Brackets for 2016 - Tax Foundation",
+        "url": "//taxfoundation.org/state-individual-income-tax-rates-and-brackets-2016/"
+      }
+    }
+  }
+}

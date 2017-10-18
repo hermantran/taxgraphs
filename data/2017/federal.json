@@ -1,0 +1,67 @@
+{
+  "taxes": {
+    "medicare": {
+      "rate": {
+        "single": [
+          [0, 0.0145],
+          [200000, 0.0235]
+        ],
+        "married": [
+          [0, 0.0145],
+          [250000, 0.0235]
+        ]
+      },
+      "source": {
+        "name": "OASDI and SSI Program Rates &amp; Limits, 2017",
+        "url": "//www.ssa.gov/policy/docs/quickfacts/prog_highlights/RatesLimits2017.html"
+      }
+    },
+    "socialSecurity": {
+      "rate": [
+        [0, 0.062],
+        [127200, 0]
+      ],
+      "source": {
+        "name": "OASDI and SSI Program Rates &amp; Limits, 2017",
+        "url": "//www.ssa.gov/policy/docs/quickfacts/prog_highlights/RatesLimits2017.html"
+      }
+    },
+    "federalIncome": {
+      "rate": {
+        "single": [
+          [0, 0.1],
+          [9325, 0.15],
+          [37950, 0.25],
+          [91900, 0.28],
+          [191650, 0.33],
+          [416700, 0.35],
+          [418400, 0.396]
+        ],
+        "married": [
+          [0, 0.1],
+          [18650, 0.15],
+          [75900, 0.25],
+          [153100, 0.28],
+          [233350, 0.33],
+          [416700, 0.35],
+          [470750, 0.396]
+        ]
+      },
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 6300,
+            "married": 12600
+          }
+        },
+        "personalExemption": {
+          "amount": 4000
+        }
+      },
+      "source": {
+        "name": "Tax Brackets in 2017 - Tax Foundation",
+        "url": "//taxfoundation.org/2017-tax-brackets/"
+      }
+    }
+  }
+}

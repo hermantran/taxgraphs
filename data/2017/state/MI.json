@@ -1,0 +1,20 @@
+{
+  "taxes": {
+    "income": {
+      "rate": 0.0425,
+      "useFederalAGI": true,
+      "deductions": {
+        "personalExemption": {
+          "amount": {
+            "single": 4000,
+            "married": 8000
+          }
+        }
+      },
+      "source": {
+        "name": "State Individual Income Tax Rates and Brackets for 2017 - Tax Foundation",
+        "url": "//taxfoundation.org/state-individual-income-tax-rates-brackets-2017/"
+      }
+    }
+  }
+}

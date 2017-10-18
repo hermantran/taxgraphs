@@ -59,7 +59,7 @@ angular.module('taxApp').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('assets/templates/partials/state-checkboxes.html',
-    "<div><label class=\"valign-top\">States:</label><div class=\"inline-block\"><div class=\"state-options\"><input type=\"checkbox\" name=\"all-states\" id=\"all-states\" ng-click=\"toggleStates(true)\" ng-model=\"false\"><label for=\"all-states\">All</label><input type=\"checkbox\" name=\"no-states\" id=\"no-states\" ng-click=\"toggleStates(false)\" ng-model=\"false\"><label for=\"no-states\">None</label></div></div><div class=\"states pure-g\"><div class=\"pure-u-1-3 pure-u-xl-1-4\" ng-repeat=\"state in states\"><input type=\"checkbox\" id=\"{{ state }}\" name=\"{{ state }}\" ng-model=\"data.states[state]\" ng-click=\"keepUnchecked()\"><label for=\"{{ state }}\">{{ state }}</label></div></div></div>"
+    "<div><label class=\"valign-top\">States:</label><div class=\"inline-block\"><div class=\"state-options\"><input type=\"radio\" name=\"states-selected\" id=\"all-states\" ng-click=\"toggleStates(true)\"><label for=\"all-states\">All</label><input type=\"radio\" name=\"states-selected\" id=\"no-states\" ng-click=\"toggleStates(false)\"><label for=\"no-states\">None</label></div></div><div class=\"states pure-g\"><div class=\"pure-u-1-3 pure-u-xl-1-4\" ng-repeat=\"state in states\"><input type=\"checkbox\" id=\"{{ state }}\" name=\"{{ state }}\" ng-model=\"data.states[state]\" ng-click=\"keepUnchecked()\"><label for=\"{{ state }}\">{{ state }}</label></div></div></div>"
   );
 
 

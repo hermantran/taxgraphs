@@ -1,0 +1,53 @@
+{
+  "taxes": {
+    "income": {
+      "rate": {
+        "single": [
+          [0, 0.04],
+          [8500, 0.045],
+          [11700, 0.0525],
+          [13900, 0.059],
+          [21400, 0.0645],
+          [80650, 0.0665],
+          [215400, 0.0685],
+          [1077550, 0.0882]
+        ],
+        "married": [
+          [0, 0.04],
+          [17150, 0.045],
+          [23600, 0.0525],
+          [27900, 0.059],
+          [43000, 0.0645],
+          [161550, 0.0665],
+          [323200, 0.0685],
+          [2155350, 0.0882]
+        ]
+      },
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 8000,
+            "married": 16050
+          }
+        },
+        "dependents": {
+          "amount": 1000
+        }
+      },
+      "source": {
+        "name": "State Individual Income Tax Rates and Brackets for 2017 - Tax Foundation",
+        "url": "//taxfoundation.org/state-individual-income-tax-rates-brackets-2017/"
+      }
+    },
+    "stateDisabilityInsurance": {
+      "rate": [
+        [0, 0.005],
+        [6240, 0]
+      ],
+      "source": {
+        "name": "Payroll Taxes - New York State Tax Information",
+        "url": "//www.payroll-taxes.com/state-tax/new-york"
+      }
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "taxes": {
+    "stateDisabilityInsurance": {
+      "rate": [
+        [0, 0.009],
+        [110902, 0]
+      ],
+      "source": {
+        "name": "State of California - Employment Development Department",
+        "url": "//www.edd.ca.gov/Payroll_Taxes/Rates_-_Historical.htm#UIETT2016"
+      }
+    },
+    "mentalHealthServices": {
+      "rate": [
+        [0, 0],
+        [1000000, 0.01]
+      ],
+      "source": {
+        "name": "Mental Health Services Act (MHSA)",
+        "url": "//www.dhcs.ca.gov/services/mh/Pages/MH_Prop63.aspx"
+      }
+    },
+    "income": {
+      "rate": {
+        "single": [
+          [0, 0.01],
+          [8015, 0.02],
+          [19001, 0.04],
+          [29989, 0.06],
+          [41629, 0.08],
+          [52612, 0.093],
+          [268750, 0.103],
+          [322499, 0.113],
+          [537498, 0.123],
+          [1000000, 0.133]
+        ],
+        "married": [
+          [0, 0.01],
+          [16030, 0.02],
+          [38002, 0.04],
+          [59978, 0.06],
+          [83258, 0.08],
+          [105224, 0.093],
+          [537500, 0.103],
+          [644998, 0.113],
+          [1000000, 0.123],
+          [1074996, 0.133]
+        ]
+      },
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 4129,
+            "married": 8258
+          }
+        },
+        "personalExemption": {
+          "amount": {
+            "single": 111,
+            "married": 222
+          },
+          "phaseout": {
+            "single": {
+              "start": 178706,
+              "step": 2500,
+              "reduction": 6,
+              "minimum": 0
+            },
+            "married": {
+              "start": 357417,
+              "step": 2500,
+              "reduction": 12,
+              "minimum": 0
+            }
+          }
+        },
+        "dependents": {
+          "amount": 344,
+          "phaseout": {
+            "single": {
+              "start": 178706,
+              "step": 2500,
+              "reduction": 6,
+              "minimum": 0
+            },
+            "married": {
+              "start": 357417,
+              "step": 2500,
+              "reduction": 12,
+              "minimum": 0
+            }
+          }
+        }
+      },
+      "source": {
+        "name": "State Individual Income Tax Rates and Brackets for 2017 - Tax Foundation",
+        "url": "//taxfoundation.org/state-individual-income-tax-rates-brackets-2017/"
+      }
+    }
+  }
+}

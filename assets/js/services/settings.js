@@ -4,14 +4,14 @@
 module.exports = function(localStorageService) {
   var service = {};
 
-  service.key = 'taxGraphsSettings';
+  service.key = 'taxGraphsAppSettings';
   service.get = get;
   service.set = set;
 
   var defaults = {
     stateBreakdownData: {
       state: 'CA',
-      year: '2015',
+      year: '2017',
       status: 'single',
       deductions: {
         federal: {
@@ -42,7 +42,7 @@ module.exports = function(localStorageService) {
         NY: true,
         TX: true
       },
-      year: '2015',
+      year: '2017',
       status: 'single',
       deductions: {
         federal: {
@@ -65,7 +65,7 @@ module.exports = function(localStorageService) {
     },
     takeHomePayData: {
       state: 'CA',
-      year: '2015',
+      year: '2017',
       deductions: {
         itemized: 0,
         federal: {

@@ -310,7 +310,11 @@ function taxService(_) {
       return deduction;
     }
     else if (_.isPlainObject(deduction)) {
-      return deduction[filingStatus];
+      return calcDeduction(deduction[filingStatus], filingStatus);
+    }
+    // TODO: apply deduction phase-outs
+    else if (_.isArray(deduction)) {
+      return deduction[0][1];
     }
   }
 

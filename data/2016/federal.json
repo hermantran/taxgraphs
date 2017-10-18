@@ -1,0 +1,67 @@
+{
+  "taxes": {
+    "medicare": {
+      "rate": {
+        "single": [
+          [0, 0.0145],
+          [200000, 0.0235]
+        ],
+        "married": [
+          [0, 0.0145],
+          [250000, 0.0235]
+        ]
+      },
+      "source": {
+        "name": "Social Security Press Office: 2016 Social Security Changes",
+        "url": "//www.ssa.gov/news/press/factsheets/colafacts2016.html"
+      }
+    },
+    "socialSecurity": {
+      "rate": [
+        [0, 0.062],
+        [118500, 0]
+      ],
+      "source": {
+        "name": "Social Security Press Office: 2016 Social Security Changes",
+        "url": "//www.ssa.gov/news/press/factsheets/colafacts2016.html"
+      }
+    },
+    "federalIncome": {
+      "rate": {
+        "single": [
+          [0, 0.1],
+          [9275, 0.15],
+          [37650, 0.25],
+          [91150, 0.28],
+          [190150, 0.33],
+          [413350, 0.35],
+          [415050, 0.396]
+        ],
+        "married": [
+          [0, 0.1],
+          [18550, 0.15],
+          [75300, 0.25],
+          [151900, 0.28],
+          [231450, 0.33],
+          [413350, 0.35],
+          [466950, 0.396]
+        ]
+      },
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 6300,
+            "married": 12600
+          }
+        },
+        "personalExemption": {
+          "amount": 4050
+        }
+      },
+      "source": {
+        "name": "Tax Brackets in 2016 - Tax Foundation",
+        "url": "//taxfoundation.org/2016-tax-brackets/"
+      }
+    }
+  }
+}

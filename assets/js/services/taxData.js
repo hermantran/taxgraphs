@@ -10,7 +10,7 @@ function taxData($http, $q, $filter, TAX_API, taxService) {
   service.deductions = [];
   service.years = [];
   service.taxTypes = ['effective', 'marginal'];
-  service.year = '2015';
+  service.year = '2017';
   service.get = get;
   service.fetch = fetch;
   service.fillMetadata = fillMetadata;

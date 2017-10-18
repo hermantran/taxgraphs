@@ -2,11 +2,10 @@
   <label class="valign-top">States:</label>
   <div class="inline-block">
     <div class="state-options">
-      <input type="checkbox" name="all-states" id="all-states" 
-      ng-click="toggleStates(true)" ng-model="false">
+      <input type="radio" name="states-selected" id="all-states" ng-click="toggleStates(true)">
       <label for="all-states">All</label>
 
-      <input type="checkbox" name="no-states" id="no-states" ng-click="toggleStates(false)" ng-model="false">
+      <input type="radio" name="states-selected" id="no-states" ng-click="toggleStates(false)">
       <label for="no-states">None</label>
     </div>
   </div>

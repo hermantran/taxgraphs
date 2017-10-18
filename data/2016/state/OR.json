@@ -1,0 +1,41 @@
+{
+  "taxes": {
+    "income": {
+      "rate": {
+        "single": [
+          [0, 0.05],
+          [3350, 0.07],
+          [8400, 0.09],
+          [125000, 0.099]
+        ],
+        "married": [
+          [0, 0.05],
+          [6500, 0.07],
+          [16300, 0.09],
+          [250000, 0.099]
+        ]
+      },
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 2145,
+            "married": 4295
+          }
+        },
+        "personalExemption": {
+          "amount": {
+            "single": 195,
+            "married": 390
+          }
+        },
+        "dependents": {
+          "amount": 195
+        }
+      },
+      "source": {
+        "name": "State Individual Income Tax Rates and Brackets for 2016 - Tax Foundation",
+        "url": "//taxfoundation.org/state-individual-income-tax-rates-and-brackets-2016/"
+      }
+    }
+  }
+}

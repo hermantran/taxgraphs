@@ -35,7 +35,10 @@
           }
         },
         "personalExemption": {
-          "amount": 1500
+          "amount": {
+            "single": 1500,
+            "married": 3000
+          }
         },
         "dependents": {
           "amount": [

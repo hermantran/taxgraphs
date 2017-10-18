@@ -1,0 +1,21 @@
+{
+  "taxes": {
+    "income": {
+      "rate": 0,
+      "source": {
+        "name": "State Individual Income Tax Rates and Brackets for 2017 - Tax Foundation",
+        "url": "//taxfoundation.org/state-individual-income-tax-rates-brackets-2017/"
+      }
+    },
+    "employmentSecurity": {
+      "rate": [
+        [0, 0.005],
+        [39800, 0]
+      ],
+      "source": {
+        "name": "Alaska Department of Labor",
+        "url": "//labor.alaska.gov/estax/faq/w1.htm"
+      }
+    }
+  }
+}

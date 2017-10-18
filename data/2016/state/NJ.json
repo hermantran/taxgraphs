@@ -1,0 +1,69 @@
+{
+  "taxes": {
+    "income": {
+      "rate": {
+        "single": [
+          [0, 0.014],
+          [20000, 0.0175],
+          [35000, 0.035],
+          [40000, 0.05525],
+          [75000, 0.0637],
+          [500000, 0.0897]
+        ],
+        "married": [
+          [0, 0.014],
+          [20000, 0.0175],
+          [50000, 0.0245],
+          [70000, 0.035],
+          [80000, 0.05525],
+          [150000, 0.0637]
+        ]
+      },
+      "deductions": {
+        "personalExemption": {
+          "amount": {
+            "single": 1000,
+            "married": 2000
+          }
+        },
+        "dependents": {
+          "amount": 1500
+        }
+      },
+      "source": {
+        "name": "State Individual Income Tax Rates and Brackets for 2016 - Tax Foundation",
+        "url": "//taxfoundation.org/state-individual-income-tax-rates-and-brackets-2016/"
+      }
+    },
+    "unemploymentInsurance": {
+      "rate": [
+        [0, 0.003825],
+        [33500, 0]
+      ],
+      "source": {
+        "name": "State of New Jersey - Department of Labor and Workforce Development",
+        "url": "//lwd.dol.state.nj.us/labor/ea/rates/ea2017.html"
+      }
+    },
+    "disabilityInsurance": {
+      "rate": [
+        [0, 0.0024],
+        [33500, 0]
+      ],
+      "source": {
+        "name": "State of New Jersey - Department of Labor and Workforce Development",
+        "url": "//lwd.dol.state.nj.us/labor/ea/rates/ea2017.html"
+      }
+    },
+    "familyLeaveInsurance": {
+      "rate": [
+        [0, 0.001],
+        [33500, 0]
+      ],
+      "source": {
+        "name": "State of New Jersey - Department of Labor and Workforce Development",
+        "url": "//lwd.dol.state.nj.us/labor/ea/rates/ea2017.html"
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "taxes": {
+    "income": {
+      "rate": 0.0463,
+      "useFederalAGI": true,
+      "source": {
+        "name": "State Individual Income Tax Rates and Brackets for 2016 - Tax Foundation",
+        "url": "//taxfoundation.org/state-individual-income-tax-rates-and-brackets-2016/"
+      }
+    }
+  }
+}
