@@ -24,6 +24,8 @@ function taxService(_) {
         }
       }
     }
+
+    return taxes;
   }
 
   function preprocessRateProp(rate) {
