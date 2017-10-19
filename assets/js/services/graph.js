@@ -1,7 +1,7 @@
 'use strict';
 
 /* @ngInject */
-function graph(d3, _, screenService, saveService) {
+function graph(d3, _, screenService) {
   var service = {};
 
   function createSelector(string) {
@@ -646,10 +646,6 @@ function graph(d3, _, screenService, saveService) {
       dataEl.appendChild(service.tooltips[textPos[0].i].node());
       dataEl.appendChild(service.tooltips[textPos[len].i].node());
     }
-  };
-
-  service.save = function() {
-    saveService.saveSvgAsPng(service.svg.node(), 'graph.png');
   };
 
   service.removeRenderedData = function() {
