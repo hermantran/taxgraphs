@@ -47,6 +47,11 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
     return $filter('percentage')(rate, 2);
   }
 
+  function formatDeductions() {
+    var deductions = $scope.data.deductions;
+    deductions.state.income = deductions.federal.federalIncome;
+  }
+
   function updateGraphText(year, status) {
     var data = $scope.data,
         hasDeduction = data.deductions.federal.federalIncome.standardDeduction,
@@ -80,6 +85,7 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
       xMax = Math.pow(10, Math.ceil(Math.log10(xMax)));
     }
 
+    formatDeductions();
     graph.clear();
     graph.update($scope.settings);
 

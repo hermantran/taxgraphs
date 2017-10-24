@@ -2,7 +2,7 @@
   "taxes": {
     "income": {
       "rate": 0.0375,
-      "useFederalAGI": true,
+      "useFederalTaxableIncome": true,
       "deductions": {
         "personalExemption": {
           "amount": {

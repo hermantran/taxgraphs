@@ -1,7 +1,7 @@
 'use strict';
 
 /* @ngInject */
-function taxData($http, $q, $filter, TAX_API, taxService) {
+function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
   var service = {},
       splitCamelCase = $filter('splitCamelCase');
 
@@ -9,8 +9,7 @@ function taxData($http, $q, $filter, TAX_API, taxService) {
   service.filingStatuses = [];
   service.deductions = [];
   service.years = [];
-  service.taxTypes = ['effective', 'marginal'];
-  service.year = '2017';
+  service.year = TAX_YEAR;
   service.get = get;
   service.fetch = fetch;
   service.fillMetadata = fillMetadata;
@@ -155,7 +154,7 @@ function taxData($http, $q, $filter, TAX_API, taxService) {
       deductionValues = deductionSettings.federal[taxName];
       taxes.push({
         name: tax.name,
-        rate: getModifiedTaxBracket(tax, status, deductionValues),
+        rate: getModifiedTaxBracket(tax, year, status, deductionValues),
         source: tax.source
       });
     }
@@ -165,7 +164,7 @@ function taxData($http, $q, $filter, TAX_API, taxService) {
       deductionValues = deductionSettings.state[taxName];
       taxes.push({
         name: tax.name,
-        rate: getModifiedTaxBracket(tax, status, deductionValues),
+        rate: getModifiedTaxBracket(tax, year, status, deductionValues),
         source: tax.source
       });
     }
@@ -173,34 +172,17 @@ function taxData($http, $q, $filter, TAX_API, taxService) {
     return taxes;
   }
 
-  function getAllRates(state, year, status, deductionSettings) {
-    var federalTaxes = getFederalTaxes(year),
-        stateTaxes = getStateTaxes(state, year),
-        taxes = [],
-        taxName,
-        tax,
-        deductionValues;
-
-    for (taxName in federalTaxes) {
-      tax = federalTaxes[taxName];
-      deductionValues = deductionSettings.federal[taxName];
-      taxes.push(getModifiedTaxBracket(tax, status, deductionValues));
-    }
-
-    for (taxName in stateTaxes) {
-      tax = stateTaxes[taxName];
-      deductionValues = deductionSettings.state[taxName];
-      taxes.push(getModifiedTaxBracket(tax, status, deductionValues));
-    }
-
-    return taxes;
+  function getAllRates() {
+    return getAllTaxes.apply(service, arguments).map(function(tax) {
+      return tax.rate;
+    });
   }
 
-  function getModifiedTaxBracket(tax, status, deductionValues) {
+  function getModifiedTaxBracket(tax, year, status, deductionValues) {
     var deductions = tax.deductions,
         deductionsUsed = [];
 
-    if (!deductions) {
+    if (!deductions && !tax.useFederalTaxableIncome) {
       return tax.rate;
     }
 
@@ -212,6 +194,15 @@ function taxData($http, $q, $filter, TAX_API, taxService) {
 
     if (deductionValues.itemized > 0) {
       deductionsUsed.push(deductionValues.itemized);
+    }
+
+    if (tax.useFederalTaxableIncome) {
+      deductions = getFederalTaxes(year).federalIncome.deductions;
+      for (deduction in deductions) {
+        if (deductionValues[deduction]) {
+          deductionsUsed.push(deductions[deduction].amount);
+        }
+      }
     }
 
     return taxService.modifyTaxBracket(tax.rate, status, deductionsUsed);

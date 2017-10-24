@@ -1,7 +1,8 @@
 'use strict';
 
 /* @ngInject */
-module.exports = function(APP_NAME, APP_VERSION, localStorageService, _) {
+module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
+ localStorageService, _) {
   var service = {};
 
   service.key = APP_NAME + 'Settings' + APP_VERSION;
@@ -26,7 +27,7 @@ module.exports = function(APP_NAME, APP_VERSION, localStorageService, _) {
   var defaults = {
     stateBreakdownData: {
       state: 'CA',
-      year: '2017',
+      year: TAX_YEAR,
       status: 'single',
       deductions: {
         federal: {
@@ -58,7 +59,7 @@ module.exports = function(APP_NAME, APP_VERSION, localStorageService, _) {
         NY: true,
         TX: true
       },
-      year: '2017',
+      year: TAX_YEAR,
       status: 'single',
       deductions: {
         federal: {
@@ -82,17 +83,18 @@ module.exports = function(APP_NAME, APP_VERSION, localStorageService, _) {
     },
     takeHomePayData: {
       state: 'CA',
-      year: '2017',
+      year: TAX_YEAR,
       deductions: {
-        itemized: 0,
         federal: {
           federalIncome: {
+            itemized: 0,
             standardDeduction: true,
             personalExemption: true
           }
         },
         state: {
           income: {
+            itemized: 0,
             standardDeduction: true,
             personalExemption: true
           }

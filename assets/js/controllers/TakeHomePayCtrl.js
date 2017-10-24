@@ -40,17 +40,25 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph,
     ].join(' ');
   }
 
+  function formatDeductions() {
+    var deductions = $scope.data.deductions;
+    deductions.state.income = deductions.federal.federalIncome;
+  }
+
   function formatItemized() {
-    var itemized = parseInt($scope.data.itemized, 10);
+    var deductions = $scope.data.deductions,
+        itemized = parseInt(deductions.itemized, 10);
+
     itemized = isNaN(itemized) ? 0 : itemized;
-    $scope.data.deductions.itemized = itemized;
+    deductions.federal.federalIncome.itemized = itemized;
+    deductions.state.income.itemized = itemized;
 
     return itemized;
   }
 
   function updateGraphText(state, year) {
     var data = $scope.data,
-        itemized = data.itemized,
+        itemized = data.deductions.itemized,
         hasDeduction = data.deductions.federal.federalIncome.standardDeduction,
         primaryTitle,
         secondaryTitle;
@@ -81,9 +89,10 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph,
       xMax = Math.pow(10, Math.ceil(Math.log10(xMax)));
     }
 
+    formatDeductions();
+    formatItemized();
     graph.clear();
     graph.update($scope.settings);
-    formatItemized();
 
     for (var status in graphLines) {
       if (graphLines[status]) {
