@@ -11,6 +11,19 @@ function taxService(_) {
       RATE = 1,
       MAX_TAX = 2;
 
+  service.preprocessTaxes = preprocessTaxes;
+  service.calcTax = calcTax;
+  service.calcMarginalTax = calcMarginalTax;
+  service.calcTotalMarginalTaxBrackets = calcTotalMarginalTaxBrackets;
+  service.calcMarginalTaxRate = calcMarginalTaxRate;
+  service.calcEffectiveTaxRate = calcEffectiveTaxRate;
+  service.calcDeduction = calcDeduction;
+  service.calcTotalDeduction = calcTotalDeduction;
+  service.createMarginalTaxData = createMarginalTaxData;
+  service.createEffectiveTaxData = createEffectiveTaxData;
+  service.createTakeHomePayData = createTakeHomePayData;
+  service.modifyTaxBracket = modifyTaxBracket;
+
   function preprocessTaxes(taxes, rateProp) {
     rateProp = rateProp || 'rate';
 
@@ -187,6 +200,8 @@ function taxService(_) {
         twoThirdPoint,
         effectiveTaxRate;
 
+    max = parseInt(max, 10);
+
     var lastPoint = {
       x: max,
       y: calcTax(tax, max, filingStatus) / max
@@ -350,19 +365,6 @@ function taxService(_) {
 
     return copy;
   }
-
-  service.preprocessTaxes = preprocessTaxes;
-  service.calcTax = calcTax;
-  service.calcMarginalTax = calcMarginalTax;
-  service.calcTotalMarginalTaxBrackets = calcTotalMarginalTaxBrackets;
-  service.calcMarginalTaxRate = calcMarginalTaxRate;
-  service.calcEffectiveTaxRate = calcEffectiveTaxRate;
-  service.calcDeduction = calcDeduction;
-  service.calcTotalDeduction = calcTotalDeduction;
-  service.createMarginalTaxData = createMarginalTaxData;
-  service.createEffectiveTaxData = createEffectiveTaxData;
-  service.createTakeHomePayData = createTakeHomePayData;
-  service.modifyTaxBracket = modifyTaxBracket;
 
   return service;
 }

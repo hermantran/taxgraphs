@@ -1,6 +1,6 @@
 {
   "name": "taxgraphs",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Visualization of US individual income tax rates",
   "author": "Herman Tran <hermanctran@gmail.com>",
   "license": "MIT",
@@ -15,6 +15,9 @@
     "graph",
     "visualization"
   ],
+  "engines": {
+    "node": "4.4.7"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/hermantran/taxgraphs.git"

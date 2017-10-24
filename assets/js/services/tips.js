@@ -1,11 +1,11 @@
 'use strict';
 
 /* @ngInject */
-function tips(localStorageService) {
+function tips(APP_NAME, APP_VERSION, localStorageService) {
   var service = {},
       list;
 
-  service.key = 'taxGraphsAppTips';
+  service.key = APP_NAME + 'Tips' + APP_VERSION;
 
   if (!localStorageService.get(service.key)) {
     list = [

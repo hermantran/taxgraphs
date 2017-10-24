@@ -4,16 +4,14 @@
 function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
  settings) {
   $scope.key = 'stateComparisonData';
-  $scope.settings = graph.settings;
-  $scope.colors = graph.colors;
-  $scope.animationTimes = graph.animationTimes;
+  $scope.colors = settings.colors;
+  $scope.animationTimes = settings.animationTimes;
+  $scope.xAxisScales = settings.xAxisScales;
   $scope.years = taxData.years;
   $scope.states = taxData.states;
   $scope.filingStatuses = taxData.filingStatuses;
   $scope.deductions = taxData.deductions;
-  $scope.toggleState = false;
   $scope.toggleStates = toggleStates;
-  $scope.keepUnchecked = keepUnchecked;
   $scope.drawGraph = drawGraph;
 
   taxData.get().then(init);
@@ -26,6 +24,7 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
 
   function setData() {
     $scope.data = settings.get($scope.key);
+    $scope.settings = $scope.data.graph;
   }
 
   function toggleStates(bool) {
@@ -34,10 +33,6 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
       state = $scope.states[i];
       $scope.data.states[state] = bool;
     }
-  }
-
-  function keepUnchecked() {
-    $scope.toggleState = false;
   }
 
   function createTaxRateFn(tax, status, isEffective) {
@@ -65,7 +60,7 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
       (hasDeduction ? ' Standard Deduction' : 'no deductions')
     ].join(' ');
     graph.updateTitle(primaryTitle, secondaryTitle);
-    graph.updateAxisLabels('Gross Income', 'Percent');
+    graph.updateAxisLabels('Adjusted Gross Income', 'Percent');
   }
 
   function drawGraph() {
@@ -79,6 +74,11 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
         rates;
 
     xMax = isNaN(xMax) ? graph.defaults.xMax : xMax;
+
+    if ($scope.settings.xAxisScale === settings.xAxisScales.log) {
+      $scope.settings.xMin = Math.max($scope.settings.xMin, 1);
+      xMax = Math.pow(10, Math.ceil(Math.log10(xMax)));
+    }
 
     graph.clear();
     graph.update($scope.settings);

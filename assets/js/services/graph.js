@@ -1,32 +1,12 @@
 'use strict';
 
 /* @ngInject */
-function graph(d3, _, screenService) {
+function graph(d3, _, screenService, settings) {
   var service = {};
 
   function createSelector(string) {
     return '.' + string.split(' ').join('.');
   }
-
-  service.colors = {
-    blue: [
-      'steelblue'
-    ],
-    multi: [
-      '#654B6B',
-      '#6EAE41',
-      '#C950CA',
-      '#BE4C3B',
-      '#4CA086',
-      '#55612C',
-      '#C28D39',
-      '#C65583',
-      '#7597C2',
-      '#856EC7'
-    ]
-  };
-
-  service.animationTimes = [0, 1000, 2000, 3000];
 
   service.classes = {
     controls: 'controls',
@@ -56,16 +36,21 @@ function graph(d3, _, screenService) {
     service.selectors[prop] = createSelector(service.classes[prop]);
   }
 
-  service.settings = {
-    xMin: 0,
-    xMax: 300000,
-    yMin: 0,
-    yMax: 60,
-    animationTime: 2000,
-    colors: service.colors.multi
-  };
+  service.settings = _.cloneDeep(settings.graphDefaults);
+  service.defaults = _.cloneDeep(settings.graphDefaults);
 
-  service.defaults = _.cloneDeep(service.settings);
+  service.colors = [
+    '#654B6B',
+    '#6EAE41',
+    '#C950CA',
+    '#BE4C3B',
+    '#4CA086',
+    '#55612C',
+    '#C28D39',
+    '#C65583',
+    '#7597C2',
+    '#856EC7'
+  ];
 
   service.init = function(settings) {
     if (service.hasInited) {
@@ -184,17 +169,28 @@ function graph(d3, _, screenService) {
       format = d3.format('$0,000');
     }
 
-    service.x = d3.scale.linear()
-      .domain([service.settings.xMin, service.settings.xMax])
-      .range([0, service.w]);
+    if (service.settings.xAxisScale === settings.xAxisScales.log) {
+      service.x = d3.scale.log()
+        .domain([service.settings.xMin + 1, service.settings.xMax])
+        .range([0, service.w])
+        .nice();
 
-    service.xAxis = d3.svg.axis()
-      .scale(service.x)
-      .ticks(ticks)
-      .tickSize(-service.h, 0)
-      .tickFormat(format)
-      .tickPadding(10)
-      .orient('bottom');
+      service.xAxis = d3.svg.axis()
+        .scale(service.x)
+        .orient('bottom');
+    } else {
+      service.x = d3.scale.linear()
+        .domain([service.settings.xMin, service.settings.xMax])
+        .range([0, service.w]);
+
+      service.xAxis = d3.svg.axis()
+        .scale(service.x)
+        .ticks(ticks)
+        .tickSize(-service.h, 0)
+        .tickFormat(format)
+        .tickPadding(10)
+        .orient('bottom');
+    }
 
     service.controls.selectAll(service.selectors.xAxis).remove();
 
@@ -266,6 +262,7 @@ function graph(d3, _, screenService) {
 
   service.update = function(settings) {
     if (settings.xMax) {
+      service.settings.xAxisScale = settings.xAxisScale;
       service.updateXAxis(settings.xMax);
     }
 
@@ -273,7 +270,7 @@ function graph(d3, _, screenService) {
       service.updateYAxis(settings.yMax);
     }
 
-    if (settings.animationTime) {
+    if (settings.animationTime != null) {
       service.updateAnimationTime(settings.animationTime);
     }
   };
@@ -283,6 +280,10 @@ function graph(d3, _, screenService) {
     // Don't draw lines that start at y = 0 and end at y = 0
     if (data[0].y === 0 && data[data.length - 1].y === 0) {
       return;
+    }
+
+    if (service.settings.xAxisScale === settings.xAxisScales.log) {
+      data[0].x = 1;
     }
     
     service.lines.push(line);
@@ -344,7 +345,7 @@ function graph(d3, _, screenService) {
     var path = service.data.append('svg:path')
       .attr('class', service.classes.line)
       .attr('fill', 'none')
-      .attr('stroke', service.settings.colors[service.colorIndex])
+      .attr('stroke', service.colors[service.colorIndex])
       .attr('d', line(data));
 
     if (service.settings.animationTime > 100) {
@@ -372,7 +373,7 @@ function graph(d3, _, screenService) {
 
     tooltip.append('circle')
       .attr('class', service.classes.circle)
-      .attr('fill', service.settings.colors[service.colorIndex])
+      .attr('fill', service.colors[service.colorIndex])
       .attr('r', 4);
 
     tooltip.append('path')
@@ -380,7 +381,7 @@ function graph(d3, _, screenService) {
 
     tooltip.append('path')
       .attr('class', service.classes.tooltipTrim)
-      .attr('stroke', service.settings.colors[service.colorIndex]);
+      .attr('stroke', service.colors[service.colorIndex]);
 
     var text = tooltip.append('text')
       .attr('x', 5)
@@ -405,7 +406,7 @@ function graph(d3, _, screenService) {
   };
 
   service.changeColor = function() {
-    var len = service.settings.colors.length;
+    var len = service.colors.length;
     service.colorIndex = (service.colorIndex + 1) % len;
   };
 
@@ -457,8 +458,8 @@ function graph(d3, _, screenService) {
 
   service.updateHoverLabel = function(xPos) {
     var xChange = Math.abs(xPos - service.hoverLabel.attr('x')),
-        xScale = service.settings.xMax / service.w,
-        xValue = Math.round(xPos * xScale);
+        // http://bl.ocks.org/zoopoetics/7684278
+        xValue = Math.round(service.x.invert(xPos));
 
     if (xChange < 0.5 || xPos > service.w) {
       return;
@@ -476,9 +477,8 @@ function graph(d3, _, screenService) {
   };
 
   service.updateTooltips = function(xPos) {
-    var xScale = service.settings.xMax / service.w,
+    var xValue = Math.round(service.x.invert(xPos)),
         yScale = service.settings.yMax / service.h,
-        xValue = Math.round(xPos * xScale),
         textPos = [],
         textYPos = -34,
         textXPos = 10,

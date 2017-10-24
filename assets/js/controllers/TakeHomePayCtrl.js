@@ -4,9 +4,9 @@
 function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph,
  settings) {
   $scope.key = 'takeHomePayData';
-  $scope.settings = graph.settings;
-  $scope.colors = graph.colors;
-  $scope.animationTimes = graph.animationTimes;
+  $scope.colors = settings.colors;
+  $scope.animationTimes = settings.animationTimes;
+  $scope.xAxisScales = settings.xAxisScales;
   $scope.years = taxData.years;
   $scope.states = taxData.states;
   $scope.filingStatuses = taxData.filingStatuses;
@@ -24,6 +24,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph,
 
   function setData() {
     $scope.data = settings.get($scope.key);
+    $scope.settings = $scope.data.graph;
   }
 
   function createTaxRateFn(tax, filingStatus) {
@@ -60,7 +61,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph,
       (itemized > 0 ? ', $' + itemized + ' Itemized Deduction' : '')
     ].join(' '); 
     graph.updateTitle(primaryTitle, secondaryTitle);
-    graph.updateAxisLabels('Gross Income', 'Percent');
+    graph.updateAxisLabels('Adjusted Gross Income', 'Percent');
   }
 
   function drawGraph() {
@@ -74,6 +75,11 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph,
         total;
 
     xMax = isNaN(xMax) ? graph.defaults.xMax : xMax;
+
+    if ($scope.settings.xAxisScale === settings.xAxisScales.log) {
+      $scope.settings.xMin = Math.max($scope.settings.xMin, 1);
+      xMax = Math.pow(10, Math.ceil(Math.log10(xMax)));
+    }
 
     graph.clear();
     graph.update($scope.settings);

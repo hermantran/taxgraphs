@@ -16,5 +16,7 @@ app.constant('d3', d3)
   .constant('GA_TRACKING_ID', 'UA-55615931-1')
   .constant('TAX_API', 'data/taxes.json?v=' + version)
   .constant('DOMAIN', domain)
+  .constant('APP_NAME', 'taxApp')
+  .constant('APP_VERSION', version)
   .config(routes)
   .run(rootScope);

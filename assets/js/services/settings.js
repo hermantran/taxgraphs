@@ -1,12 +1,27 @@
 'use strict';
 
 /* @ngInject */
-module.exports = function(localStorageService) {
+module.exports = function(APP_NAME, APP_VERSION, localStorageService, _) {
   var service = {};
 
-  service.key = 'taxGraphsAppSettings';
+  service.key = APP_NAME + 'Settings' + APP_VERSION;
   service.get = get;
   service.set = set;
+
+  service.animationTimes = [0, 1000, 2000, 3000];
+  service.xAxisScales = {
+    linear: 'Linear',
+    log: 'Logarithmic'
+  };
+
+  service.graphDefaults = {
+    xAxisScale: service.xAxisScales.linear,
+    xMin: 0,
+    xMax: 300000,
+    yMin: 0,
+    yMax: 60,
+    animationTime: 2000
+  };
 
   var defaults = {
     stateBreakdownData: {
@@ -32,7 +47,8 @@ module.exports = function(localStorageService) {
         marginal: false,
         totalEffective: true,
         totalMarginal: true
-      }
+      },
+      graph: createGraphSettings()
     },
     stateComparisonData: {
       states: {
@@ -61,7 +77,8 @@ module.exports = function(localStorageService) {
       graphLines: {
         effective: true,
         marginal: false
-      }
+      },
+      graph: createGraphSettings()
     },
     takeHomePayData: {
       state: 'CA',
@@ -84,7 +101,8 @@ module.exports = function(localStorageService) {
       graphLines: {
         single: true,
         married: true
-      }
+      },
+      graph: createGraphSettings()
     }
   };
   
@@ -97,6 +115,10 @@ module.exports = function(localStorageService) {
   function set(key, value) {
     cache[key] = value;
     localStorageService.set(service.key, cache);
+  }
+
+  function createGraphSettings() {
+    return Object.assign(_.cloneDeep(service.graphDefaults));
   }
 
   return service;
