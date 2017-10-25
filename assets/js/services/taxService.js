@@ -19,6 +19,8 @@ function taxService(_) {
   service.calcEffectiveTaxRate = calcEffectiveTaxRate;
   service.calcDeduction = calcDeduction;
   service.calcTotalDeduction = calcTotalDeduction;
+  service.createDeductionsData = createDeductionsData;
+  service.createDeductionBracketData = createDeductionBracketData;
   service.createMarginalTaxData = createMarginalTaxData;
   service.createEffectiveTaxData = createEffectiveTaxData;
   service.createTakeHomePayData = createTakeHomePayData;
@@ -345,9 +347,97 @@ function taxService(_) {
     return total;
   }
 
+  function createDeductionBracketData(deduction, filingStatus) {
+    var amount = deduction.amount,
+        phaseout = deduction.phaseout,
+        brackets = [],
+        steps,
+        i;
+
+    if (_.isPlainObject(amount)) {
+      amount = amount[filingStatus];
+    }
+
+    if (_.isPlainObject(phaseout)) {
+      phaseout = phaseout[filingStatus] || phaseout;
+      steps = Math.ceil(amount - phaseout.minimum) / phaseout.reduction;
+      brackets.push([0, amount]);
+      for (i = 1; i <= steps; i++) {
+        brackets.push([
+          phaseout.start + (phaseout.step * i),
+          amount - (phaseout.reduction * i)
+        ]);
+      }
+    }
+    else if (_.isNumber(amount)) {
+      brackets.push([0, amount]);
+    }
+    else if (_.isArray(amount)) {
+      brackets.push.apply(brackets, amount);
+    }
+
+    return brackets;
+  }
+
+  function createDeductionsData(deductions, filingStatus) {
+    if (!deductions.length) {
+      return [];
+    }
+
+    var allBrackets = deductions.map(function(deduction) {
+      return createDeductionBracketData(deduction, filingStatus);
+    });
+
+    var deductionMap = {},
+        incomeSteps = [],
+        currentStep;
+
+    if (allBrackets.length <= 1) {
+      return allBrackets[0];
+    }
+
+    _(allBrackets).forEach(function(brackets) {
+      _(brackets).forEach(function(bracket) {
+        currentStep = bracket[0];
+        deductionMap[currentStep] = 0;
+        incomeSteps.push(currentStep);
+      });
+    });
+
+    incomeSteps = _.uniq(incomeSteps.sort(function(a, b) {
+      return a - b;
+    }), true);
+
+    _(allBrackets).forEach(function(brackets) {
+      var bracketLen = brackets.length;
+      _(brackets).forEach(function(bracket, i) {
+        currentStep = bracket[0];
+        incomeSteps.forEach(function(step) {
+          if (currentStep <= step &&
+            (i >= bracketLen - 1 || brackets[i + 1][0] > step)
+          ) {
+            deductionMap[step] += bracket[1];
+          }
+        });
+      });
+    });
+
+    return Object.keys(deductionMap).map(function(step) {
+      return [parseInt(step, 10), deductionMap[step]];
+    }).sort(function(a, b) {
+      return a[0] - b[0];
+    });
+  }
+
   function modifyTaxBracket(tax, filingStatus, deductions) {
-    var deductionAmount = calcTotalDeduction(deductions, filingStatus),
-        copy = [ [0, 0, 0] ];
+    var deductionsData = createDeductionsData(deductions, filingStatus)
+          .reverse(),
+        copy = [ [0, 0, 0] ],
+        currentDeductionBracket;
+
+    if (!deductionsData.length) {
+      return tax;
+    }
 
     if (_.isNumber(tax)) {
       copy.push([0, tax]);
@@ -359,10 +449,19 @@ function taxService(_) {
       copy.push.apply(copy, _.cloneDeep(tax[filingStatus]));
     }
 
-    for (var i = 1, len = copy.length; i < len; i++) {
-      copy[i][MIN] += deductionAmount;
-    }
+    _(copy).forEach(function(taxBracket, i) {
+      if (i === 0) {
+        return;
+      }
 
+      _(deductionsData).some(function(bracket) {
+        currentDeductionBracket = bracket;
+        return bracket[0] <= taxBracket[MIN];
+      });
+      taxBracket[MIN] += currentDeductionBracket[1];
+    });
+
+    precalcBracketTaxes(copy);
     return copy;
   }
 

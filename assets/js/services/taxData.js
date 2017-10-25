@@ -188,19 +188,19 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
 
     for (var deduction in deductions) {
       if (deductionValues[deduction]) {
-        deductionsUsed.push(deductions[deduction].amount);
+        deductionsUsed.push(deductions[deduction]);
       }
     }
 
     if (deductionValues.itemized > 0) {
-      deductionsUsed.push(deductionValues.itemized);
+      deductionsUsed.push({ amount: deductionValues.itemized });
     }
 
     if (tax.useFederalTaxableIncome) {
       deductions = getFederalTaxes(year).federalIncome.deductions;
       for (deduction in deductions) {
         if (deductionValues[deduction]) {
-          deductionsUsed.push(deductions[deduction].amount);
+          deductionsUsed.push(deductions[deduction]);
         }
       }
     }
