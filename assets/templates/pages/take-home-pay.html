@@ -2,6 +2,7 @@
   <h3>Data</h3>
   <div ng-include="'assets/templates/partials/state-select.html'"></div>
   <div ng-include="'assets/templates/partials/tax-year.html'"></div>
+  <div ng-include="'assets/templates/partials/income-max.html'"></div>
   <div ng-include="'assets/templates/partials/graph-lines.html'" 
     ng-init="graphLines = [
     { id: 'single-income', prop: 'single', label: 'Single Filing Status' },
@@ -9,8 +10,7 @@
     ]">
   </div>
 
-  <h3>Adjustments</h3>
-  <div ng-include="'assets/templates/partials/deductions.html'"></div>
+  <div class="subsection" ng-include="'assets/templates/partials/adjustments.html'"></div>
   <div>
     <label for="itemized" class="valign-top">Itemized <br>Deduction:</label>
     <input type="text" id="itemized" name="itemized" ng-model="data.deductions.itemized">

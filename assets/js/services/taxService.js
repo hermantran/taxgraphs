@@ -24,6 +24,7 @@ function taxService(_) {
   service.createMarginalTaxData = createMarginalTaxData;
   service.createEffectiveTaxData = createEffectiveTaxData;
   service.createTakeHomePayData = createTakeHomePayData;
+  service.modifyDependentsDeduction = modifyDependentsDeduction;
   service.modifyTaxBracket = modifyTaxBracket;
 
   function preprocessTaxes(taxes, rateProp) {
@@ -427,6 +428,26 @@ function taxService(_) {
     }).sort(function(a, b) {
       return a[0] - b[0];
     });
+  }
+
+  function modifyDependentsDeduction(deduction, filingStatus, numDependents) {
+    var copy = _.cloneDeep(deduction),
+        amount = deduction.amount;
+
+    if (_.isPlainObject(amount)) {
+      amount = amount[filingStatus];
+    }
+
+    if (_.isNumber(amount)) {
+      copy.amount = amount * numDependents;
+    }
+    else if (_.isArray(amount)) {
+      copy.amount = amount.map(function(bracket) {
+        return [bracket[0], bracket[1] * numDependents];
+      });
+    }
+
+    return copy;
   }
 
   function modifyTaxBracket(tax, filingStatus, deductions) {

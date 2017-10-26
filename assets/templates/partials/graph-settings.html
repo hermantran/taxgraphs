@@ -1,11 +1,6 @@
 <h3>Settings</h3>
 
 <div>
-  <label for="x-max">X Axis Max ($):</label>
-  <input type="text" id="x-max" name="x-max" ng-model="settings.xMax" required ng-pattern="/^\d+$/">
-</div>
-
-<div>
   <label for="scale">X Axis Scale:</label>
   <select id="scale" name="scale" ng-model="settings.xAxisScale" ng-options="val for (key, val) in xAxisScales"></select>
 </div>

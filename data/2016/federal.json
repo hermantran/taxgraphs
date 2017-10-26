@@ -56,6 +56,9 @@
         },
         "personalExemption": {
           "amount": 4050
+        },
+        "dependents": {
+          "amount": 4050
         }
       },
       "source": {

@@ -100,6 +100,22 @@ describe('taxService', function() {
     });
   });
 
+  describe('modifyDependentsDeduction()', function() {
+    it('modifies a flat dependents deduction correctly', function() {
+      var deduction = { amount: { single: 400, married: 800 } };
+      expect(taxService.modifyDependentsDeduction(deduction, statuses.married, 3)).toEqual({
+        amount: 2400
+      });
+    });
+
+    it('modifies a dependents deduction with simple phaseouts correctly', function() {
+      var deduction = { amount: [[0, 4000], [5000, 2000], [10000, 1000]] };
+      expect(taxService.modifyDependentsDeduction(deduction, statuses.married, 2)).toEqual({
+        amount: [[0, 8000], [5000, 4000], [10000, 2000]]
+      });
+    });
+  });
+
   describe('modifyTaxBracket()', function() {
     it('modifies the tax brackets against the deductions correctly', function() {
       var deductions = [

@@ -178,6 +178,25 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
     });
   }
 
+  function getAppliedDeductions(deductions, deductionValues, status) {
+    var deductionsUsed = [];
+
+    for (var deductionName in deductions) {
+      if (deductionValues[deductionName]) {
+        var deduction = deductions[deductionName];
+
+        if (deductionName === 'dependents') {
+          deduction = taxService.modifyDependentsDeduction(
+            deduction, status, deductionValues.numDependents
+          );
+        }
+        deductionsUsed.push(deduction);
+      }
+    }
+
+    return deductionsUsed;
+  }
+
   function getModifiedTaxBracket(tax, year, status, deductionValues) {
     var deductions = tax.deductions,
         deductionsUsed = [];
@@ -186,11 +205,9 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
       return tax.rate;
     }
 
-    for (var deduction in deductions) {
-      if (deductionValues[deduction]) {
-        deductionsUsed.push(deductions[deduction]);
-      }
-    }
+    deductionsUsed.push.apply(deductionsUsed, 
+      getAppliedDeductions(deductions, deductionValues, status)
+    );
 
     if (deductionValues.itemized > 0) {
       deductionsUsed.push({ amount: deductionValues.itemized });
@@ -198,11 +215,9 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
 
     if (tax.useFederalTaxableIncome) {
       deductions = getFederalTaxes(year).federalIncome.deductions;
-      for (deduction in deductions) {
-        if (deductionValues[deduction]) {
-          deductionsUsed.push(deductions[deduction]);
-        }
-      }
+      deductionsUsed.push.apply(deductionsUsed, 
+        getAppliedDeductions(deductions, deductionValues, status)
+      );
     }
 
     return taxService.modifyTaxBracket(tax.rate, status, deductionsUsed);

@@ -22,8 +22,9 @@
     min-width: 120px;
   }
 
-  input[type="text"] {
-    width: 100px;
+  input[type="text"], select {
+    width: 120px;
+    box-sizing: border-box;
   }
 
   .buttons {
@@ -45,6 +46,10 @@
   }
 }
 
+.section .subsection {
+  margin-top: 15px;
+}
+
 .inline-block {
   div {
     margin: 0 0 3px;
@@ -54,7 +59,7 @@
 .states {
   margin: 5px 0;
   max-height: 120px;
-  overflow: auto;
+  overflow-y: scroll;
 
   > div {
     margin-bottom: 6px;

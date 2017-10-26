@@ -15,6 +15,13 @@ module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
     log: 'Logarithmic'
   };
 
+  service.deductionDefaults = {
+    dependents: 0,
+    itemized: 0,
+    standardDeduction: true,
+    personalExemption: true
+  };
+
   service.graphDefaults = {
     xAxisScale: service.xAxisScales.linear,
     xMin: 0,
@@ -31,16 +38,10 @@ module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
       status: 'single',
       deductions: {
         federal: {
-          federalIncome: {
-            standardDeduction: true,
-            personalExemption: true
-          }
+          federalIncome: createDeductionSettings()
         },
         state: {
-          income: {
-            standardDeduction: true,
-            personalExemption: true
-          }
+          income: createDeductionSettings()
         }
       },
       graphLines: {
@@ -63,16 +64,10 @@ module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
       status: 'single',
       deductions: {
         federal: {
-          federalIncome: {
-            standardDeduction: true,
-            personalExemption: true
-          }
+          federalIncome: createDeductionSettings()
         },
         state: {
-          income: {
-            standardDeduction: true,
-            personalExemption: true
-          }
+          income: createDeductionSettings()
         }
       },
       graphLines: {
@@ -86,18 +81,10 @@ module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
       year: TAX_YEAR,
       deductions: {
         federal: {
-          federalIncome: {
-            itemized: 0,
-            standardDeduction: true,
-            personalExemption: true
-          }
+          federalIncome: createDeductionSettings()
         },
         state: {
-          income: {
-            itemized: 0,
-            standardDeduction: true,
-            personalExemption: true
-          }
+          income: createDeductionSettings()
         }
       },
       graphLines: {
@@ -120,7 +107,11 @@ module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
   }
 
   function createGraphSettings() {
-    return Object.assign(_.cloneDeep(service.graphDefaults));
+    return _.cloneDeep(service.graphDefaults);
+  }
+
+  function createDeductionSettings() {
+    return _.cloneDeep(service.deductionDefaults);
   }
 
   return service;
