@@ -16,10 +16,16 @@ module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
   };
 
   service.deductionDefaults = {
-    dependents: 0,
     itemized: 0,
     standardDeduction: true,
-    personalExemption: true
+    personalExemption: true,
+    dependents: false,
+    numDependents: 0
+  };
+
+  service.creditDefaults = {
+    retirementSavers: false,
+    retirementContribution: 0
   };
 
   service.graphDefaults = {
@@ -36,14 +42,8 @@ module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
       state: 'CA',
       year: TAX_YEAR,
       status: 'single',
-      deductions: {
-        federal: {
-          federalIncome: createDeductionSettings()
-        },
-        state: {
-          income: createDeductionSettings()
-        }
-      },
+      deductions: createDeductionSettings(),
+      credits: createCreditSettings(),
       graphLines: {
         effective: true,
         marginal: false,
@@ -62,14 +62,8 @@ module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
       },
       year: TAX_YEAR,
       status: 'single',
-      deductions: {
-        federal: {
-          federalIncome: createDeductionSettings()
-        },
-        state: {
-          income: createDeductionSettings()
-        }
-      },
+      deductions: createDeductionSettings(),
+      credits: createCreditSettings(),
       graphLines: {
         effective: true,
         marginal: false
@@ -79,14 +73,8 @@ module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
     takeHomePayData: {
       state: 'CA',
       year: TAX_YEAR,
-      deductions: {
-        federal: {
-          federalIncome: createDeductionSettings()
-        },
-        state: {
-          income: createDeductionSettings()
-        }
-      },
+      deductions: createDeductionSettings(),
+      credits: createCreditSettings(),
       graphLines: {
         single: true,
         married: true
@@ -111,7 +99,25 @@ module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
   }
 
   function createDeductionSettings() {
-    return _.cloneDeep(service.deductionDefaults);
+    return {
+      federal: {
+        federalIncome: _.cloneDeep(service.deductionDefaults)
+      },
+      state: {
+        income: _.cloneDeep(service.deductionDefaults)
+      }
+    };
+  }
+
+  function createCreditSettings() {
+    return {
+      federal: {
+        federalIncome: _.cloneDeep(service.creditDefaults)
+      },
+      state: {
+        income: _.cloneDeep(service.creditDefaults)
+      }
+    };
   }
 
   return service;

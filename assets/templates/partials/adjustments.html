@@ -1,7 +1,7 @@
 <h3>Adjustments</h3>
 
 <div>
-  <label class="valign-top">Deductions:</label>
+  <label class="valign-top">Deductions / <br> Exemptions:</label>
   <div class="inline-block">
     <div ng-repeat="deduction in deductions">
       <input type="checkbox" name="{{ deduction }}" id="{{ deduction }}"
@@ -17,4 +17,20 @@
    ng-options="num as num for num in [0, 1, 2, 3, 4, 5]">
     </option>
   </select>
+</div>
+
+<div>
+  <label class="valign-top">Tax Credits:</label>
+  <div class="inline-block">
+    <div ng-repeat="credit in credits">
+      <input type="checkbox" name="{{ credit }}" id="{{ credit }}"
+       ng-model="data.credits.federal.federalIncome[credit]">
+      <label for="{{ credit }}">{{ credit | splitCamelCase }}</label>
+    </div>
+  </div>
+</div>
+
+<div ng-if="data.credits.federal.federalIncome.retirementSavers">
+  <label class="valign-top" for="retirement-contribution">401k + IRA <br> Contribution:</label>
+  <input type="text" id="retirement-contribution" name="retirement-contribution" ng-model="data.credits.federal.federalIncome.retirementContribution" ng-pattern="/^\d+$/">
 </div>

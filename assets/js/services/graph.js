@@ -293,6 +293,10 @@ function graph(d3, _, screenService, settings) {
     var len = service.lines.length,
         i;
 
+    if (len < 1) {
+      return;
+    }
+
     // Sort from lowest to highest tax rate
     service.lines.sort(function(a, b) {
       var yValueA = a.data[a.data.length - 1].y,

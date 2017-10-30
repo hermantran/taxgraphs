@@ -12,6 +12,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph,
   $scope.filingStatuses = taxData.filingStatuses;
   $scope.stateNames = taxData.stateNames;
   $scope.deductions = taxData.deductions;
+  $scope.credits = taxData.credits;
   $scope.drawGraph = drawGraph;
 
   taxData.get().then(init);
@@ -29,7 +30,9 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph,
 
   function createTaxRateFn(tax, filingStatus) {
     return function(income) {
-      return 1 - taxService.calcEffectiveTaxRate(tax, income, filingStatus);
+      return 1 - taxService.calcTotalEffectiveTaxRate(
+        tax, income, filingStatus
+      );
     };
   }
 
@@ -40,9 +43,12 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph,
     ].join(' ');
   }
 
-  function formatDeductions() {
-    var deductions = $scope.data.deductions;
+  function formatAdjustments() {
+    var deductions = $scope.data.deductions,
+        credits = $scope.data.credits;
+
     deductions.state.income = deductions.federal.federalIncome;
+    credits.state.income = credits.federal.federalIncome;
   }
 
   function formatItemized() {
@@ -69,7 +75,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph,
       (itemized > 0 ? ', $' + itemized + ' Itemized Deduction' : '')
     ].join(' '); 
     graph.updateTitle(primaryTitle, secondaryTitle);
-    graph.updateAxisLabels('Adjusted Gross Income', 'Percent');
+    graph.updateAxisLabels('Gross Income', 'Percent');
   }
 
   function drawGraph() {
@@ -78,7 +84,9 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph,
         xMax = $scope.settings.xMax,
         graphLines = $scope.data.graphLines,
         deductionSettings = $scope.data.deductions,
+        creditSettings = $scope.data.credits,
         capitalize = $filter('capitalize'),
+        taxes,
         rates,
         total;
 
@@ -89,20 +97,25 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph,
       xMax = Math.pow(10, Math.ceil(Math.log10(xMax)));
     }
 
-    formatDeductions();
+    formatAdjustments();
     formatItemized();
     graph.clear();
     graph.update($scope.settings);
 
     for (var status in graphLines) {
       if (graphLines[status]) {
-        rates = taxData.getAllRates(state, year, status, deductionSettings);
+        rates = taxData.getAllRates(
+          state, year, status, deductionSettings, creditSettings
+        );
+        taxes = taxData.getAllTaxes(
+          state, year, status, deductionSettings, creditSettings
+        );
         total = taxService.calcTotalMarginalTaxBrackets(rates, xMax, status);
 
         graph.addLine({
-          data: taxService.createTakeHomePayData(total, xMax),
+          data: taxService.createTakeHomePayData(taxes, total, xMax, status),
           label: 'Net Income - ' + capitalize(status) + ' Status',
-          tooltipFn: createTaxRateFn(total, status, true),
+          tooltipFn: createTaxRateFn(taxes, status, true),
           formattedFn: rateFormatter,
           isInterpolated: true
         });

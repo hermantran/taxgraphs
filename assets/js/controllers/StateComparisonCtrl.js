@@ -11,6 +11,7 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
   $scope.states = taxData.states;
   $scope.filingStatuses = taxData.filingStatuses;
   $scope.deductions = taxData.deductions;
+  $scope.credits = taxData.credits;
   $scope.toggleStates = toggleStates;
   $scope.drawGraph = drawGraph;
 
@@ -35,11 +36,12 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
     }
   }
 
-  function createTaxRateFn(tax, status, isEffective) {
-    var fnProp = isEffective ? 'calcEffectiveTaxRate' : 'calcMarginalTaxRate';
+  function createTaxRateFn(taxes, status, isEffective) {
+    var fnProp = isEffective ? 'calcTotalEffectiveTaxRate' :
+      'calcTotalMarginalTaxRate';
 
     return function(income) {
-      return taxService[fnProp](tax, income, status);
+      return taxService[fnProp](taxes, income, status);
     };
   }
 
@@ -47,9 +49,12 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
     return $filter('percentage')(rate, 2);
   }
 
-  function formatDeductions() {
-    var deductions = $scope.data.deductions;
+  function formatAdjustments() {
+    var deductions = $scope.data.deductions,
+        credits = $scope.data.credits;
+
     deductions.state.income = deductions.federal.federalIncome;
+    credits.state.income = credits.federal.federalIncome;
   }
 
   function updateGraphText(year, status) {
@@ -65,7 +70,7 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
       (hasDeduction ? ' Standard Deduction' : 'no deductions')
     ].join(' ');
     graph.updateTitle(primaryTitle, secondaryTitle);
-    graph.updateAxisLabels('Adjusted Gross Income', 'Percent');
+    graph.updateAxisLabels('Gross Income', 'Percent');
   }
 
   function drawGraph() {
@@ -74,8 +79,10 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
         xMax = $scope.settings.xMax,
         graphLines = $scope.data.graphLines,
         deductionSettings = $scope.data.deductions,
+        creditSettings = $scope.data.credits,
         states = $scope.data.states,
         total,
+        taxes,
         rates;
 
     xMax = isNaN(xMax) ? graph.defaults.xMax : xMax;
@@ -85,20 +92,27 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
       xMax = Math.pow(10, Math.ceil(Math.log10(xMax)));
     }
 
-    formatDeductions();
+    formatAdjustments();
     graph.clear();
     graph.update($scope.settings);
 
     for (var state in states) {
       if (states[state]) {
-        rates = taxData.getAllRates(state, year, status, deductionSettings);
+        rates = taxData.getAllRates(
+          state, year, status, deductionSettings, creditSettings
+        );
+        taxes = taxData.getAllTaxes(
+          state, year, status, deductionSettings, creditSettings
+        );
         total = taxService.calcTotalMarginalTaxBrackets(rates, xMax, status);
 
         if (graphLines.effective) {
           graph.addLine({
-            data: taxService.createEffectiveTaxData(total, xMax), 
+            data: taxService.createTotalEffectiveTaxData(
+              taxes, total, xMax, status
+            ), 
             label: state + ' Effective', 
-            tooltipFn: createTaxRateFn(total, status, true),
+            tooltipFn: createTaxRateFn(taxes, status, true),
             formattedFn: rateFormatter,
             isInterpolated: true
           });
@@ -106,9 +120,11 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph,
 
         if (graphLines.marginal) {
           graph.addLine({
-            data: taxService.createMarginalTaxData(total, xMax), 
+            data: taxService.createTotalMarginalTaxData(
+              taxes, total, xMax, status
+            ),
             label: state + ' Marginal', 
-            tooltipFn: createTaxRateFn(total, status),
+            tooltipFn: createTaxRateFn(taxes, status),
             formattedFn: rateFormatter,
           });
         }

@@ -61,6 +61,30 @@
           "amount": 4000
         }
       },
+      "credits": {
+        "retirementSavers": {
+          "rate": {
+            "single": [
+              [0, 0.5],
+              [18501, 0.2],
+              [20001, 0.1],
+              [31001, 0]
+            ],
+            "married": [
+              [0, 0.5],
+              [37001, 0.2],
+              [40001, 0.1],
+              [62001, 0]
+            ]
+          },
+          "maximum": 2000,
+          "isRefundable": false,
+          "source": {
+            "name": "Retirement Savings Contributions Savers Credit | Internal Revenue Service",
+            "url": "//www.irs.gov/retirement-plans/plan-participant-employee/retirement-savings-contributions-savers-credit"
+          }
+        }
+      },
       "source": {
         "name": "Tax Brackets in 2017 - Tax Foundation",
         "url": "//taxfoundation.org/2017-tax-brackets/"

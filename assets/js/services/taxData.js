@@ -8,6 +8,7 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
   service.states = [];
   service.filingStatuses = [];
   service.deductions = [];
+  service.credits = [];
   service.years = [];
   service.year = TAX_YEAR;
   service.get = get;
@@ -17,6 +18,7 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
   service.getStateTaxes = getStateTaxes;
   service.getAllTaxes = getAllTaxes;
   service.getAllRates = getAllRates;
+  service.getAppliedCredits = getAppliedCredits;
   service.getModifiedTaxBracket = getModifiedTaxBracket;
 
   service.stateNames = {
@@ -111,6 +113,10 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
     for (var deduction in data.federal.taxes.federalIncome.deductions) {
       service.deductions.push(deduction);
     }
+
+    for (var credit in data.federal.taxes.federalIncome.credits) {
+      service.credits.push(credit);
+    }
   }
 
   function getFederalTaxes(year) {
@@ -141,31 +147,38 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
     return taxes;
   }
 
-  function getAllTaxes(state, year, status, deductionSettings) {
+  function getAllTaxes(state, year, status, deductionSettings, creditSettings) {
     var federalTaxes = getFederalTaxes(year),
         stateTaxes = getStateTaxes(state, year),
         taxes = [],
         taxName,
         tax,
-        deductionValues;
+        deductionValues,
+        creditValues;
 
     for (taxName in federalTaxes) {
       tax = federalTaxes[taxName];
       deductionValues = deductionSettings.federal[taxName];
+      creditValues = creditSettings.federal[taxName];
       taxes.push({
         name: tax.name,
-        rate: getModifiedTaxBracket(tax, year, status, deductionValues),
-        source: tax.source
+        rate: getModifiedTaxBracket(
+          tax, year, status, deductionValues, creditValues
+        ),
+        credits: getAppliedCredits(tax.credits, creditValues, status)
       });
     }
 
     for (taxName in stateTaxes) {
       tax = stateTaxes[taxName];
       deductionValues = deductionSettings.state[taxName];
+      creditValues = creditSettings.state[taxName];
       taxes.push({
         name: tax.name,
-        rate: getModifiedTaxBracket(tax, year, status, deductionValues),
-        source: tax.source
+        rate: getModifiedTaxBracket(
+          tax, year, status, deductionValues, creditValues
+        ),
+        credits: getAppliedCredits(tax.credits, creditValues, status)
       });
     }
 
@@ -197,9 +210,35 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
     return deductionsUsed;
   }
 
-  function getModifiedTaxBracket(tax, year, status, deductionValues) {
+  function getAppliedCredits(credits, creditValues, status) {
+    var creditsUsed = [];
+
+    if (!credits) {
+      return null;
+    }
+
+    for (var creditName in credits) {
+      if (creditValues[creditName]) {
+        var credit = credits[creditName];
+
+        if (creditName === 'retirementSavers') {
+          credit = taxService.modifyRetirementSaversCredit(
+            credit, status, creditValues.retirementContribution
+          );
+          creditsUsed.push(credit);
+        }
+      }
+    }
+
+    return creditsUsed;
+  }
+
+  function getModifiedTaxBracket(tax, year, status, deductionValues,
+   creditValues) {
     var deductions = tax.deductions,
-        deductionsUsed = [];
+        credits = tax.credits,
+        deductionsUsed = [],
+        creditsUsed = [];
 
     if (!deductions && !tax.useFederalTaxableIncome) {
       return tax.rate;
@@ -220,7 +259,15 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
       );
     }
 
-    return taxService.modifyTaxBracket(tax.rate, status, deductionsUsed);
+    if (credits) {
+      creditsUsed.push.apply(creditsUsed,
+        getAppliedCredits(credits, creditValues, status)
+      );
+    }
+
+    return taxService.modifyTaxBracket(
+      tax.rate, status, deductionsUsed, creditsUsed
+    );
   }
 
   return service;
