@@ -7,7 +7,8 @@ module.exports = function(grunt) {
       '!assets/js/templates.js'
     ],
     options: {
-      jshintrc: '.jshintrc'
+      jshintrc: '.jshintrc',
+      reporterOutput: '',
     }
   });
 

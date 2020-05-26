@@ -10,6 +10,7 @@ lib-cov
 *.out
 *.pid
 npm-debug.log
+package-lock.json
 
 
 # Miscellaneous
