@@ -1,12 +1,11 @@
-'use strict';
 
-var app = require('../app'),
-    taxService = require('./taxService'),
-    taxData = require('./taxData'),
-    graph = require('./graph'),
-    screenService = require('./screenService'),
-    settings = require('./settings'),
-    tips = require('./tips');
+const app = require('../app');
+const taxService = require('./taxService');
+const taxData = require('./taxData');
+const graph = require('./graph');
+const screenService = require('./screenService');
+const settings = require('./settings');
+const tips = require('./tips');
 
 app.service('taxService', taxService)
   .service('taxData', taxData)

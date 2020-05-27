@@ -1,9 +1,8 @@
-'use strict';
-
+/* eslint-disable no-use-before-define, no-param-reassign */
 /* @ngInject */
 function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
-  var service = {},
-      splitCamelCase = $filter('splitCamelCase');
+  const service = {};
+  const splitCamelCase = $filter('splitCamelCase');
 
   service.states = [];
   service.filingStatuses = [];
@@ -76,7 +75,7 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
   };
 
   function get() {
-    var deferred = $q.defer();
+    const deferred = $q.defer();
 
     if (!service.data) {
       service.fetch(TAX_API, deferred);
@@ -88,165 +87,159 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
   }
 
   function fetch(url, deferred) {
-    $http.get(url).then(function(resp) {
-      service.data = resp.data;
+    $http.get(url).then(({ data }) => {
+      service.data = data;
       service.fillMetadata(service.data);
       deferred.resolve(service.data[service.year]);
     });
   }
 
   function fillMetadata(data) {
-    for (var year in data) {
+    Object.keys(data).forEach((year) => {
       service.years.push(year);
-    }
+    });
 
-    data = data[service.year];
+    const yearData = data[service.year];
 
-    for (var state in data.state) {
+    Object.keys(yearData.state).forEach((state) => {
       service.states.push(state);
-    }
+    });
 
-    for (var filingStatus in data.federal.taxes.federalIncome.rate) {
+    Object.keys(yearData.federal.taxes.federalIncome.rate).forEach((filingStatus) => {
       service.filingStatuses.push(filingStatus);
-    }
+    });
 
-    for (var deduction in data.federal.taxes.federalIncome.deductions) {
+    Object.keys(yearData.federal.taxes.federalIncome.deductions).forEach((deduction) => {
       service.deductions.push(deduction);
-    }
+    });
 
-    for (var credit in data.federal.taxes.federalIncome.credits) {
+    Object.keys(yearData.federal.taxes.federalIncome.credits).forEach((credit) => {
       service.credits.push(credit);
-    }
+    });
   }
 
   function getFederalTaxes(year) {
-    var taxes, tax;
+    let tax;
 
     year = year || service.year;
-    taxes = service.data[year].federal.taxes;
+    const { taxes } = service.data[year].federal;
 
-    for (var taxName in taxes) {
+    Object.keys(taxes).forEach((taxName) => {
       tax = taxes[taxName];
       tax.name = splitCamelCase(taxName);
-    }
+    });
 
     return taxes;
   }
 
   function getStateTaxes(state, year) {
-    var taxes, tax;
+    let tax;
 
     year = year || service.year;
-    taxes = service.data[year].state[state].taxes;
+    const { taxes } = service.data[year].state[state];
 
-    for (var taxName in taxes) {
+    Object.keys(taxes).forEach((taxName) => {
       tax = taxes[taxName];
-      tax.name = state + ' ' + splitCamelCase(taxName);
-    }
+      tax.name = `${state} ${splitCamelCase(taxName)}`;
+    });
 
     return taxes;
   }
 
   function getAllTaxes(state, year, status, deductionSettings, creditSettings) {
-    var federalTaxes = getFederalTaxes(year),
-        stateTaxes = getStateTaxes(state, year),
-        taxes = [],
-        taxName,
-        tax,
-        deductionValues,
-        creditValues;
+    const federalTaxes = getFederalTaxes(year);
+    const stateTaxes = getStateTaxes(state, year);
+    const taxes = [];
+    let tax;
+    let deductionValues;
+    let creditValues;
 
-    for (taxName in federalTaxes) {
+    Object.keys(federalTaxes).forEach((taxName) => {
       tax = federalTaxes[taxName];
       deductionValues = deductionSettings.federal[taxName];
       creditValues = creditSettings.federal[taxName];
       taxes.push({
         name: tax.name,
-        rate: getModifiedTaxBracket(
-          tax, year, status, deductionValues, creditValues
-        ),
-        credits: getAppliedCredits(tax.credits, creditValues, status)
+        rate: getModifiedTaxBracket(tax, year, status, deductionValues, creditValues),
+        credits: getAppliedCredits(tax.credits, creditValues, status),
       });
-    }
+    });
 
-    for (taxName in stateTaxes) {
+    Object.keys(stateTaxes).forEach((taxName) => {
       tax = stateTaxes[taxName];
       deductionValues = deductionSettings.state[taxName];
       creditValues = creditSettings.state[taxName];
       taxes.push({
         name: tax.name,
-        rate: getModifiedTaxBracket(
-          tax, year, status, deductionValues, creditValues
-        ),
-        credits: getAppliedCredits(tax.credits, creditValues, status)
+        rate: getModifiedTaxBracket(tax, year, status, deductionValues, creditValues),
+        credits: getAppliedCredits(tax.credits, creditValues, status),
       });
-    }
+    });
 
     return taxes;
   }
 
-  function getAllRates() {
-    return getAllTaxes.apply(service, arguments).map(function(tax) {
-      return tax.rate;
-    });
+  function getAllRates(...args) {
+    return getAllTaxes(...args).map(({ rate }) => rate);
   }
 
   function getAppliedDeductions(deductions, deductionValues, status) {
-    var deductionsUsed = [];
+    const deductionsUsed = [];
 
-    for (var deductionName in deductions) {
+    Object.keys(deductions).forEach((deductionName) => {
       if (deductionValues[deductionName]) {
-        var deduction = deductions[deductionName];
+        let deduction = deductions[deductionName];
 
         if (deductionName === 'dependents') {
           deduction = taxService.modifyDependentsDeduction(
-            deduction, status, deductionValues.numDependents
+            deduction,
+            status,
+            deductionValues.numDependents,
           );
         }
         deductionsUsed.push(deduction);
       }
-    }
+    });
 
     return deductionsUsed;
   }
 
   function getAppliedCredits(credits, creditValues, status) {
-    var creditsUsed = [];
+    const creditsUsed = [];
 
     if (!credits) {
       return null;
     }
 
-    for (var creditName in credits) {
+    Object.keys(credits).forEach((creditName) => {
       if (creditValues[creditName]) {
-        var credit = credits[creditName];
+        let credit = credits[creditName];
 
         if (creditName === 'retirementSavers') {
           credit = taxService.modifyRetirementSaversCredit(
-            credit, status, creditValues.retirementContribution
+            credit,
+            status,
+            creditValues.retirementContribution,
           );
           creditsUsed.push(credit);
         }
       }
-    }
+    });
 
     return creditsUsed;
   }
 
-  function getModifiedTaxBracket(tax, year, status, deductionValues,
-   creditValues) {
-    var deductions = tax.deductions,
-        credits = tax.credits,
-        deductionsUsed = [],
-        creditsUsed = [];
+  function getModifiedTaxBracket(tax, year, status, deductionValues, creditValues) {
+    let { deductions } = tax;
+    const { credits } = tax;
+    const deductionsUsed = [];
+    const creditsUsed = [];
 
     if (!deductions && !tax.useFederalTaxableIncome) {
       return tax.rate;
     }
 
-    deductionsUsed.push.apply(deductionsUsed, 
-      getAppliedDeductions(deductions, deductionValues, status)
-    );
+    deductionsUsed.push(...getAppliedDeductions(deductions, deductionValues, status));
 
     if (deductionValues.itemized > 0) {
       deductionsUsed.push({ amount: deductionValues.itemized });
@@ -254,20 +247,14 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
 
     if (tax.useFederalTaxableIncome) {
       deductions = getFederalTaxes(year).federalIncome.deductions;
-      deductionsUsed.push.apply(deductionsUsed, 
-        getAppliedDeductions(deductions, deductionValues, status)
-      );
+      deductionsUsed.push(...getAppliedDeductions(deductions, deductionValues, status));
     }
 
     if (credits) {
-      creditsUsed.push.apply(creditsUsed,
-        getAppliedCredits(credits, creditValues, status)
-      );
+      creditsUsed.push(...getAppliedCredits(credits, creditValues, status));
     }
 
-    return taxService.modifyTaxBracket(
-      tax.rate, status, deductionsUsed, creditsUsed
-    );
+    return taxService.modifyTaxBracket(tax.rate, status, deductionsUsed, creditsUsed);
   }
 
   return service;

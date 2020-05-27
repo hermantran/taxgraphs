@@ -1,5 +1,3 @@
-'use strict';
-
 require('./app');
 require('./templates');
 require('./config');

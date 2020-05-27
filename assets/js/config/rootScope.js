@@ -1,8 +1,7 @@
-'use strict';
-
-/* @ngInject */ 
+/* eslint-disable no-param-reassign */
+/* @ngInject */
 function rootScope($rootScope, $location, ga, DOMAIN, GA_TRACKING_ID, tips) {
-  var isProd = $location.absUrl().indexOf(DOMAIN) > -1;
+  const isProd = $location.absUrl().indexOf(DOMAIN) > -1;
 
   if (isProd) {
     ga('create', GA_TRACKING_ID, 'auto');
@@ -11,28 +10,26 @@ function rootScope($rootScope, $location, ga, DOMAIN, GA_TRACKING_ID, tips) {
   $rootScope.tips = tips.list;
   $rootScope.closeTip = tips.close;
 
-  $rootScope.$on('$routeChangeSuccess', function(e, route) {
+  $rootScope.$on('$routeChangeSuccess', (e, route) => {
     $rootScope.activeRoute = $location.path();
     $rootScope.title = route.title;
     $rootScope.hideMobileControls = true;
 
-    $rootScope.isActive = function(route) {
-      return $rootScope.activeRoute === route;
-    };
+    $rootScope.isActive = (newRoute) => $rootScope.activeRoute === newRoute;
 
-    $rootScope.toggleMobileControls = function() {
+    $rootScope.toggleMobileControls = () => {
       $rootScope.hideMobileControls = !$rootScope.hideMobileControls;
     };
 
     if (isProd) {
       ga('send', 'pageview', {
         page: $rootScope.activeRoute,
-        title: $rootScope.title
+        title: $rootScope.title,
       });
     }
   });
 
-  $rootScope.$on('hideMobileControls', function() {
+  $rootScope.$on('hideMobileControls', () => {
     $rootScope.hideMobileControls = true;
   });
 }

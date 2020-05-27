@@ -1,28 +1,25 @@
-'use strict';
-
 /* @ngInject */
 function tips(APP_NAME, APP_VERSION, localStorageService) {
-  var service = {},
-      list;
+  const service = {};
+  let list;
 
-  service.key = APP_NAME + 'Tips' + APP_VERSION;
+  service.key = `${APP_NAME}Tips${APP_VERSION}`;
 
   if (!localStorageService.get(service.key)) {
     list = [
       {
         closed: false,
-        text: 'Hover over or click on the graph to view tax rates ' +
-          'at a specific income.'
-      }
+        text: 'Hover over or click on the graph to view tax rates at a specific income.',
+      },
     ];
     localStorageService.set(service.key, list);
   }
 
   service.list = localStorageService.get(service.key);
 
-  service.close = function(index) {
-    index = parseInt(index, 10);
-    service.list[index].closed = true;
+  service.close = (index) => {
+    const key = parseInt(index, 10);
+    service.list[key].closed = true;
     localStorageService.set(service.key, service.list);
   };
 

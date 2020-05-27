@@ -1,18 +1,16 @@
-'use strict';
-
+/* eslint-disable no-use-before-define */
 /* @ngInject */
-module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
- localStorageService, _) {
-  var service = {};
+module.exports = (APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) => {
+  const service = {};
 
-  service.key = APP_NAME + 'Settings' + APP_VERSION;
+  service.key = `${APP_NAME}Settings${APP_VERSION}`;
   service.get = get;
   service.set = set;
 
   service.animationTimes = [0, 1000, 2000, 3000];
   service.xAxisScales = {
     linear: 'Linear',
-    log: 'Logarithmic'
+    log: 'Logarithmic',
   };
 
   service.deductionDefaults = {
@@ -20,12 +18,12 @@ module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
     standardDeduction: true,
     personalExemption: true,
     dependents: false,
-    numDependents: 0
+    numDependents: 0,
   };
 
   service.creditDefaults = {
     retirementSavers: false,
-    retirementContribution: 0
+    retirementContribution: 0,
   };
 
   service.graphDefaults = {
@@ -34,10 +32,10 @@ module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
     xMax: 300000,
     yMin: 0,
     yMax: 60,
-    animationTime: 2000
+    animationTime: 2000,
   };
 
-  var defaults = {
+  const defaults = {
     stateBreakdownData: {
       state: 'CA',
       year: TAX_YEAR,
@@ -48,9 +46,9 @@ module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
         effective: true,
         marginal: false,
         totalEffective: true,
-        totalMarginal: true
+        totalMarginal: true,
       },
-      graph: createGraphSettings()
+      graph: createGraphSettings(),
     },
     stateComparisonData: {
       states: {
@@ -58,7 +56,7 @@ module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
         IL: true,
         PA: true,
         NY: true,
-        TX: true
+        TX: true,
       },
       year: TAX_YEAR,
       status: 'single',
@@ -66,9 +64,9 @@ module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
       credits: createCreditSettings(),
       graphLines: {
         effective: true,
-        marginal: false
+        marginal: false,
       },
-      graph: createGraphSettings()
+      graph: createGraphSettings(),
     },
     takeHomePayData: {
       state: 'CA',
@@ -77,13 +75,13 @@ module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
       credits: createCreditSettings(),
       graphLines: {
         single: true,
-        married: true
+        married: true,
       },
-      graph: createGraphSettings()
-    }
+      graph: createGraphSettings(),
+    },
   };
-  
-  var cache = localStorageService.get(service.key) || defaults;
+
+  const cache = localStorageService.get(service.key) || defaults;
 
   function get(key) {
     return cache[key];
@@ -101,22 +99,22 @@ module.exports = function(APP_NAME, APP_VERSION, TAX_YEAR,
   function createDeductionSettings() {
     return {
       federal: {
-        federalIncome: _.cloneDeep(service.deductionDefaults)
+        federalIncome: _.cloneDeep(service.deductionDefaults),
       },
       state: {
-        income: _.cloneDeep(service.deductionDefaults)
-      }
+        income: _.cloneDeep(service.deductionDefaults),
+      },
     };
   }
 
   function createCreditSettings() {
     return {
       federal: {
-        federalIncome: _.cloneDeep(service.creditDefaults)
+        federalIncome: _.cloneDeep(service.creditDefaults),
       },
       state: {
-        income: _.cloneDeep(service.creditDefaults)
-      }
+        income: _.cloneDeep(service.creditDefaults),
+      },
     };
   }
 

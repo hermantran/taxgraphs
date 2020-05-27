@@ -4,7 +4,7 @@ module.exports = function (grunt) {
     'copy:dev',
     'ngtemplates',
     'less:dev',
-    'jshint:dev',
+    'eslint:dev',
     'browserify:dev',
     'json_bake:dist',
     'preprocessTax:dist'

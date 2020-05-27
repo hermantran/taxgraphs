@@ -1,33 +1,31 @@
-'use strict';
+const angular = require('../lib/angular');
 
 /* @ngInject */
 function screenService($window) {
-  var service = {},
-      resizeEvents = [];
+  const service = {};
+  const resizeEvents = [];
 
-  service.setSize = function() {
+  service.setSize = () => {
     service.width = $window.innerWidth;
     service.height = $window.innerHeight;
   };
-  
+
   service.sizes = {
     sm: 568,
     md: 768,
     lg: 1024,
-    xl: 1280 
+    xl: 1280,
   };
 
-  service.addResizeEvent = function(fn) {
+  service.addResizeEvent = (fn) => {
     resizeEvents.push(fn);
   };
 
-  service.runResizeEvents = function() {
-    for (var i = 0, len = resizeEvents.length; i < len; i++) {
-      resizeEvents[i]();
-    }
+  service.runResizeEvents = () => {
+    resizeEvents.forEach((e) => e());
   };
 
-  service.init = function() {
+  service.init = () => {
     service.setSize();
     service.addResizeEvent(service.setSize);
     angular.element($window).bind('resize', service.runResizeEvents);

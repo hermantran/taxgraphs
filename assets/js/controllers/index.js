@@ -1,10 +1,9 @@
-'use strict';
+const app = require('../app');
+const StateComparisonCtrl = require('./StateComparisonCtrl');
+const StateBreakdownCtrl = require('./StateBreakdownCtrl');
+const TakeHomePayCtrl = require('./TakeHomePayCtrl');
 
-var app = require('../app'),
-    StateComparisonCtrl = require('./StateComparisonCtrl'),
-    StateBreakdownCtrl = require('./StateBreakdownCtrl'),
-    TakeHomePayCtrl = require('./TakeHomePayCtrl');
-
-app.controller('StateComparisonCtrl', StateComparisonCtrl)
-.controller('StateBreakdownCtrl', StateBreakdownCtrl)
-.controller('TakeHomePayCtrl', TakeHomePayCtrl);
+app
+  .controller('StateComparisonCtrl', StateComparisonCtrl)
+  .controller('StateBreakdownCtrl', StateBreakdownCtrl)
+  .controller('TakeHomePayCtrl', TakeHomePayCtrl);

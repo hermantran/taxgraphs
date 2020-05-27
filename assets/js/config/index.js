@@ -1,20 +1,20 @@
-'use strict';
+const d3 = require('d3');
+const lodash = require('lodash');
+const ga = require('ga'); // eslint-disable-line import/no-unresolved
+const app = require('../app');
+const routes = require('./routes');
+const rootScope = require('./rootScope');
+const project = require('../../../package.json');
 
-var app = require('../app'),
-    d3 = require('d3'),
-    lodash = require('lodash'),
-    ga = require('ga'),
-    routes = require('./routes'),
-    rootScope = require('./rootScope'),
-    project = require('../../../package.json'),
-    domain = project.homepage,
-    version = project.version;
+const domain = project.homepage;
+const { version } = project;
 
-app.constant('d3', d3)
+app
+  .constant('d3', d3)
   .constant('_', lodash)
   .constant('ga', ga)
   .constant('GA_TRACKING_ID', 'UA-55615931-1')
-  .constant('TAX_API', 'data/taxes.json?v=' + version)
+  .constant('TAX_API', `data/taxes.json?v=${version}`)
   .constant('TAX_YEAR', '2017')
   .constant('DOMAIN', domain)
   .constant('APP_NAME', 'taxApp')
