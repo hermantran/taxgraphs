@@ -16,5 +16,6 @@ module.exports = {
   },
   rules: {
     'no-restricted-properties': 'off',
+    'linebreak-style': 'off',
   },
 };
