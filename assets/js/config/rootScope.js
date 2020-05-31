@@ -1,10 +1,11 @@
 /* eslint-disable no-param-reassign */
 /* @ngInject */
-function rootScope($rootScope, $location, ga, DOMAIN, GA_TRACKING_ID, tips) {
+function rootScope($rootScope, $location, gtag, DOMAIN, GA_TRACKING_ID, tips) {
   const isProd = $location.absUrl().indexOf(DOMAIN) > -1;
 
   if (isProd) {
-    ga('create', GA_TRACKING_ID, 'auto');
+    gtag('js', new Date());
+    gtag('config', GA_TRACKING_ID);
   }
 
   $rootScope.tips = tips.list;
@@ -22,9 +23,9 @@ function rootScope($rootScope, $location, ga, DOMAIN, GA_TRACKING_ID, tips) {
     };
 
     if (isProd) {
-      ga('send', 'pageview', {
-        page: $rootScope.activeRoute,
-        title: $rootScope.title,
+      gtag('config', GA_TRACKING_ID, {
+        page_path: $rootScope.activeRoute,
+        page_title: $rootScope.title,
       });
     }
   });
