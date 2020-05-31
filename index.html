@@ -14,7 +14,7 @@
     <link rel="shortcut icon" href="dist/images/favicon.ico">
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500">
     <!--STYLES-->
-    <link rel="stylesheet" href="dist/styles/main-0.3.3.min.css">
+    <link rel="stylesheet" href="dist/styles/main-0.3.4.min.css">
     <!--STYLES END-->
 
     <!--[if lt IE 9]>
@@ -29,14 +29,10 @@
     <header class="pure-g pure-menu pure-menu-open pure-menu-horizontal">
       <ul class="pure-u-1">
         <li class="logo">TaxGraphs</li>
-        <li class="pure-hidden-sm">
-          <a href="#/" ng-class="{ active: isActive('/') }">State Comparison</a>
-        </li>
-        <li class="pure-hidden-sm">
-          <a href="#/state" ng-class="{ active: isActive('/state') }">State Breakdown</a>
-        </li>
-        <li class="pure-hidden-sm">
-          <a href="#/take-home-pay" ng-class="{ active: isActive('/take-home-pay') }">Take Home Pay</a>
+        <li ng-repeat="route in routeOrder" class="pure-hidden-sm">
+          <a href="#{{ routeConfig[route].path }}" ng-class="{ active: isActive(routeConfig[route].path) }">
+            {{ routeConfig[route].title }}
+          </a>
         </li>
         <li class="pure-visible-sm mobile">
           <a href="https://github.com/hermantran/taxgraphs" target="_blank"><i class="fa fa-github"></i></a>
@@ -57,9 +53,9 @@
             <span>{{ $root.title }}</span>
           </div>
           <div class="text-center buttons">
-            <a href="#/"><button class="pure-button">State Comparison</button></a>
-            <a href="#/state"><button class="pure-button">State Breakdown</button></a>
-            <a href="#/take-home-pay"><button class="pure-button">Take Home Pay</button></a>
+            <a ng-repeat="route in routeOrder" href="#{{ routeConfig[route].path }}">
+              <button class="pure-button">{{ routeConfig[route].title }}</button>
+            </a>
           </div>
         </div>
         <div class="controls">
@@ -73,7 +69,7 @@
         <div class="footer">
           <a href="https://github.com/hermantran/taxgraphs" target="_blank">GitHub</a> |
           <a href="https://github.com/hermantran/taxgraphs/issues" target="_blank">Feedback</a>
-          <div class="copyright">&copy; 2014-2020 Herman Tran</div>
+          <div class="copyright">&copy; 2014-{{ currentYear }} Herman Tran</div>
         </div>
       </div>
 
@@ -91,7 +87,7 @@
     </script>
 
     <!--SCRIPTS-->
-    <script src="dist/js/main-0.3.3.min.js"></script>
+    <script src="dist/js/main-0.3.4.min.js"></script>
     <!--SCRIPTS END-->
 
     <!--LIVERELOAD-->

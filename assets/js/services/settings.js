@@ -32,25 +32,30 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
     xMax: 300000,
     yMin: 0,
     yMax: 60,
-    animationTime: 2000,
+    animationTime: 1500,
   };
+
+  const getBaseDefaults = () => ({
+    year: TAX_YEAR,
+    status: 'single',
+    deductions: createDeductionSettings(),
+    credits: createCreditSettings(),
+    graph: createGraphSettings(),
+  });
 
   const defaults = {
     stateBreakdownData: {
+      ...getBaseDefaults(),
       state: 'CA',
-      year: TAX_YEAR,
-      status: 'single',
-      deductions: createDeductionSettings(),
-      credits: createCreditSettings(),
       graphLines: {
         effective: true,
         marginal: false,
         totalEffective: true,
         totalMarginal: true,
       },
-      graph: createGraphSettings(),
     },
     stateComparisonData: {
+      ...getBaseDefaults(),
       states: {
         CA: true,
         IL: true,
@@ -58,26 +63,29 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
         NY: true,
         TX: true,
       },
-      year: TAX_YEAR,
-      status: 'single',
-      deductions: createDeductionSettings(),
-      credits: createCreditSettings(),
       graphLines: {
         effective: true,
         marginal: false,
       },
-      graph: createGraphSettings(),
+    },
+    stateHistoryData: {
+      ...getBaseDefaults(),
+      state: 'CA',
+      graphLines: {
+        [TAX_YEAR]: true,
+        [TAX_YEAR - 1]: true,
+        [TAX_YEAR - 2]: true,
+        [TAX_YEAR - 3]: true,
+        [TAX_YEAR - 4]: true,
+      },
     },
     takeHomePayData: {
+      ...getBaseDefaults(),
       state: 'CA',
-      year: TAX_YEAR,
-      deductions: createDeductionSettings(),
-      credits: createCreditSettings(),
       graphLines: {
         single: true,
         married: true,
       },
-      graph: createGraphSettings(),
     },
   };
 

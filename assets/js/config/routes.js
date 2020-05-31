@@ -1,21 +1,10 @@
 /* @ngInject */
-function routes($routeProvider) {
+function routes($routeProvider, ROUTE_CONFIG) {
   $routeProvider
-    .when('/', {
-      templateUrl: 'assets/templates/pages/state-comparison.html',
-      controller: 'StateComparisonCtrl',
-      title: 'State Comparison',
-    })
-    .when('/state', {
-      templateUrl: 'assets/templates/pages/state-breakdown.html',
-      controller: 'StateBreakdownCtrl',
-      title: 'State Breakdown',
-    })
-    .when('/take-home-pay', {
-      templateUrl: 'assets/templates/pages/take-home-pay.html',
-      controller: 'TakeHomePayCtrl',
-      title: 'Take Home Pay',
-    })
+    .when(ROUTE_CONFIG.stateComparison.path, ROUTE_CONFIG.stateComparison)
+    .when(ROUTE_CONFIG.stateBreakdown.path, ROUTE_CONFIG.stateBreakdown)
+    .when(ROUTE_CONFIG.stateHistory.path, ROUTE_CONFIG.stateHistory)
+    .when(ROUTE_CONFIG.takeHomePay.path, ROUTE_CONFIG.takeHomePay)
     .otherwise({
       redirectTo: '/',
     });

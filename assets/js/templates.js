@@ -27,6 +27,11 @@ angular.module('taxApp').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('assets/templates/pages/state-history.html',
+    "<div class=\"section\"><h3>Data</h3><div ng-include=\"'assets/templates/partials/state-select.html'\"></div><div ng-include=\"'assets/templates/partials/filing-status.html'\"></div><div ng-include=\"'assets/templates/partials/income-max.html'\"></div><div ng-include=\"'assets/templates/partials/graph-lines.html'\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/adjustments.html'\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/graph-settings.html'\"></div></div>"
+  );
+
+
   $templateCache.put('assets/templates/pages/take-home-pay.html',
     "<div class=\"section\"><h3>Data</h3><div ng-include=\"'assets/templates/partials/state-select.html'\"></div><div ng-include=\"'assets/templates/partials/tax-year.html'\"></div><div ng-include=\"'assets/templates/partials/income-max.html'\"></div><div ng-include=\"'assets/templates/partials/graph-lines.html'\" ng-init=\"graphLines = [\r" +
     "\n" +
@@ -54,7 +59,19 @@ angular.module('taxApp').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('assets/templates/partials/graph-settings.html',
-    "<h3>Settings</h3><div><label for=\"scale\">X Axis Scale:</label><select id=\"scale\" name=\"scale\" ng-model=\"settings.xAxisScale\" ng-options=\"val for (key, val) in xAxisScales\"></select></div><div><label for=\"animation-time\">Animation Time:</label><select id=\"animation-time\" name=\"animation-time\" ng-model=\"settings.animationTime\" ng-options=\"time as ((time / 1000) + (time === 1000 ? ' second' : ' seconds')) for time in animationTimes\"></select></div><div class=\"text-center buttons\"><button class=\"pure-button pure-button-primary\" ng-click=\"drawGraph()\">Graph</button></div>"
+    "<h3>Settings</h3><div><label for=\"scale\">X Axis Scale:</label><select id=\"scale\" name=\"scale\" ng-model=\"settings.xAxisScale\" ng-options=\"val for (key, val) in xAxisScales\"></select></div><!-- <div>\r" +
+    "\n" +
+    "  <label for=\"animation-time\">Animation Time:</label>\r" +
+    "\n" +
+    "  <select id=\"animation-time\" name=\"animation-time\" ng-model=\"settings.animationTime\"\r" +
+    "\n" +
+    "   ng-options=\"time as ((time / 1000) + (time === 1000 ? ' second' : ' seconds')) for time in animationTimes\">\r" +
+    "\n" +
+    "    </option>\r" +
+    "\n" +
+    "  </select>\r" +
+    "\n" +
+    "</div> --><div class=\"text-center buttons\"><button class=\"pure-button pure-button-primary\" ng-click=\"drawGraph()\">Graph</button></div>"
   );
 
 

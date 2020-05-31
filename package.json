@@ -1,6 +1,6 @@
 {
   "name": "taxgraphs",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Visualization of US individual income tax rates",
   "author": "Herman Tran <hermanctran@gmail.com>",
   "license": "MIT",
@@ -34,7 +34,7 @@
     "babel-preset-env": "^1.7.0",
     "babelify": "^10.0.0",
     "browserify": "~5.11.2",
-    "browserify-ngannotate": "~0.4.0",
+    "browserify-ngannotate": "^2.0.0",
     "browserify-shim": "~3.7.0",
     "d3": "^3.5.17",
     "eslint": "^7.1.0",

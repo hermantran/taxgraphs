@@ -5,13 +5,13 @@
   <select id="scale" name="scale" ng-model="settings.xAxisScale" ng-options="val for (key, val) in xAxisScales"></select>
 </div>
 
-<div>
+<!-- <div>
   <label for="animation-time">Animation Time:</label>
   <select id="animation-time" name="animation-time" ng-model="settings.animationTime"
    ng-options="time as ((time / 1000) + (time === 1000 ? ' second' : ' seconds')) for time in animationTimes">
     </option>
   </select>
-</div>
+</div> -->
 
 <div class="text-center buttons">
   <button class="pure-button pure-button-primary" ng-click="drawGraph()">Graph</button>
