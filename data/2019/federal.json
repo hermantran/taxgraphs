@@ -1,0 +1,88 @@
+{
+  "taxes": {
+    "medicare": {
+      "rate": {
+        "single": [
+          [0, 0.0145],
+          [200000, 0.0235]
+        ],
+        "married": [
+          [0, 0.0145],
+          [250000, 0.0235]
+        ]
+      },
+      "source": {
+        "name": "OASDI and SSI Program Rates &amp; Limits, 2019",
+        "url": "//www.ssa.gov/policy/docs/quickfacts/prog_highlights/RatesLimits2019.html"
+      }
+    },
+    "socialSecurity": {
+      "rate": [
+        [0, 0.062],
+        [132900, 0]
+      ],
+      "source": {
+        "name": "OASDI and SSI Program Rates &amp; Limits, 2019",
+        "url": "//www.ssa.gov/policy/docs/quickfacts/prog_highlights/RatesLimits2019.html"
+      }
+    },
+    "federalIncome": {
+      "rate": {
+        "single": [
+          [0, 0.1],
+          [9700, 0.12],
+          [39475, 0.22],
+          [84200, 0.24],
+          [160725, 0.32],
+          [204100, 0.35],
+          [510300, 0.37]
+        ],
+        "married": [
+          [0, 0.1],
+          [19400, 0.12],
+          [78950, 0.22],
+          [168400, 0.24],
+          [321450, 0.32],
+          [408200, 0.35],
+          [612350, 0.37]
+        ]
+      },
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 12200,
+            "married": 24400
+          }
+        }
+      },
+      "credits": {
+        "retirementSavers": {
+          "rate": {
+            "single": [
+              [0, 0.5],
+              [19251, 0.2],
+              [20751, 0.1],
+              [32001, 0]
+            ],
+            "married": [
+              [0, 0.5],
+              [38501, 0.2],
+              [41501, 0.1],
+              [64001, 0]
+            ]
+          },
+          "maximum": 2000,
+          "isRefundable": false,
+          "source": {
+            "name": "Retirement Savings Contributions Savers Credit | Internal Revenue Service",
+            "url": "//www.irs.gov/retirement-plans/plan-participant-employee/retirement-savings-contributions-savers-credit"
+          }
+        }
+      },
+      "source": {
+        "name": "2019-2020 Tax Brackets | 2019 Federal Income Tax Brackets &amp; Rates - Tax Foundation",
+        "url": "//taxfoundation.org/2019-tax-brackets"
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "taxes": {
+    "income": {
+      "rate": 0.0307,
+      "source": {
+        "name": "2020 State Individual Income Tax Rates and Brackets | Tax Foundation",
+        "url": "//taxfoundation.org/state-individual-income-tax-rates-and-brackets-for-2020/"
+      }
+    },
+    "stateUnemploymentInsurance": {
+      "rate": 0.0006,
+      "source": {
+        "name": "Pennsylvania 2020 SUI tax rates to decrease, taxable wage base unchanged; quarterly electronic reporting format to change effective January 1, 2020",
+        "url": "//taxnews.ey.com/news/2019-2018-pennsylvania-2020-sui-tax-rates-to-decrease-taxable-wage-base-unchanged-quarterly-electronic-reporting-format-to-change-effective-january-1-2020"
+      }
+    }
+  }
+}

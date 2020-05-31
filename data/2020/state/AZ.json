@@ -1,0 +1,44 @@
+{
+  "taxes": {
+    "income": {
+      "rate": {
+        "single": [
+          [0, 0.0259],
+          [26500, 0.0334],
+          [53000, 0.0417],
+          [159000, 0.045]
+        ],
+        "married": [
+          [0, 0.0259],
+          [53000, 0.0334],
+          [106000, 0.0417],
+          [318000, 0.045]
+        ]
+      },
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 12400,
+            "married": 24800
+          }
+        },
+        "dependents": {
+          "amount": {
+            "single": [
+              [0, 100],
+              [200000, 0]
+            ],
+            "married": [
+              [0, 100],
+              [400000, 0]
+            ]
+          }
+        }
+      },
+      "source": {
+        "name": "2020 State Individual Income Tax Rates and Brackets | Tax Foundation",
+        "url": "//taxfoundation.org/state-individual-income-tax-rates-and-brackets-for-2020/"
+      }
+    }
+  }
+}

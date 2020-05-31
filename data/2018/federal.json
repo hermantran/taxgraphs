@@ -1,0 +1,88 @@
+{
+  "taxes": {
+    "medicare": {
+      "rate": {
+        "single": [
+          [0, 0.0145],
+          [200000, 0.0235]
+        ],
+        "married": [
+          [0, 0.0145],
+          [250000, 0.0235]
+        ]
+      },
+      "source": {
+        "name": "OASDI and SSI Program Rates &amp; Limits, 2018",
+        "url": "//www.ssa.gov/policy/docs/quickfacts/prog_highlights/RatesLimits2018.html"
+      }
+    },
+    "socialSecurity": {
+      "rate": [
+        [0, 0.062],
+        [128400, 0]
+      ],
+      "source": {
+        "name": "OASDI and SSI Program Rates &amp; Limits, 2018",
+        "url": "//www.ssa.gov/policy/docs/quickfacts/prog_highlights/RatesLimits2018.html"
+      }
+    },
+    "federalIncome": {
+      "rate": {
+        "single": [
+          [0, 0.1],
+          [9525, 0.12],
+          [38700, 0.22],
+          [82500, 0.24],
+          [157500, 0.32],
+          [200000, 0.35],
+          [500000, 0.37]
+        ],
+        "married": [
+          [0, 0.1],
+          [19050, 0.12],
+          [77400, 0.22],
+          [165000, 0.24],
+          [315000, 0.32],
+          [400000, 0.35],
+          [600000, 0.37]
+        ]
+      },
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 12000,
+            "married": 24000
+          }
+        }
+      },
+      "credits": {
+        "retirementSavers": {
+          "rate": {
+            "single": [
+              [0, 0.5],
+              [19001, 0.2],
+              [20501, 0.1],
+              [31501, 0]
+            ],
+            "married": [
+              [0, 0.5],
+              [38001, 0.2],
+              [41001, 0.1],
+              [63001, 0]
+            ]
+          },
+          "maximum": 2000,
+          "isRefundable": false,
+          "source": {
+            "name": "Retirement Savings Contributions Savers Credit | Internal Revenue Service",
+            "url": "//www.irs.gov/retirement-plans/plan-participant-employee/retirement-savings-contributions-savers-credit"
+          }
+        }
+      },
+      "source": {
+        "name": "2018 Tax Brackets, Rates &amp; Credits | Standard Deduction | Tax Foundation",
+        "url": "//taxfoundation.org/2018-tax-brackets"
+      }
+    }
+  }
+}
