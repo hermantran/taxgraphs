@@ -154,4 +154,4 @@ function StateComparisonCtrl(
   }
 }
 
-module.exports = StateComparisonCtrl;
+export default StateComparisonCtrl;

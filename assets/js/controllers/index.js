@@ -1,7 +1,7 @@
-const app = require('../app');
-const StateComparisonCtrl = require('./StateComparisonCtrl');
-const StateBreakdownCtrl = require('./StateBreakdownCtrl');
-const TakeHomePayCtrl = require('./TakeHomePayCtrl');
+import app from '../app';
+import StateComparisonCtrl from './StateComparisonCtrl';
+import StateBreakdownCtrl from './StateBreakdownCtrl';
+import TakeHomePayCtrl from './TakeHomePayCtrl';
 
 app
   .controller('StateComparisonCtrl', StateComparisonCtrl)

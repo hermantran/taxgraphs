@@ -1,6 +1,6 @@
 /* eslint-disable no-use-before-define */
 /* @ngInject */
-module.exports = (APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) => {
+function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
   const service = {};
 
   service.key = `${APP_NAME}Settings${APP_VERSION}`;
@@ -119,4 +119,6 @@ module.exports = (APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) => {
   }
 
   return service;
-};
+}
+
+export default settings;

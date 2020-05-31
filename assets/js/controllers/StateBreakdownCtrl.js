@@ -173,4 +173,4 @@ function StateBreakdownCtrl(
   }
 }
 
-module.exports = StateBreakdownCtrl;
+export default StateBreakdownCtrl;

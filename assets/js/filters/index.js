@@ -1,7 +1,7 @@
-const app = require('../app');
-const capitalize = require('./capitalize');
-const percentage = require('./percentage');
-const splitCamelCase = require('./splitCamelCase');
+import app from '../app';
+import capitalize from './capitalize';
+import percentage from './percentage';
+import splitCamelCase from './splitCamelCase';
 
 app
   .filter('capitalize', capitalize)

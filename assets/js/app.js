@@ -1,5 +1,5 @@
-const angular = require('./lib/angular');
-require('angular-route/angular-route');
-require('angular-local-storage');
+import angular from './lib/angular';
+import 'angular-route/angular-route';
+import 'angular-local-storage';
 
-module.exports = angular.module('taxApp', ['ngRoute', 'LocalStorageModule']);
+export default angular.module('taxApp', ['ngRoute', 'LocalStorageModule']);

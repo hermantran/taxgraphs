@@ -1,3 +1,5 @@
+Number.isNaN = require('is-nan');
+
 /* eslint-disable no-use-before-define */
 /* @ngInject */
 function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, settings) {
@@ -116,4 +118,4 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, settings) 
   }
 }
 
-module.exports = TakeHomePayCtrl;
+export default TakeHomePayCtrl;

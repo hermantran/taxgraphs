@@ -1,7 +1,7 @@
-require('./app');
-require('./templates');
-require('./config');
-require('./filters');
-require('./directives');
-require('./services');
-require('./controllers');
+import './app';
+import './templates';
+import './config';
+import './filters';
+import './directives';
+import './services';
+import './controllers';

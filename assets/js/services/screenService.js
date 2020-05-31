@@ -1,4 +1,4 @@
-const angular = require('../lib/angular');
+import angular from '../lib/angular';
 
 /* @ngInject */
 function screenService($window) {
@@ -36,4 +36,4 @@ function screenService($window) {
   return service;
 }
 
-module.exports = screenService;
+export default screenService;

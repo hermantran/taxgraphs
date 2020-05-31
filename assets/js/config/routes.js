@@ -21,4 +21,4 @@ function routes($routeProvider) {
     });
 }
 
-module.exports = routes;
+export default routes;

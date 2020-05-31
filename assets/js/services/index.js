@@ -1,11 +1,10 @@
-
-const app = require('../app');
-const taxService = require('./taxService');
-const taxData = require('./taxData');
-const graph = require('./graph');
-const screenService = require('./screenService');
-const settings = require('./settings');
-const tips = require('./tips');
+import app from '../app';
+import taxService from './taxService';
+import taxData from './taxData';
+import graph from './graph';
+import screenService from './screenService';
+import settings from './settings';
+import tips from './tips';
 
 app.service('taxService', taxService)
   .service('taxData', taxData)

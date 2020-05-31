@@ -1,10 +1,10 @@
-const d3 = require('d3');
-const lodash = require('lodash');
-const gtag = require('gtag'); // eslint-disable-line import/no-unresolved
-const app = require('../app');
-const routes = require('./routes');
-const rootScope = require('./rootScope');
-const project = require('../../../package.json');
+import d3 from 'd3';
+import lodash from 'lodash';
+import gtag from 'gtag'; // eslint-disable-line import/no-unresolved
+import app from '../app';
+import routes from './routes';
+import rootScope from './rootScope';
+import project from '../../../package.json';
 
 const domain = project.homepage;
 const { version } = project;

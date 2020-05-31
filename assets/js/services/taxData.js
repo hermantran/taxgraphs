@@ -260,4 +260,4 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
   return service;
 }
 
-module.exports = taxData;
+export default taxData;

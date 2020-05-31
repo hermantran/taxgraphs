@@ -26,4 +26,4 @@ function tips(APP_NAME, APP_VERSION, localStorageService) {
   return service;
 }
 
-module.exports = tips;
+export default tips;

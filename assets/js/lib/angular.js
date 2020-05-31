@@ -1,3 +1,3 @@
-require('angular');
+import 'angular';
 
-module.exports = angular;
+export default angular;

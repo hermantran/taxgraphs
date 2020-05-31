@@ -657,4 +657,4 @@ function graph(d3, _, screenService, settings) {
   return service;
 }
 
-module.exports = graph;
+export default graph;

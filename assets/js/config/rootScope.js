@@ -35,4 +35,4 @@ function rootScope($rootScope, $location, gtag, DOMAIN, GA_TRACKING_ID, tips) {
   });
 }
 
-module.exports = rootScope;
+export default rootScope;
