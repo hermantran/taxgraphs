@@ -26,7 +26,7 @@ function StateHistoryCtrl($scope, $filter, taxData, taxService, graph, settings)
   const setData = () => {
     $scope.data = settings.get($scope.key);
     $scope.settings = $scope.data.graph;
-    $scope.graphLines = $scope.years.reverse().map((year) => ({
+    $scope.graphLines = [...$scope.years].reverse().map((year) => ({
       id: year,
       prop: year,
       label: year,

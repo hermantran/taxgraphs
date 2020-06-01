@@ -85,19 +85,19 @@ function graph(d3, _, screenService, settings) {
     if (screenService.width < screenService.sizes.md) {
       width = screenService.width - 5;
       height = screenService.height - 45;
-      service.m = [50, 100, 80, 60];
+      service.m = [50, 40, 80, 60];
     } else {
       width = parseInt(parent.style('width'), 10) - 5;
       height = parseInt(parent.style('height'), 10) - 5;
-      service.m = [80, 180, 80, 70];
+      service.m = [80, 40, 80, 70];
     }
 
     service.w = width - service.m[1] - service.m[3];
     service.h = height - service.m[0] - service.m[2];
 
     service.svg
-      .attr('width', `${service.w + service.m[1] + service.m[3]}px`)
-      .attr('height', `${service.h + service.m[0] + service.m[2]}px`);
+      .attr('width', `${width}px`)
+      .attr('height', `${height}px`);
 
     service.graph.attr('transform', `translate(${service.m[3]},${service.m[0]})`);
   };
@@ -486,40 +486,23 @@ function graph(d3, _, screenService, settings) {
     const textYPos = -34;
     const textXPos = 10;
     const yOffset = -10;
-    let box;
-    let hide;
-    let yValue;
-    let yPos;
-    let tooltipText;
-    let text;
-    let textWidth;
-    let textHeight;
-    let opts;
-    let d;
+    let showTooltipOnLeft = false;
 
     if (xPos > service.w) {
       return;
     }
 
     service.tooltips.forEach((tooltip, i) => {
-      hide = xPos < 0;
-      service.tooltips[i].classed(service.classes.hide, hide);
+      const hide = xPos < 0;
+      tooltip.classed(service.classes.hide, hide);
 
-      yValue = service.tooltipFns[i](xValue);
+      const yValue = service.tooltipFns[i](xValue) || 0;
+      const yPos = service.h - (yValue / yScale) * 100;
+      const text = service.lines[i].formattedFn
+        ? service.lines[i].formattedFn(xValue, yValue)
+        : yValue;
 
-      if (!yValue) {
-        yValue = 0;
-      }
-
-      yPos = service.h - (yValue / yScale) * 100;
-
-      if (service.lines[i].formattedFn) {
-        text = service.lines[i].formattedFn(xValue, yValue);
-      } else {
-        text = yValue;
-      }
-
-      tooltipText = service.tooltips[i]
+      const tooltipText = tooltip
         .attr('transform', `translate(${xPos},${yPos})`)
         .select('text')
         .attr('x', textXPos)
@@ -529,6 +512,7 @@ function graph(d3, _, screenService, settings) {
 
       // https://github.com/robwalch/svg.js/blob/00c786e50ceae8d7514dda609691f842cded9a82/src/bbox.js
       // Fixes Firefox NS_ERROR_FAILURE when getting the bounding box
+      let box;
       try {
         box = tooltipText.node().getBBox();
       } catch (err) {
@@ -540,29 +524,47 @@ function graph(d3, _, screenService, settings) {
         };
       }
 
-      textWidth = box.width + 10;
-      textHeight = box.height + 3;
-      opts = [textWidth, textHeight, textXPos - 2, yOffset];
+      const textHeight = box.height + 3;
+      const textWidth = box.width + 10;
+      const xOffset = textXPos - 2;
 
-      d = service.createTooltipPath(...opts);
-      service.tooltips[i].select(service.selectors.tooltipOutline).attr('d', d);
-
-      d = service.createTooltipTrim(...opts);
-      service.tooltips[i].select(service.selectors.tooltipTrim).attr('d', d);
+      // Show all tooltips on left if any tooltip exceeds the viewport
+      showTooltipOnLeft = showTooltipOnLeft || (xPos + textWidth > service.w);
 
       textPos.push({
         tooltipY: yPos,
         textWidth,
         textHeight,
+        xOffset,
         i,
       });
     });
 
-    service.fixTooltipOverlaps(textPos);
+    service.tooltips.forEach((tooltip, i) => {
+      const tooltipText = tooltip.select('text');
+      const { textWidth, textHeight, xOffset } = textPos[i];
+
+      if (showTooltipOnLeft) {
+        const leftX = -(xOffset + textWidth - 4);
+        tooltipText.attr('x', leftX);
+        tooltipText.select(service.selectors.lineValue).attr('x', leftX);
+      }
+
+      const opts = [textWidth, textHeight, xOffset, yOffset, showTooltipOnLeft];
+      tooltip.select(service.selectors.tooltipOutline).attr('d', service.createTooltipPath(...opts));
+      tooltip.select(service.selectors.tooltipTrim).attr('d', service.createTooltipTrim(...opts));
+    });
+
+    service.fixTooltipOverlaps(textPos, showTooltipOnLeft);
   };
 
-  service.createTooltipPath = (textWidth, textHeight, xOffset, yOffset) => {
+  service.createTooltipPath = (textWidth, textHeight, xOffset, yOffset, showOnLeft) => {
     const openingWidth = 6;
+
+    if (showOnLeft) {
+      xOffset *= -1;
+      textWidth *= -1;
+    }
 
     const d = [
       'M0,0',
@@ -578,7 +580,12 @@ function graph(d3, _, screenService, settings) {
     return d;
   };
 
-  service.createTooltipTrim = (textWidth, textHeight, xOffset, yOffset) => {
+  service.createTooltipTrim = (textWidth, textHeight, xOffset, yOffset, showOnLeft) => {
+    if (showOnLeft) {
+      xOffset *= -1;
+      textWidth *= -1;
+    }
+
     const d = [
       `M${xOffset},${yOffset - textHeight}`,
       `L${xOffset + textWidth},${yOffset - textHeight}`,
@@ -587,16 +594,13 @@ function graph(d3, _, screenService, settings) {
     return d;
   };
 
-  service.fixTooltipOverlaps = (textPos) => {
+  service.fixTooltipOverlaps = (textPos, showTooltipOnLeft) => {
     const textYPos = -35;
     const textXPos = 8;
     const yOffset = -10;
     const tooltipHeight = 45;
     const maxNumLines = 14;
     const dataEl = service.data.node();
-    let yDist;
-    let diff;
-    let opts;
     let d;
     let len;
     let i;
@@ -604,14 +608,20 @@ function graph(d3, _, screenService, settings) {
     textPos.sort((a, b) => a.tooltipY - b.tooltipY);
 
     for (len = textPos.length - 1, i = len; i > 0; i -= 1) {
-      yDist = textPos[i].tooltipY - textPos[i - 1].tooltipY;
+      const yDist = textPos[i].tooltipY - textPos[i - 1].tooltipY;
 
       if (len < maxNumLines && yDist < tooltipHeight) {
-        diff = yDist - tooltipHeight;
+        const diff = yDist - tooltipHeight;
 
         service.tooltips[textPos[i - 1].i].select('text').attr('y', textYPos + diff);
 
-        opts = [textPos[i - 1].textWidth, textPos[i - 1].textHeight, textXPos - 3, yOffset + diff];
+        const opts = [
+          textPos[i - 1].textWidth,
+          textPos[i - 1].textHeight,
+          textXPos - 2,
+          yOffset + diff,
+          showTooltipOnLeft,
+        ];
 
         d = service.createTooltipPath(...opts);
         service.tooltips[textPos[i - 1].i].select(service.selectors.tooltipOutline).attr('d', d);
