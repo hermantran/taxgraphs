@@ -23,6 +23,12 @@ export default {
     controller: 'TakeHomePayCtrl',
     title: 'Take Home Pay',
   },
+  stockOptionAmt: {
+    path: '/amt',
+    templateUrl: 'assets/templates/pages/stock-option-amt.html',
+    controller: 'StockOptionAmtCtrl',
+    title: 'Stock Option AMT',
+  },
 };
 
 export const routeOrder = [
@@ -30,4 +36,5 @@ export const routeOrder = [
   'stateBreakdown',
   'stateHistory',
   'takeHomePay',
+  // 'stockOptionAmt',
 ];

@@ -4,7 +4,7 @@ Number.isNaN = require('is-nan');
 /* @ngInject */
 function graph(d3, _, screenService, settings) {
   const service = {};
-  const { graphDefaults, xAxisScales } = settings;
+  const { graphDefaults, xAxisScales, axisFormats } = settings;
 
   function createSelector(string) {
     return `.${string.split(' ').join('.')}`;
@@ -145,19 +145,10 @@ function graph(d3, _, screenService, settings) {
   };
 
   service.updateXAxis = (xMax) => {
-    let ticks;
-    let format;
-
     xMax = Number.isNaN(xMax) ? service.defaults.xMax : xMax;
     service.settings.xMax = xMax;
 
-    if (screenService.width < screenService.sizes.lg) {
-      ticks = 3;
-      format = d3.format('$.1s');
-    } else {
-      ticks = 6;
-      format = d3.format('$0,000');
-    }
+    const ticks = screenService.isMobile() ? 3 : 6;
 
     if (service.settings.xAxisScale === xAxisScales.log) {
       service.x = d3.scale
@@ -178,7 +169,7 @@ function graph(d3, _, screenService, settings) {
         .scale(service.x)
         .ticks(ticks)
         .tickSize(-service.h, 0)
-        .tickFormat(format)
+        .tickFormat(service.xAxisFormat)
         .tickPadding(10)
         .orient('bottom');
     }
@@ -206,7 +197,7 @@ function graph(d3, _, screenService, settings) {
       .scale(service.y)
       .ticks(Math.ceil(yMax / 10))
       .tickSize(-service.w, 0)
-      .tickFormat(d3.format('%'))
+      .tickFormat(service.yAxisFormat)
       .tickPadding(7)
       .orient('left');
 
@@ -252,6 +243,19 @@ function graph(d3, _, screenService, settings) {
   service.updateAxisLabels = (xAxisLabel, yAxisLabel) => {
     service.xAxisLabel.text(xAxisLabel);
     service.yAxisLabel.text(yAxisLabel);
+  };
+
+  service.updateAxisFormats = (xAxisFormat, yAxisFormat) => {
+    const isMobile = screenService.isMobile();
+
+    const d3Formats = {
+      [axisFormats.dollar]: isMobile ? '$.1s' : '$0,000',
+      [axisFormats.number]: ',.0f',
+      [axisFormats.percent]: '%',
+    };
+
+    service.xAxisFormat = d3.format(d3Formats[xAxisFormat]);
+    service.yAxisFormat = d3.format(d3Formats[yAxisFormat]);
   };
 
   service.updateAnimationTime = (time) => {

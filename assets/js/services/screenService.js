@@ -17,6 +17,8 @@ function screenService($window) {
     xl: 1280,
   };
 
+  service.isMobile = () => service.width < service.sizes.lg;
+
   service.addResizeEvent = (fn) => {
     resizeEvents.push(fn);
   };

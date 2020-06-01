@@ -54,14 +54,14 @@ function StateBreakdownCtrl(
   }
 
   function formatAdjustments() {
-    const { deductions } = $scope.data;
-    const { credits } = $scope.data;
+    const { deductions, credits } = $scope.data;
 
     deductions.state.income = deductions.federal.federalIncome;
     credits.state.income = credits.federal.federalIncome;
   }
 
   function updateGraphText(state, year, status) {
+    const { axisFormats } = settings;
     const { data } = $scope;
     const hasDeduction = data.deductions.federal.federalIncome.standardDeduction;
 
@@ -77,16 +77,18 @@ function StateBreakdownCtrl(
     ].join(' ');
     graph.updateTitle(primaryTitle, secondaryTitle);
     graph.updateAxisLabels('Gross Income', 'Percent');
+    graph.updateAxisFormats(axisFormats.dollar, axisFormats.percent);
   }
 
   function drawGraph() {
-    const { state } = $scope.data;
-    const { year } = $scope.data;
-    const { status } = $scope.data;
-    let { xMax } = $scope.settings;
-    const { graphLines } = $scope.data;
-    const deductionSettings = $scope.data.deductions;
-    const creditSettings = $scope.data.credits;
+    const {
+      state,
+      year,
+      status,
+      graphLines,
+      deductions: deductionSettings,
+      credits: creditSettings,
+    } = $scope.data;
     const rates = taxData.getAllRates(
       state,
       year,
@@ -101,8 +103,8 @@ function StateBreakdownCtrl(
       deductionSettings,
       creditSettings,
     );
+    let { xMax } = $scope.settings;
     let total;
-    let args;
 
     xMax = Number.isNaN(xMax) ? graph.defaults.xMax : xMax;
 
@@ -113,10 +115,11 @@ function StateBreakdownCtrl(
 
     formatAdjustments();
     graph.clear();
+    updateGraphText(state, year, status);
     graph.update($scope.settings);
 
     taxes.forEach((tax) => {
-      args = [tax.rate, xMax, status, tax.credits];
+      const args = [tax.rate, xMax, status, tax.credits];
 
       if (graphLines.effective) {
         graph.addLine({
@@ -167,7 +170,6 @@ function StateBreakdownCtrl(
     }
 
     graph.drawLines();
-    updateGraphText(state, year, status);
     $scope.$emit('hideMobileControls');
     settings.set($scope.key, $scope.data);
   }

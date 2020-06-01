@@ -95,27 +95,13 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
   }
 
   function fillMetadata(data) {
-    Object.keys(data).forEach((year) => {
-      service.years.push(year);
-    });
-
     const yearData = data[service.year];
 
-    Object.keys(yearData.state).forEach((state) => {
-      service.states.push(state);
-    });
-
-    Object.keys(yearData.federal.taxes.federalIncome.rate).forEach((filingStatus) => {
-      service.filingStatuses.push(filingStatus);
-    });
-
-    Object.keys(yearData.federal.taxes.federalIncome.deductions).forEach((deduction) => {
-      service.deductions.push(deduction);
-    });
-
-    Object.keys(yearData.federal.taxes.federalIncome.credits).forEach((credit) => {
-      service.credits.push(credit);
-    });
+    service.years.push(...Object.keys(data));
+    service.states.push(...Object.keys(yearData.state));
+    service.filingStatuses.push(...Object.keys(yearData.federal.taxes.federalIncome.rate));
+    service.deductions.push(...Object.keys(yearData.federal.taxes.federalIncome.deductions));
+    service.credits.push(...Object.keys(yearData.federal.taxes.federalIncome.credits));
   }
 
   function getFederalTaxes(year) {

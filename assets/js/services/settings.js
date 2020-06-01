@@ -12,6 +12,11 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
     linear: 'Linear',
     log: 'Logarithmic',
   };
+  service.axisFormats = {
+    dollar: 'dollar',
+    number: 'number',
+    percent: 'percent',
+  };
 
   service.deductionDefaults = {
     itemized: 0,
@@ -32,12 +37,13 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
     xMax: 300000,
     yMin: 0,
     yMax: 60,
-    animationTime: 1500,
+    animationTime: 1250,
   };
 
   const getBaseDefaults = () => ({
     year: TAX_YEAR,
     status: 'single',
+    state: 'CA',
     deductions: createDeductionSettings(),
     credits: createCreditSettings(),
     graph: createGraphSettings(),
@@ -46,7 +52,6 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
   const defaults = {
     stateBreakdownData: {
       ...getBaseDefaults(),
-      state: 'CA',
       graphLines: {
         effective: true,
         marginal: false,
@@ -70,7 +75,6 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
     },
     stateHistoryData: {
       ...getBaseDefaults(),
-      state: 'CA',
       graphLines: {
         [TAX_YEAR]: true,
         [TAX_YEAR - 1]: true,
@@ -79,9 +83,14 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
         [TAX_YEAR - 4]: true,
       },
     },
+    stockOptionAmtData: {
+      ...getBaseDefaults(),
+      graphLines: {
+
+      },
+    },
     takeHomePayData: {
       ...getBaseDefaults(),
-      state: 'CA',
       graphLines: {
         single: true,
         married: true,

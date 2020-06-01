@@ -39,8 +39,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, settings) 
   }
 
   function formatAdjustments() {
-    const { deductions } = $scope.data;
-    const { credits } = $scope.data;
+    const { deductions, credits } = $scope.data;
 
     deductions.state.income = deductions.federal.federalIncome;
     credits.state.income = credits.federal.federalIncome;
@@ -58,9 +57,9 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, settings) 
   }
 
   function updateGraphText(state, year) {
-    const { data } = $scope;
-    const { itemized } = data.deductions;
-    const hasDeduction = data.deductions.federal.federalIncome.standardDeduction;
+    const { axisFormats } = settings;
+    const { itemized, federal } = $scope.data.deductions;
+    const hasDeduction = federal.federalIncome.standardDeduction;
 
     const primaryTitle = `${$scope.stateNames[state]} Take Home Pay, ${year}`;
     const secondaryTitle = [
@@ -69,19 +68,19 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, settings) 
     ].join(' ');
     graph.updateTitle(primaryTitle, secondaryTitle);
     graph.updateAxisLabels('Gross Income', 'Percent');
+    graph.updateAxisFormats(axisFormats.dollar, axisFormats.percent);
   }
 
   function drawGraph() {
-    const { state } = $scope.data;
-    const { year } = $scope.data;
-    let { xMax } = $scope.settings;
-    const { graphLines } = $scope.data;
-    const deductionSettings = $scope.data.deductions;
-    const creditSettings = $scope.data.credits;
+    const {
+      state,
+      year,
+      graphLines,
+      deductions: deductionSettings,
+      credits: creditSettings,
+    } = $scope.data;
     const capitalize = $filter('capitalize');
-    let taxes;
-    let rates;
-    let total;
+    let { xMax } = $scope.settings;
 
     xMax = Number.isNaN(xMax) ? graph.defaults.xMax : xMax;
 
@@ -93,13 +92,14 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, settings) 
     formatAdjustments();
     formatItemized();
     graph.clear();
+    updateGraphText(state, year);
     graph.update($scope.settings);
 
     Object.keys(graphLines).forEach((status) => {
       if (graphLines[status]) {
-        rates = taxData.getAllRates(state, year, status, deductionSettings, creditSettings);
-        taxes = taxData.getAllTaxes(state, year, status, deductionSettings, creditSettings);
-        total = taxService.calcTotalMarginalTaxBrackets(rates, xMax, status);
+        const rates = taxData.getAllRates(state, year, status, deductionSettings, creditSettings);
+        const taxes = taxData.getAllTaxes(state, year, status, deductionSettings, creditSettings);
+        const total = taxService.calcTotalMarginalTaxBrackets(rates, xMax, status);
 
         graph.addLine({
           data: taxService.createTakeHomePayData(taxes, total, xMax, status),
@@ -112,7 +112,6 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, settings) 
     });
 
     graph.drawLines();
-    updateGraphText(state, year);
     $scope.$emit('hideMobileControls');
     settings.set($scope.key, $scope.data);
   }

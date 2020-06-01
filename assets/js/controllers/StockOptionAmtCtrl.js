@@ -2,8 +2,8 @@ Number.isNaN = require('is-nan');
 
 /* eslint-disable no-use-before-define */
 /* @ngInject */
-function StateHistoryCtrl($scope, $filter, taxData, taxService, graph, settings) {
-  $scope.key = 'stateHistoryData';
+function StockOptionAmtCtrl($scope, $filter, taxData, taxService, graph, settings) {
+  $scope.key = 'stockOptionAmtData';
   $scope.colors = settings.colors;
   $scope.animationTimes = settings.animationTimes;
   $scope.xAxisScales = settings.xAxisScales;
@@ -23,24 +23,19 @@ function StateHistoryCtrl($scope, $filter, taxData, taxService, graph, settings)
     drawGraph();
   }
 
-  const setData = () => {
+  function setData() {
     $scope.data = settings.get($scope.key);
     $scope.settings = $scope.data.graph;
-    $scope.graphLines = [...$scope.years].reverse().map((year) => ({
-      id: year,
-      prop: year,
-      label: year,
-    }));
-  };
+  }
 
-  function createTotalTaxRateFn(taxes, filingStatus, isEffective) {
-    const fnProp = isEffective ? 'calcTotalEffectiveTaxRate' : 'calcTotalMarginalTaxRate';
-
-    return (income) => taxService[fnProp](taxes, income, filingStatus);
+  function createTaxRateFn(tax, filingStatus) {
+    return (income) => 1 - taxService.calcTotalEffectiveTaxRate(tax, income, filingStatus);
   }
 
   function rateFormatter(income, rate) {
-    return $filter('percentage')(rate, 2);
+    return [$filter('currency')(income * rate, '$', 0), `(${$filter('percentage')(rate, 2)})`].join(
+      ' ',
+    );
   }
 
   function formatAdjustments() {
@@ -50,30 +45,41 @@ function StateHistoryCtrl($scope, $filter, taxData, taxService, graph, settings)
     credits.state.income = credits.federal.federalIncome;
   }
 
-  function updateGraphText(state, status) {
+  function formatItemized() {
+    const { deductions } = $scope.data;
+    let itemized = parseInt(deductions.itemized, 10);
+
+    itemized = Number.isNaN(itemized) ? 0 : itemized;
+    deductions.federal.federalIncome.itemized = itemized;
+    deductions.state.income.itemized = itemized;
+
+    return itemized;
+  }
+
+  function updateGraphText(state, year) {
     const { axisFormats } = settings;
     const { data } = $scope;
+    const { itemized } = data.deductions;
     const hasDeduction = data.deductions.federal.federalIncome.standardDeduction;
 
-    const primaryTitle = `${$scope.stateNames[state]} Income Tax Rate History`;
+    const primaryTitle = `${$scope.stateNames[state]} Incentive Stock Option AMT, ${year}`;
     const secondaryTitle = [
-      $filter('splitCamelCase')(status),
-      'Filing Status,',
       hasDeduction ? ' Standard Deduction' : 'no deductions',
+      itemized > 0 ? `, $${itemized} Itemized Deduction` : '',
     ].join(' ');
     graph.updateTitle(primaryTitle, secondaryTitle);
-    graph.updateAxisLabels('Gross Income', 'Percent');
-    graph.updateAxisFormats(axisFormats.dollar, axisFormats.percent);
+    graph.updateAxisLabels('ISOs Exercised', 'Taxes');
+    graph.updateAxisFormats(axisFormats.number, axisFormats.dollar);
   }
 
   function drawGraph() {
     const {
       state,
-      status,
-      graphLines,
+      year,
       deductions: deductionSettings,
       credits: creditSettings,
     } = $scope.data;
+    const capitalize = $filter('capitalize');
     let { xMax } = $scope.settings;
 
     xMax = Number.isNaN(xMax) ? graph.defaults.xMax : xMax;
@@ -84,25 +90,22 @@ function StateHistoryCtrl($scope, $filter, taxData, taxService, graph, settings)
     }
 
     formatAdjustments();
+    formatItemized();
     graph.clear();
-    updateGraphText(state, status);
+    updateGraphText(state, year);
     graph.update($scope.settings);
 
-    Object.keys(graphLines).forEach((year) => {
-      if (!graphLines[year]) {
-        return;
-      }
+    const status = 'single';
+    const rates = taxData.getAllRates(state, year, status, deductionSettings, creditSettings);
+    const taxes = taxData.getAllTaxes(state, year, status, deductionSettings, creditSettings);
+    const total = taxService.calcTotalMarginalTaxBrackets(rates, xMax, status);
 
-      const rates = taxData.getAllRates(state, year, status, deductionSettings, creditSettings);
-      const taxes = taxData.getAllTaxes(state, year, status, deductionSettings, creditSettings);
-      const total = taxService.calcTotalMarginalTaxBrackets(rates, xMax, status);
-      graph.addLine({
-        label: year,
-        data: taxService.createTotalEffectiveTaxData(taxes, total, xMax, status),
-        tooltipFn: createTotalTaxRateFn(taxes, status, true),
-        formattedFn: rateFormatter,
-        isInterpolated: true,
-      });
+    graph.addLine({
+      data: taxService.createTakeHomePayData(taxes, total, xMax, status),
+      label: `Net Income - ${capitalize(status)} Status`,
+      tooltipFn: createTaxRateFn(taxes, status, true),
+      formattedFn: rateFormatter,
+      isInterpolated: true,
     });
 
     graph.drawLines();
@@ -111,4 +114,4 @@ function StateHistoryCtrl($scope, $filter, taxData, taxService, graph, settings)
   }
 }
 
-export default StateHistoryCtrl;
+export default StockOptionAmtCtrl;

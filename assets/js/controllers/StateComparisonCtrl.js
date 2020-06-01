@@ -54,14 +54,14 @@ function StateComparisonCtrl(
   }
 
   function formatAdjustments() {
-    const { deductions } = $scope.data;
-    const { credits } = $scope.data;
+    const { deductions, credits } = $scope.data;
 
     deductions.state.income = deductions.federal.federalIncome;
     credits.state.income = credits.federal.federalIncome;
   }
 
   function updateGraphText(year, status) {
+    const { axisFormats } = settings;
     const { data } = $scope;
     const hasDeduction = data.deductions.federal.federalIncome.standardDeduction;
 
@@ -73,19 +73,19 @@ function StateComparisonCtrl(
     ].join(' ');
     graph.updateTitle(primaryTitle, secondaryTitle);
     graph.updateAxisLabels('Gross Income', 'Percent');
+    graph.updateAxisFormats(axisFormats.dollar, axisFormats.percent);
   }
 
   function drawGraph() {
-    const { year } = $scope.data;
-    const { status } = $scope.data;
+    const {
+      states,
+      year,
+      status,
+      graphLines,
+      deductions: deductionSettings,
+      credits: creditSettings,
+    } = $scope.data;
     let { xMax } = $scope.settings;
-    const { graphLines } = $scope.data;
-    const deductionSettings = $scope.data.deductions;
-    const creditSettings = $scope.data.credits;
-    const { states } = $scope.data;
-    let total;
-    let taxes;
-    let rates;
 
     xMax = Number.isNaN(xMax) ? graph.defaults.xMax : xMax;
 
@@ -96,25 +96,26 @@ function StateComparisonCtrl(
 
     formatAdjustments();
     graph.clear();
+    updateGraphText(year, status);
     graph.update($scope.settings);
 
     Object.keys(states).forEach((state) => {
       if (states[state]) {
-        rates = taxData.getAllRates(
+        const rates = taxData.getAllRates(
           state,
           year,
           status,
           deductionSettings,
           creditSettings,
         );
-        taxes = taxData.getAllTaxes(
+        const taxes = taxData.getAllTaxes(
           state,
           year,
           status,
           deductionSettings,
           creditSettings,
         );
-        total = taxService.calcTotalMarginalTaxBrackets(rates, xMax, status);
+        const total = taxService.calcTotalMarginalTaxBrackets(rates, xMax, status);
 
         if (graphLines.effective) {
           graph.addLine({
@@ -148,7 +149,6 @@ function StateComparisonCtrl(
     });
 
     graph.drawLines();
-    updateGraphText(year, status);
     $scope.$emit('hideMobileControls');
     settings.set($scope.key, $scope.data);
   }

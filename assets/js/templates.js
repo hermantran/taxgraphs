@@ -32,6 +32,11 @@ angular.module('taxApp').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('assets/templates/pages/stock-option-amt.html',
+    "<div class=\"section\"><h3>Data</h3><div ng-include=\"'assets/templates/partials/state-select.html'\"></div><div ng-include=\"'assets/templates/partials/tax-year.html'\"></div><div ng-include=\"'assets/templates/partials/filing-status.html'\"></div><div><label for=\"income\">Gross Income:</label><input type=\"text\" id=\"income\" name=\"income\" ng-model=\"settings.income\" required ng-pattern=\"/^\\d+$/\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/adjustments.html'\"></div><div ng-include=\"'assets/templates/partials/itemized-deduction.html'\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/graph-settings.html'\"></div></div>"
+  );
+
+
   $templateCache.put('assets/templates/pages/take-home-pay.html',
     "<div class=\"section\"><h3>Data</h3><div ng-include=\"'assets/templates/partials/state-select.html'\"></div><div ng-include=\"'assets/templates/partials/tax-year.html'\"></div><div ng-include=\"'assets/templates/partials/income-max.html'\"></div><div ng-include=\"'assets/templates/partials/graph-lines.html'\" ng-init=\"graphLines = [\r" +
     "\n" +
@@ -39,7 +44,7 @@ angular.module('taxApp').run(['$templateCache', function($templateCache) {
     "\n" +
     "    { id: 'married-income', prop: 'married', label: 'Married Filing Status' }\r" +
     "\n" +
-    "    ]\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/adjustments.html'\"></div><div><label for=\"itemized\" class=\"valign-top\">Itemized<br>Deduction:</label><input type=\"text\" id=\"itemized\" name=\"itemized\" ng-model=\"data.deductions.itemized\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/graph-settings.html'\"></div></div>"
+    "    ]\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/adjustments.html'\"></div><div ng-include=\"'assets/templates/partials/itemized-deduction.html'\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/graph-settings.html'\"></div></div>"
   );
 
 
@@ -77,6 +82,11 @@ angular.module('taxApp').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('assets/templates/partials/income-max.html',
     "<div><label for=\"x-max\">Income Max ($):</label><input type=\"text\" id=\"x-max\" name=\"x-max\" ng-model=\"settings.xMax\" required ng-pattern=\"/^\\d+$/\"></div>"
+  );
+
+
+  $templateCache.put('assets/templates/partials/itemized-deduction.html',
+    "<div><label for=\"itemized\" class=\"valign-top\">Itemized<br>Deduction:</label><input type=\"text\" id=\"itemized\" name=\"itemized\" ng-model=\"data.deductions.itemized\"></div>"
   );
 
 
