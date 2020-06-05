@@ -26,7 +26,7 @@
         "url": "//www.ssa.gov/policy/docs/quickfacts/prog_highlights/RatesLimits2017.html"
       }
     },
-    "federalIncome": {
+    "ordinaryIncome": {
       "rate": {
         "single": [
           [0, 0.1],
@@ -82,6 +82,38 @@
           "source": {
             "name": "Retirement Savings Contributions Savers Credit | Internal Revenue Service",
             "url": "//www.irs.gov/retirement-plans/plan-participant-employee/retirement-savings-contributions-savers-credit"
+          }
+        }
+      },
+      "source": {
+        "name": "Tax Brackets in 2017 - Tax Foundation",
+        "url": "//taxfoundation.org/2017-tax-brackets/"
+      }
+    },
+    "amt": {
+      "rate": [
+        [0, 0.26],
+        [187800, 0.28]
+      ],
+      "deductions": {
+        "exemption": {
+          "amount": {
+            "single": 54300,
+            "married": 84500
+          },
+          "phaseout": {
+            "single": {
+              "start": 120700,
+              "step": 1,
+              "reduction": 0.25,
+              "minimum": 0
+            },
+            "married": {
+              "start": 160900,
+              "step": 1,
+              "reduction": 0.25,
+              "minimum": 0
+            }
           }
         }
       },

@@ -26,7 +26,7 @@
         "url": "//www.ssa.gov/policy/docs/quickfacts/prog_highlights/RatesLimits2018.html"
       }
     },
-    "federalIncome": {
+    "ordinaryIncome": {
       "rate": {
         "single": [
           [0, 0.1],
@@ -76,6 +76,38 @@
           "source": {
             "name": "Retirement Savings Contributions Savers Credit | Internal Revenue Service",
             "url": "//www.irs.gov/retirement-plans/plan-participant-employee/retirement-savings-contributions-savers-credit"
+          }
+        }
+      },
+      "source": {
+        "name": "2018 Tax Brackets, Rates &amp; Credits | Standard Deduction | Tax Foundation",
+        "url": "//taxfoundation.org/2018-tax-brackets"
+      }
+    },
+    "amt": {
+      "rate": [
+        [0, 0.26],
+        [191500, 0.28]
+      ],
+      "deductions": {
+        "exemption": {
+          "amount": {
+            "single": 70300,
+            "married": 109400
+          },
+          "phaseout": {
+            "single": {
+              "start": 500000,
+              "step": 1,
+              "reduction": 0.25,
+              "minimum": 0
+            },
+            "married": {
+              "start": 1000000,
+              "step": 1,
+              "reduction": 0.25,
+              "minimum": 0
+            }
           }
         }
       },

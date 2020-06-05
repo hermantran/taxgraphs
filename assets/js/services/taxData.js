@@ -3,6 +3,10 @@
 function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
   const service = {};
   const splitCamelCase = $filter('splitCamelCase');
+  const FEDERAL_INCOME_TAX = {
+    ORDINARY: 'ordinaryIncome',
+    AMT: 'amt',
+  };
 
   service.states = [];
   service.filingStatuses = [];
@@ -96,12 +100,13 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
 
   function fillMetadata(data) {
     const yearData = data[service.year];
+    const { rate, deductions, credits } = yearData.federal.taxes.ordinaryIncome;
 
     service.years.push(...Object.keys(data));
     service.states.push(...Object.keys(yearData.state));
-    service.filingStatuses.push(...Object.keys(yearData.federal.taxes.federalIncome.rate));
-    service.deductions.push(...Object.keys(yearData.federal.taxes.federalIncome.deductions));
-    service.credits.push(...Object.keys(yearData.federal.taxes.federalIncome.credits));
+    service.filingStatuses.push(...Object.keys(rate));
+    service.deductions.push(...Object.keys(deductions));
+    service.credits.push(...Object.keys(credits));
   }
 
   function getFederalTaxes(year) {
@@ -109,13 +114,17 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
 
     year = year || service.year;
     const { taxes } = service.data[year].federal;
+    const { amt, ...taxesWithoutAmt } = taxes;
 
-    Object.keys(taxes).forEach((taxName) => {
-      tax = taxes[taxName];
-      tax.name = splitCamelCase(taxName);
-    });
+    Object.keys(taxesWithoutAmt)
+      .forEach((taxName) => {
+        tax = taxes[taxName];
+        tax.name = (
+          taxName === FEDERAL_INCOME_TAX.ORDINARY ? 'Federal Income' : splitCamelCase(taxName)
+        );
+      });
 
-    return taxes;
+    return taxesWithoutAmt;
   }
 
   function getStateTaxes(state, year) {
@@ -232,7 +241,7 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
     }
 
     if (tax.useFederalTaxableIncome) {
-      deductions = getFederalTaxes(year).federalIncome.deductions;
+      deductions = getFederalTaxes(year).ordinaryIncome.deductions;
       deductionsUsed.push(...getAppliedDeductions(deductions, deductionValues, status));
     }
 

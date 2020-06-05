@@ -5,15 +5,15 @@
   <div class="inline-block">
     <div ng-repeat="deduction in deductions">
       <input type="checkbox" name="{{ deduction }}" id="{{ deduction }}"
-       ng-model="data.deductions.federal.federalIncome[deduction]">
+       ng-model="data.deductions.federal.ordinaryIncome[deduction]">
       <label for="{{ deduction }}">{{ deduction | splitCamelCase }}</label>
     </div>
   </div>
 </div>
 
-<div ng-if="data.deductions.federal.federalIncome.dependents">
+<div ng-if="data.deductions.federal.ordinaryIncome.dependents">
   <label for="dependents">Dependents:</label>
-  <select id="dependents" name="dependents" ng-model="data.deductions.federal.federalIncome.numDependents"
+  <select id="dependents" name="dependents" ng-model="data.deductions.federal.ordinaryIncome.numDependents"
    ng-options="num as num for num in [0, 1, 2, 3, 4, 5]">
     </option>
   </select>
@@ -24,13 +24,13 @@
   <div class="inline-block">
     <div ng-repeat="credit in credits">
       <input type="checkbox" name="{{ credit }}" id="{{ credit }}"
-       ng-model="data.credits.federal.federalIncome[credit]">
+       ng-model="data.credits.federal.ordinaryIncome[credit]">
       <label for="{{ credit }}">{{ credit | splitCamelCase }}</label>
     </div>
   </div>
 </div>
 
-<div ng-if="data.credits.federal.federalIncome.retirementSavers">
+<div ng-if="data.credits.federal.ordinaryIncome.retirementSavers">
   <label class="valign-top" for="retirement-contribution">401k + IRA <br> Contribution:</label>
-  <input type="text" id="retirement-contribution" name="retirement-contribution" ng-model="data.credits.federal.federalIncome.retirementContribution" ng-pattern="/^\d+$/">
+  <input type="text" id="retirement-contribution" name="retirement-contribution" ng-model="data.credits.federal.ordinaryIncome.retirementContribution" ng-pattern="/^\d+$/">
 </div>

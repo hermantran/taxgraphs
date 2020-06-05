@@ -26,7 +26,7 @@
         "url": "//www.ssa.gov/policy/docs/quickfacts/prog_highlights/RatesLimits2020.html"
       }
     },
-    "federalIncome": {
+    "ordinaryIncome": {
       "rate": {
         "single": [
           [0, 0.1],
@@ -76,6 +76,38 @@
           "source": {
             "name": "Retirement Savings Contributions Savers Credit | Internal Revenue Service",
             "url": "//www.irs.gov/retirement-plans/plan-participant-employee/retirement-savings-contributions-savers-credit"
+          }
+        }
+      },
+      "source": {
+        "name": "2020 Tax Brackets | 2020 Federal Income Tax Brackets &amp; Rates - Tax Foundation",
+        "url": "//taxfoundation.org/2020-tax-brackets/"
+      }
+    },
+    "amt": {
+      "rate": [
+        [0, 0.26],
+        [197900, 0.28]
+      ],
+      "deductions": {
+        "exemption": {
+          "amount": {
+            "single": 72900,
+            "married": 113400
+          },
+          "phaseout": {
+            "single": {
+              "start": 518400,
+              "step": 1,
+              "reduction": 0.25,
+              "minimum": 0
+            },
+            "married": {
+              "start": 1036800,
+              "step": 1,
+              "reduction": 0.25,
+              "minimum": 0
+            }
           }
         }
       },

@@ -4,8 +4,6 @@ Number.isNaN = require('is-nan');
 /* @ngInject */
 function StockOptionAmtCtrl($scope, $filter, taxData, taxService, graph, settings) {
   $scope.key = 'stockOptionAmtData';
-  $scope.colors = settings.colors;
-  $scope.animationTimes = settings.animationTimes;
   $scope.xAxisScales = settings.xAxisScales;
   $scope.years = taxData.years;
   $scope.states = taxData.states;
@@ -41,8 +39,8 @@ function StockOptionAmtCtrl($scope, $filter, taxData, taxService, graph, setting
   function formatAdjustments() {
     const { deductions, credits } = $scope.data;
 
-    deductions.state.income = deductions.federal.federalIncome;
-    credits.state.income = credits.federal.federalIncome;
+    deductions.state.income = deductions.federal.ordinaryIncome;
+    credits.state.income = credits.federal.ordinaryIncome;
   }
 
   function formatItemized() {
@@ -50,7 +48,7 @@ function StockOptionAmtCtrl($scope, $filter, taxData, taxService, graph, setting
     let itemized = parseInt(deductions.itemized, 10);
 
     itemized = Number.isNaN(itemized) ? 0 : itemized;
-    deductions.federal.federalIncome.itemized = itemized;
+    deductions.federal.ordinaryIncome.itemized = itemized;
     deductions.state.income.itemized = itemized;
 
     return itemized;
@@ -60,7 +58,7 @@ function StockOptionAmtCtrl($scope, $filter, taxData, taxService, graph, setting
     const { axisFormats } = settings;
     const { data } = $scope;
     const { itemized } = data.deductions;
-    const hasDeduction = data.deductions.federal.federalIncome.standardDeduction;
+    const hasDeduction = data.deductions.federal.ordinaryIncome.standardDeduction;
 
     const primaryTitle = `${$scope.stateNames[state]} Incentive Stock Option AMT, ${year}`;
     const secondaryTitle = [

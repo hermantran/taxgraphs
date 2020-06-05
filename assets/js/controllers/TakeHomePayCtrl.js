@@ -4,8 +4,6 @@ Number.isNaN = require('is-nan');
 /* @ngInject */
 function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, settings) {
   $scope.key = 'takeHomePayData';
-  $scope.colors = settings.colors;
-  $scope.animationTimes = settings.animationTimes;
   $scope.xAxisScales = settings.xAxisScales;
   $scope.years = taxData.years;
   $scope.states = taxData.states;
@@ -41,8 +39,8 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, settings) 
   function formatAdjustments() {
     const { deductions, credits } = $scope.data;
 
-    deductions.state.income = deductions.federal.federalIncome;
-    credits.state.income = credits.federal.federalIncome;
+    deductions.state.income = deductions.federal.ordinaryIncome;
+    credits.state.income = credits.federal.ordinaryIncome;
   }
 
   function formatItemized() {
@@ -50,7 +48,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, settings) 
     let itemized = parseInt(deductions.itemized, 10);
 
     itemized = Number.isNaN(itemized) ? 0 : itemized;
-    deductions.federal.federalIncome.itemized = itemized;
+    deductions.federal.ordinaryIncome.itemized = itemized;
     deductions.state.income.itemized = itemized;
 
     return itemized;
@@ -59,7 +57,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, settings) 
   function updateGraphText(state, year) {
     const { axisFormats } = settings;
     const { itemized, federal } = $scope.data.deductions;
-    const hasDeduction = federal.federalIncome.standardDeduction;
+    const hasDeduction = federal.ordinaryIncome.standardDeduction;
 
     const primaryTitle = `${$scope.stateNames[state]} Take Home Pay, ${year}`;
     const secondaryTitle = [

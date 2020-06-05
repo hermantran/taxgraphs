@@ -26,7 +26,7 @@
         "url": "//www.ssa.gov/news/press/factsheets/colafacts2015.html"
       }
     },
-    "federalIncome": {
+    "ordinaryIncome": {
       "rate": {
         "single": [
           [0, 0.1],
@@ -88,6 +88,38 @@
       "source": {
         "name": "Tax Foundation - 2015 Tax Brackets",
         "url": "//taxfoundation.org/article/2015-tax-brackets"
+      }
+    },
+    "amt": {
+      "rate": [
+        [0, 0.26],
+        [185400, 0.28]
+      ],
+      "deductions": {
+        "exemption": {
+          "amount": {
+            "single": 53600,
+            "married": 83400
+          },
+          "phaseout": {
+            "single": {
+              "start": 119200,
+              "step": 1,
+              "reduction": 0.25,
+              "minimum": 0
+            },
+            "married": {
+              "start": 158900,
+              "step": 1,
+              "reduction": 0.25,
+              "minimum": 0
+            }
+          }
+        }
+      },
+      "source": {
+        "name": "Alternative Minimum Tax: What Is It and Do You Need to Worry About It? @themotleyfool #stocks",
+        "url": "//www.fool.com/investing/general/2015/09/25/alternative-minimum-tax-what-is-it-and-do-you-need.aspx"
       }
     }
   }

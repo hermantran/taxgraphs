@@ -26,7 +26,7 @@
         "url": "//www.ssa.gov/news/press/factsheets/colafacts2016.html"
       }
     },
-    "federalIncome": {
+    "ordinaryIncome": {
       "rate": {
         "single": [
           [0, 0.1],
@@ -88,6 +88,38 @@
       "source": {
         "name": "Tax Brackets in 2016 - Tax Foundation",
         "url": "//taxfoundation.org/2016-tax-brackets/"
+      }
+    },
+    "amt": {
+      "rate": [
+        [0, 0.26],
+        [186300, 0.28]
+      ],
+      "deductions": {
+        "exemption": {
+          "amount": {
+            "single": 53900,
+            "married": 83800
+          },
+          "phaseout": {
+            "single": {
+              "start": 119700,
+              "step": 1,
+              "reduction": 0.25,
+              "minimum": 0
+            },
+            "married": {
+              "start": 159700,
+              "step": 1,
+              "reduction": 0.25,
+              "minimum": 0
+            }
+          }
+        }
+      },
+      "source": {
+        "name": "Your 2017 Guide to the Alternative Minimum Tax @themotleyfool #stocks",
+        "url": "//www.fool.com/taxes/2017/04/15/your-2017-guide-to-the-alternative-minimum-tax.aspx"
       }
     }
   }

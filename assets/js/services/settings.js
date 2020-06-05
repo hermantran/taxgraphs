@@ -7,7 +7,6 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
   service.get = get;
   service.set = set;
 
-  service.animationTimes = [0, 1000, 2000, 3000];
   service.xAxisScales = {
     linear: 'Linear',
     log: 'Logarithmic',
@@ -116,7 +115,7 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
   function createDeductionSettings() {
     return {
       federal: {
-        federalIncome: _.cloneDeep(service.deductionDefaults),
+        ordinaryIncome: _.cloneDeep(service.deductionDefaults),
       },
       state: {
         income: _.cloneDeep(service.deductionDefaults),
@@ -127,7 +126,7 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
   function createCreditSettings() {
     return {
       federal: {
-        federalIncome: _.cloneDeep(service.creditDefaults),
+        ordinaryIncome: _.cloneDeep(service.creditDefaults),
       },
       state: {
         income: _.cloneDeep(service.creditDefaults),

@@ -11,8 +11,6 @@ function StateBreakdownCtrl(
   settings,
 ) {
   $scope.key = 'stateBreakdownData';
-  $scope.colors = settings.colors;
-  $scope.animationTimes = settings.animationTimes;
   $scope.xAxisScales = settings.xAxisScales;
   $scope.years = taxData.years;
   $scope.states = taxData.states;
@@ -56,14 +54,14 @@ function StateBreakdownCtrl(
   function formatAdjustments() {
     const { deductions, credits } = $scope.data;
 
-    deductions.state.income = deductions.federal.federalIncome;
-    credits.state.income = credits.federal.federalIncome;
+    deductions.state.income = deductions.federal.ordinaryIncome;
+    credits.state.income = credits.federal.ordinaryIncome;
   }
 
   function updateGraphText(state, year, status) {
     const { axisFormats } = settings;
     const { data } = $scope;
-    const hasDeduction = data.deductions.federal.federalIncome.standardDeduction;
+    const hasDeduction = data.deductions.federal.ordinaryIncome.standardDeduction;
 
     const primaryTitle = [
       $scope.stateNames[state],
