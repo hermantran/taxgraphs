@@ -1,8 +1,4 @@
-var filingStatuses = {
+export const filingStatuses = {
   single: 'single',
   married: 'married'
-};
-
-module.exports = {
-  filingStatuses: filingStatuses
 };

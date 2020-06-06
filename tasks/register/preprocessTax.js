@@ -20,11 +20,11 @@ module.exports = function(grunt) {
 
       srcFiles.forEach(function(filepath) {
         var data = JSON.parse(grunt.file.read(filepath));
-        taxService.preprocessTaxes(data);
+        var processedData = taxService.preprocessTaxes(data);
 
         try {
           // minify json
-          src.push(jsonminify(JSON.stringify(data)));
+          src.push(jsonminify(JSON.stringify(processedData)));
         } catch (err) {
           errors.push(err.message + ' in ' + filepath);
         }

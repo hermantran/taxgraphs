@@ -33,7 +33,7 @@ angular.module('taxApp').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('assets/templates/pages/stock-option-amt.html',
-    "<div class=\"section\"><h3>Data</h3><div ng-include=\"'assets/templates/partials/state-select.html'\"></div><div ng-include=\"'assets/templates/partials/tax-year.html'\"></div><div ng-include=\"'assets/templates/partials/filing-status.html'\"></div><div><label for=\"income\">Gross Income:</label><input type=\"text\" id=\"income\" name=\"income\" ng-model=\"settings.income\" required ng-pattern=\"/^\\d+$/\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/adjustments.html'\"></div><div ng-include=\"'assets/templates/partials/itemized-deduction.html'\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/graph-settings.html'\"></div></div>"
+    "<div class=\"section\"><h3>Data</h3><div ng-include=\"'assets/templates/partials/tax-year.html'\"></div><div ng-include=\"'assets/templates/partials/filing-status.html'\"></div><div><label for=\"income\">Gross Income:</label><input type=\"text\" id=\"income\" name=\"income\" ng-model=\"settings.income\" required ng-pattern=\"/^\\d+$/\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/adjustments.html'\"></div><div ng-include=\"'assets/templates/partials/itemized-deduction.html'\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/graph-settings.html'\"></div></div>"
   );
 
 

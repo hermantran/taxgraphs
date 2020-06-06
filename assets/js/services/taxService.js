@@ -34,37 +34,51 @@ function taxService(_) {
   service.modifyTaxBracket = modifyTaxBracket;
 
   function preprocessTaxes(taxes, rateProp) {
+    const processedTaxes = _.cloneDeep(taxes);
     rateProp = rateProp || 'rate';
 
     Object.keys(taxes).forEach((prop) => {
       if (prop === rateProp) {
-        preprocessRateProp(taxes[prop]);
-      } else if (_.isPlainObject(taxes[prop])) {
-        preprocessTaxes(taxes[prop]);
+        processedTaxes[prop] = preprocessRateProp(taxes[prop]);
+      } else if (_.isPlainObject(processedTaxes[prop])) {
+        processedTaxes[prop] = preprocessTaxes(taxes[prop]);
       }
     });
 
-    return taxes;
+    return processedTaxes;
   }
 
   function preprocessRateProp(rate) {
+    let processedRate;
+
     if (_.isArray(rate)) {
-      precalcBracketTaxes(rate);
+      processedRate = precalcBracketTaxes(rate);
     } else if (_.isPlainObject(rate)) {
-      Object.keys(rate).forEach((status) => {
-        precalcBracketTaxes(rate[status]);
-      });
+      processedRate = Object.keys(rate).reduce((acc, status) => {
+        acc[status] = precalcBracketTaxes(rate[status]);
+        return acc;
+      }, {});
+    } else {
+      processedRate = rate;
     }
+
+    return processedRate;
   }
 
   function precalcBracketTaxes(tax) {
-    for (let i = 0, len = tax.length, max = 0; i < len - 1; i += 1) {
+    const calculatedBracketTaxes = [...tax];
+    const len = tax.length;
+
+    for (let i = 0, max = 0; i < len - 1; i += 1) {
       max += (tax[i + 1][MIN] - tax[i][MIN]) * tax[i][RATE];
-      tax[i][MAX_TAX] = Math.round(max);
+      calculatedBracketTaxes[i][MAX_TAX] = Math.round(max);
     }
+
+    return calculatedBracketTaxes;
   }
 
-  function calcTaxCredit({ amount }, income) {
+  function calcTaxCredit(credit, income) {
+    const { amount } = credit;
     let refund = 0;
 
     if (_.isArray(amount)) {
@@ -76,6 +90,8 @@ function taxService(_) {
         refund = bracket[1];
         return false;
       });
+    } else {
+      throw new Error(`Cannot calculate tax credit of type ${typeof credit}`);
     }
 
     return refund;
@@ -84,7 +100,7 @@ function taxService(_) {
   function calcTaxCredits(credits, income, filingStatus, taxAmount, withoutTaxCap) {
     let total = 0;
 
-    _(credits)
+    credits
       .sort(({ isRefundable }) => (isRefundable ? 1 : -1))
       .forEach((credit) => {
         if (_.isPlainObject(credit.amount)) {
@@ -236,11 +252,11 @@ function taxService(_) {
 
   function createTotalMarginalTaxData(taxes, totalBracket, max, filingStatus) {
     const data = taxes.map((tax) => {
-      const rate = totalBracket.map((bracket) => [
+      let rate = totalBracket.map((bracket) => [
         bracket[MIN],
         calcMarginalTaxRate(tax.rate, bracket[MIN], filingStatus),
       ]);
-      precalcBracketTaxes(rate);
+      rate = precalcBracketTaxes(rate);
       return createMarginalTaxData(rate, max, filingStatus, tax.credits);
     });
 
@@ -255,11 +271,11 @@ function taxService(_) {
 
   function createTotalEffectiveTaxData(taxes, totalBracket, max, filingStatus) {
     const data = taxes.map((tax) => {
-      const rate = totalBracket.map((bracket) => [
+      let rate = totalBracket.map((bracket) => [
         bracket[MIN],
         calcMarginalTaxRate(tax.rate, bracket[MIN], filingStatus),
       ]);
-      precalcBracketTaxes(rate);
+      rate = precalcBracketTaxes(rate);
       return createEffectiveTaxData(rate, max, filingStatus, tax.credits);
     });
 
@@ -388,8 +404,7 @@ function taxService(_) {
       return [bracket[MIN], totalRate];
     });
 
-    precalcBracketTaxes(brackets);
-    return brackets;
+    return precalcBracketTaxes(brackets);
   }
 
   function calcMarginalTaxRate(tax, income, filingStatus, credits) {
@@ -582,7 +597,7 @@ function taxService(_) {
         taxBracket[MIN] += currentDeductionBracket[1];
       });
 
-      precalcBracketTaxes(copy);
+      copy = precalcBracketTaxes(copy);
     }
 
     return copy;
@@ -593,7 +608,7 @@ function taxService(_) {
       tax = tax[filingStatus];
     }
 
-    const copy = _.cloneDeep(tax);
+    let copy = _.cloneDeep(tax);
 
     if (!credits.length) {
       return copy;
@@ -627,7 +642,7 @@ function taxService(_) {
       copy.sort((a, b) => a[MIN] - b[MIN]);
     });
 
-    precalcBracketTaxes(copy);
+    copy = precalcBracketTaxes(copy);
 
     const final = [];
 
@@ -655,15 +670,16 @@ function taxService(_) {
 
     final.sort((a, b) => a[MIN] - b[MIN]);
 
-    precalcBracketTaxes(final);
-    return final;
+    return precalcBracketTaxes(final);
   }
 
   function modifyTaxBracket(tax, filingStatus, deductions, credits) {
-    let finalTax = applyDeductionsToTaxBracket(tax, filingStatus, deductions);
-    finalTax = applyCreditsToTaxBracket(finalTax, filingStatus, credits);
+    const taxWithDeductions = applyDeductionsToTaxBracket(tax, filingStatus, deductions);
+    const taxWithDeductionsAndCredits = applyCreditsToTaxBracket(
+      taxWithDeductions, filingStatus, credits,
+    );
 
-    return finalTax;
+    return taxWithDeductionsAndCredits;
   }
 
   return service;
