@@ -8,6 +8,10 @@
   }
 }
 
+.controls-content {
+  margin-bottom: 60px;
+}
+
 .section {
   margin: 10px;
   padding: 10px 12px;
@@ -109,19 +113,29 @@
 .footer {
   position: absolute;
   bottom: 5px;
-  left: 10px;
-  width: 100%;
-  font-size: 0.95em;
+  width: auto;
+  margin: 0 10px;
+  padding: 4px 10px;
+  box-sizing: border-box;
   z-index: 0;
+  border: 1px solid darken(@light-grey, 10%);
+  background: white;
+  font-size: 0.95em;
 
   a {
     text-decoration: none;
     color: #777;
+    line-height: 24px;
 
     &:hover {
       text-decoration: underline;
     }
   }
+}
+
+.divider {
+  display: inline-block;
+  margin: 0 2px;
 }
 
 .copyright {

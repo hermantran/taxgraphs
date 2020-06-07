@@ -29,6 +29,10 @@ export default {
     controller: 'StockOptionAmtCtrl',
     title: 'Stock Option AMT',
   },
+  disclaimer: {
+    path: '/disclaimer',
+    title: 'Disclaimer',
+  },
 };
 
 export const routeOrder = [
