@@ -86,7 +86,7 @@ function taxService(_) {
   }
 
   function calcIsosForAmtIncome(amtIncome, income, strikePrice, optionValue) {
-    const isos = parseInt((amtIncome - income) / (optionValue - strikePrice), 10);
+    const isos = Math.round((amtIncome - income) / (optionValue - strikePrice));
     return Math.max(isos, 0);
   }
 

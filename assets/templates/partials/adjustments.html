@@ -32,5 +32,5 @@
 
 <div ng-if="data.credits.federal.ordinaryIncome.retirementSavers">
   <label class="valign-top" for="retirement-contribution">401k + IRA <br> Contribution:</label>
-  <input type="text" id="retirement-contribution" name="retirement-contribution" ng-model="data.credits.federal.ordinaryIncome.retirementContribution" ng-pattern="/^\d+$/">
+  <input type="text" id="retirement-contribution" name="retirement-contribution" ng-model="data.credits.federal.ordinaryIncome.retirementContribution" convert-to-number>
 </div>

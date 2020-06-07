@@ -44,16 +44,14 @@ function graph(d3, _, screenService, settings) {
   service.defaults = _.cloneDeep(graphDefaults);
 
   service.colors = [
-    '#654B6B',
-    '#6EAE41',
-    '#C950CA',
-    '#BE4C3B',
-    '#4CA086',
-    '#55612C',
-    '#C28D39',
-    '#C65583',
-    '#7597C2',
-    '#856EC7',
+    '#396AB1',
+    '#CC2529',
+    '#3E9651',
+    '#DA7C30',
+    '#535154',
+    '#6B4C9A',
+    '#922428',
+    '#948B3D',
   ];
 
   service.init = (initSettings) => {
@@ -84,14 +82,14 @@ function graph(d3, _, screenService, settings) {
       return this.parentNode;
     });
 
-    if (screenService.width < screenService.sizes.md) {
+    if (screenService.isMobile()) {
       width = screenService.width - 5;
       height = screenService.height - 45;
-      service.m = [50, 40, 80, 60];
+      service.m = [50, 40, 75, 75];
     } else {
-      width = parseInt(parent.style('width'), 10) - 5;
-      height = parseInt(parent.style('height'), 10) - 5;
-      service.m = [80, 40, 80, 70];
+      width = parseInt(parent.style('width'), 10) - 10;
+      height = parseInt(parent.style('height'), 10) - 15;
+      service.m = [80, 40, 75, 80];
     }
 
     service.w = width - service.m[1] - service.m[3];
@@ -138,12 +136,12 @@ function graph(d3, _, screenService, settings) {
   service.positionText = () => {
     service.title.attr('transform', `translate(${service.w / 2},${-service.m[0] / 2})`);
 
-    service.xAxisLabel.attr('x', service.w / 2).attr('y', service.h + 75);
+    service.xAxisLabel.attr('x', service.w / 2).attr('y', service.h + 70);
 
     service.yAxisLabel
       .attr('transform', 'rotate(-90)')
       .attr('x', -service.h / 2)
-      .attr('y', -45);
+      .attr('y', -55);
   };
 
   service.updateXAxis = (xMax) => {
@@ -486,8 +484,8 @@ function graph(d3, _, screenService, settings) {
     } else {
       service.hoverLabel
         .classed(service.classes.hide, false)
-        .attr('x', xPos - 35)
-        .attr('y', service.h + 50)
+        .attr('x', xPos)
+        .attr('y', service.h + 45)
         .text(service.xAxisLabelFormat(xValue));
     }
   };

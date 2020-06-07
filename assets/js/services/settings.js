@@ -86,11 +86,11 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
       ...getBaseDefaults(),
       state: 'TX',
       income: 150000,
-      strikePrice: 2,
-      optionValue: 6.50,
+      strikePrice: 6.15,
+      optionValue: 10.55,
       graph: {
         ...getBaseDefaults().graph,
-        xMax: 10000,
+        xMax: 12000,
       },
     },
     takeHomePayData: {

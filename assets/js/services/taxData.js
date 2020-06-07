@@ -424,8 +424,6 @@ function taxData($http, $q, $filter, _, TAX_API, TAX_YEAR, taxService) {
     let twoThirdPoint;
     let i;
 
-    max = parseInt(max, 10);
-
     data.push({
       x: tax[0][MIN],
       y: credits ? calcEffectiveTaxRate(tax, tax[0][MIN] + 1, filingStatus, credits) : tax[0][RATE],

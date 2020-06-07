@@ -10,7 +10,7 @@
 
 .section {
   margin: 10px;
-  padding: 5px 10px;
+  padding: 10px 12px;
   background: @white;
   border: 1px solid darken(@light-grey, 10%);
   border-top: 3px solid @blue;
@@ -86,10 +86,9 @@
   border: 1px solid darken(@light-grey, 10%);
   position: relative;
 
-  .info {
+  .info, .close {
     position: absolute;
-    top: 7px;
-    left: 10px;
+    top: 10px;
   }
 
   .text {
@@ -97,10 +96,12 @@
     padding: 0 25px;
   }
 
+  .info {
+    left: 12px;
+  }
+
   .close {
-    position: absolute;
-    top: 7px;
-    right: 10px;
+    right: 12px;
     cursor: pointer;
   }
 }

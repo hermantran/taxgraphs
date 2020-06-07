@@ -41,14 +41,9 @@ function StockOptionAmtCtrl($scope, $filter, taxData, taxService, graph, setting
   }
 
   function formatItemized() {
-    const { deductions } = $scope.data;
-    let itemized = parseInt(deductions.itemized, 10);
-
-    itemized = Number.isNaN(itemized) ? 0 : itemized;
-    deductions.federal.ordinaryIncome.itemized = itemized;
-    deductions.state.income.itemized = itemized;
-
-    return itemized;
+    const { itemized, federal, state } = $scope.data.deductions;
+    federal.ordinaryIncome.itemized = itemized;
+    state.income.itemized = itemized;
   }
 
   function updateGraphText(state, year) {

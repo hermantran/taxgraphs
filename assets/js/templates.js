@@ -33,7 +33,7 @@ angular.module('taxApp').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('assets/templates/pages/stock-option-amt.html',
-    "<div class=\"section\"><h3>Data</h3><div ng-include=\"'assets/templates/partials/tax-year.html'\"></div><div ng-include=\"'assets/templates/partials/filing-status.html'\"></div><div><label for=\"income\">Gross Income:</label><input type=\"text\" id=\"income\" name=\"income\" ng-model=\"data.income\" convert-to-number required ng-pattern=\"/^\\d+$/\"></div><div><label for=\"strikePrice\">Strike Price:</label><input type=\"text\" id=\"strikePrice\" name=\"strikePrice\" ng-model=\"data.strikePrice\" required ng-pattern=\"/^[\\d\\.]+$/\"></div><div><label for=\"optionValue\">409A Value:</label><input type=\"text\" id=\"optionValue\" name=\"optionValue\" ng-model=\"data.optionValue\" required ng-pattern=\"/^[\\d\\.]+$/\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/adjustments.html'\"></div><div ng-include=\"'assets/templates/partials/itemized-deduction.html'\"></div><div ng-include=\"'assets/templates/partials/graph-button.html'\"></div></div>"
+    "<div class=\"section\"><h3>Data</h3><div ng-include=\"'assets/templates/partials/tax-year.html'\"></div><div ng-include=\"'assets/templates/partials/filing-status.html'\"></div><div><label for=\"income\">Gross Income:</label><input type=\"text\" id=\"income\" name=\"income\" ng-model=\"data.income\" required convert-to-number></div><div><label for=\"optionValue\">Exercised ISOs:</label><input type=\"text\" id=\"exercisedIsos\" name=\"exercisedIsos\" ng-model=\"settings.xMax\" required convert-to-number></div><div><label for=\"strikePrice\">Strike Price:</label><input type=\"text\" id=\"strikePrice\" name=\"strikePrice\" ng-model=\"data.strikePrice\" required convert-to-price></div><div><label for=\"optionValue\">409A Value:</label><input type=\"text\" id=\"optionValue\" name=\"optionValue\" ng-model=\"data.optionValue\" required convert-to-price></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/adjustments.html'\"></div><div ng-include=\"'assets/templates/partials/itemized-deduction.html'\"></div><div ng-include=\"'assets/templates/partials/graph-button.html'\"></div></div>"
   );
 
 
@@ -49,7 +49,7 @@ angular.module('taxApp').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('assets/templates/partials/adjustments.html',
-    "<h3>Adjustments</h3><div><label class=\"valign-top\">Deductions /<br>Exemptions:</label><div class=\"inline-block\"><div ng-repeat=\"deduction in deductions\"><input type=\"checkbox\" name=\"{{ deduction }}\" id=\"{{ deduction }}\" ng-model=\"data.deductions.federal.ordinaryIncome[deduction]\"><label for=\"{{ deduction }}\">{{ deduction | splitCamelCase }}</label></div></div></div><div ng-if=\"data.deductions.federal.ordinaryIncome.dependents\"><label for=\"dependents\">Dependents:</label><select id=\"dependents\" name=\"dependents\" ng-model=\"data.deductions.federal.ordinaryIncome.numDependents\" ng-options=\"num as num for num in [0, 1, 2, 3, 4, 5]\"></select></div><div><label class=\"valign-top\">Tax Credits:</label><div class=\"inline-block\"><div ng-repeat=\"credit in credits\"><input type=\"checkbox\" name=\"{{ credit }}\" id=\"{{ credit }}\" ng-model=\"data.credits.federal.ordinaryIncome[credit]\"><label for=\"{{ credit }}\">{{ credit | splitCamelCase }}</label></div></div></div><div ng-if=\"data.credits.federal.ordinaryIncome.retirementSavers\"><label class=\"valign-top\" for=\"retirement-contribution\">401k + IRA<br>Contribution:</label><input type=\"text\" id=\"retirement-contribution\" name=\"retirement-contribution\" ng-model=\"data.credits.federal.ordinaryIncome.retirementContribution\" ng-pattern=\"/^\\d+$/\"></div>"
+    "<h3>Adjustments</h3><div><label class=\"valign-top\">Deductions /<br>Exemptions:</label><div class=\"inline-block\"><div ng-repeat=\"deduction in deductions\"><input type=\"checkbox\" name=\"{{ deduction }}\" id=\"{{ deduction }}\" ng-model=\"data.deductions.federal.ordinaryIncome[deduction]\"><label for=\"{{ deduction }}\">{{ deduction | splitCamelCase }}</label></div></div></div><div ng-if=\"data.deductions.federal.ordinaryIncome.dependents\"><label for=\"dependents\">Dependents:</label><select id=\"dependents\" name=\"dependents\" ng-model=\"data.deductions.federal.ordinaryIncome.numDependents\" ng-options=\"num as num for num in [0, 1, 2, 3, 4, 5]\"></select></div><div><label class=\"valign-top\">Tax Credits:</label><div class=\"inline-block\"><div ng-repeat=\"credit in credits\"><input type=\"checkbox\" name=\"{{ credit }}\" id=\"{{ credit }}\" ng-model=\"data.credits.federal.ordinaryIncome[credit]\"><label for=\"{{ credit }}\">{{ credit | splitCamelCase }}</label></div></div></div><div ng-if=\"data.credits.federal.ordinaryIncome.retirementSavers\"><label class=\"valign-top\" for=\"retirement-contribution\">401k + IRA<br>Contribution:</label><input type=\"text\" id=\"retirement-contribution\" name=\"retirement-contribution\" ng-model=\"data.credits.federal.ordinaryIncome.retirementContribution\" convert-to-number></div>"
   );
 
 
@@ -86,12 +86,12 @@ angular.module('taxApp').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('assets/templates/partials/income-max.html',
-    "<div><label for=\"x-max\">Income Max ($):</label><input type=\"text\" id=\"x-max\" name=\"x-max\" ng-model=\"settings.xMax\" required ng-pattern=\"/^\\d+$/\"></div>"
+    "<div><label for=\"x-max\">Income Max ($):</label><input type=\"text\" id=\"x-max\" name=\"x-max\" ng-model=\"settings.xMax\" required convert-to-number></div>"
   );
 
 
   $templateCache.put('assets/templates/partials/itemized-deduction.html',
-    "<div><label for=\"itemized\" class=\"valign-top\">Itemized<br>Deduction:</label><input type=\"text\" id=\"itemized\" name=\"itemized\" ng-model=\"data.deductions.itemized\"></div>"
+    "<div><label for=\"itemized\" class=\"valign-top\">Itemized<br>Deduction:</label><input type=\"text\" id=\"itemized\" name=\"itemized\" convert-to-number ng-model=\"data.deductions.itemized\"></div>"
   );
 
 
