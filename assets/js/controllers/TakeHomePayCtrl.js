@@ -65,7 +65,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, settings) 
       itemized > 0 ? `, $${itemized} Itemized Deduction` : '',
     ].join(' ');
     graph.updateTitle(primaryTitle, secondaryTitle);
-    graph.updateAxisLabels('Gross Income', 'Percent');
+    graph.updateAxisLabels('Gross Income', 'Tax Rate');
     graph.updateAxisFormats(axisFormats.dollar, axisFormats.percent);
   }
 
@@ -100,7 +100,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, settings) 
         const total = taxService.calcTotalMarginalTaxBrackets(rates, xMax, status);
 
         graph.addLine({
-          data: taxService.createTakeHomePayData(taxes, total, xMax, status),
+          data: taxData.createTakeHomePayData(taxes, total, xMax, status),
           label: `Net Income - ${capitalize(status)} Status`,
           tooltipFn: createTaxRateFn(taxes, status, true),
           formattedFn: rateFormatter,

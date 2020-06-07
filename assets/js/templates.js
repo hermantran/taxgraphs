@@ -12,7 +12,7 @@ angular.module('taxApp').run(['$templateCache', function($templateCache) {
     "\n" +
     "    { id: 'total-marginal', prop: 'totalMarginal', label: 'Total Marginal Tax' }\r" +
     "\n" +
-    "    ]\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/adjustments.html'\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/graph-settings.html'\"></div></div>"
+    "    ]\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/adjustments.html'\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/graph-settings.html'\"></div><div ng-include=\"'assets/templates/partials/graph-button.html'\"></div></div>"
   );
 
 
@@ -23,17 +23,17 @@ angular.module('taxApp').run(['$templateCache', function($templateCache) {
     "\n" +
     "    { id: 'marginal-taxes', prop: 'marginal', label: 'Total Marginal Tax' }\r" +
     "\n" +
-    "    ]\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/adjustments.html'\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/graph-settings.html'\"></div></div>"
+    "    ]\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/adjustments.html'\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/graph-settings.html'\"></div><div ng-include=\"'assets/templates/partials/graph-button.html'\"></div></div>"
   );
 
 
   $templateCache.put('assets/templates/pages/state-history.html',
-    "<div class=\"section\"><h3>Data</h3><div ng-include=\"'assets/templates/partials/state-select.html'\"></div><div ng-include=\"'assets/templates/partials/filing-status.html'\"></div><div ng-include=\"'assets/templates/partials/income-max.html'\"></div><div ng-include=\"'assets/templates/partials/graph-lines.html'\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/adjustments.html'\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/graph-settings.html'\"></div></div>"
+    "<div class=\"section\"><h3>Data</h3><div ng-include=\"'assets/templates/partials/state-select.html'\"></div><div ng-include=\"'assets/templates/partials/filing-status.html'\"></div><div ng-include=\"'assets/templates/partials/income-max.html'\"></div><div ng-include=\"'assets/templates/partials/graph-lines.html'\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/adjustments.html'\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/graph-settings.html'\"></div><div ng-include=\"'assets/templates/partials/graph-button.html'\"></div></div>"
   );
 
 
   $templateCache.put('assets/templates/pages/stock-option-amt.html',
-    "<div class=\"section\"><h3>Data</h3><div ng-include=\"'assets/templates/partials/tax-year.html'\"></div><div ng-include=\"'assets/templates/partials/filing-status.html'\"></div><div><label for=\"income\">Gross Income:</label><input type=\"text\" id=\"income\" name=\"income\" ng-model=\"settings.income\" required ng-pattern=\"/^\\d+$/\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/adjustments.html'\"></div><div ng-include=\"'assets/templates/partials/itemized-deduction.html'\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/graph-settings.html'\"></div></div>"
+    "<div class=\"section\"><h3>Data</h3><div ng-include=\"'assets/templates/partials/tax-year.html'\"></div><div ng-include=\"'assets/templates/partials/filing-status.html'\"></div><div><label for=\"income\">Gross Income:</label><input type=\"text\" id=\"income\" name=\"income\" ng-model=\"data.income\" convert-to-number required ng-pattern=\"/^\\d+$/\"></div><div><label for=\"strikePrice\">Strike Price:</label><input type=\"text\" id=\"strikePrice\" name=\"strikePrice\" ng-model=\"data.strikePrice\" required ng-pattern=\"/^[\\d\\.]+$/\"></div><div><label for=\"optionValue\">409A Value:</label><input type=\"text\" id=\"optionValue\" name=\"optionValue\" ng-model=\"data.optionValue\" required ng-pattern=\"/^[\\d\\.]+$/\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/adjustments.html'\"></div><div ng-include=\"'assets/templates/partials/itemized-deduction.html'\"></div><div ng-include=\"'assets/templates/partials/graph-button.html'\"></div></div>"
   );
 
 
@@ -44,7 +44,7 @@ angular.module('taxApp').run(['$templateCache', function($templateCache) {
     "\n" +
     "    { id: 'married-income', prop: 'married', label: 'Married Filing Status' }\r" +
     "\n" +
-    "    ]\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/adjustments.html'\"></div><div ng-include=\"'assets/templates/partials/itemized-deduction.html'\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/graph-settings.html'\"></div></div>"
+    "    ]\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/adjustments.html'\"></div><div ng-include=\"'assets/templates/partials/itemized-deduction.html'\"></div><div class=\"subsection\" ng-include=\"'assets/templates/partials/graph-settings.html'\"></div><div ng-include=\"'assets/templates/partials/graph-button.html'\"></div></div>"
   );
 
 
@@ -55,6 +55,11 @@ angular.module('taxApp').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('assets/templates/partials/filing-status.html',
     "<div><label for=\"status\">Filing Status:</label><select ng-model=\"data.status\" id=\"status\" name=\"status\" ng-options=\"v as (v | capitalize) for v in filingStatuses\"></select></div>"
+  );
+
+
+  $templateCache.put('assets/templates/partials/graph-button.html',
+    "<div class=\"text-center buttons\"><button class=\"pure-button pure-button-primary\" ng-click=\"drawGraph()\">Graph</button></div>"
   );
 
 
@@ -76,7 +81,7 @@ angular.module('taxApp').run(['$templateCache', function($templateCache) {
     "\n" +
     "  </select>\r" +
     "\n" +
-    "</div> --><div class=\"text-center buttons\"><button class=\"pure-button pure-button-primary\" ng-click=\"drawGraph()\">Graph</button></div>"
+    "</div> -->"
   );
 
 

@@ -35,7 +35,7 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
     xMin: 0,
     xMax: 300000,
     yMin: 0,
-    yMax: 60,
+    yMax: 0.6,
     animationTime: 1250,
   };
 
@@ -84,8 +84,13 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
     },
     stockOptionAmtData: {
       ...getBaseDefaults(),
-      graphLines: {
-
+      state: 'TX',
+      income: 150000,
+      strikePrice: 2,
+      optionValue: 6.50,
+      graph: {
+        ...getBaseDefaults().graph,
+        xMax: 10000,
       },
     },
     takeHomePayData: {
@@ -116,6 +121,9 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
     return {
       federal: {
         ordinaryIncome: _.cloneDeep(service.deductionDefaults),
+        amt: {
+          amtExemption: true,
+        },
       },
       state: {
         income: _.cloneDeep(service.deductionDefaults),

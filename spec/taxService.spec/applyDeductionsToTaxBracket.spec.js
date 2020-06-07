@@ -2,7 +2,7 @@ import { filingStatuses as statuses } from '../specHelper';
 
 export default (taxService) => { 
   describe('applyDeductionsToTaxBracket()', () => {
-    it('should apply the deductions correctly to the tax brackets', () => {
+    it('should apply deductions with simple phaseouts correctly to the tax brackets', () => {
       const deductions = [
         {
           amount: [
@@ -41,5 +41,36 @@ export default (taxService) => {
         [21350, 0.3],
       ]);
     });
+
+    it('should apply deductions with step phaseouts correctly to the tax brackets', () => {
+      const deductions = [
+      {
+          amount: 2000,
+          phaseout: {
+            start: 15000,
+            step: 5000,
+            reduction: 500,
+            minimum: 0,
+          },
+        }
+      ];
+
+      const tax = [
+        [0, 0.1, 1000],
+        [10000, 0.2],
+      ];
+
+      expect(taxService.applyDeductionsToTaxBracket(tax, statuses.single, deductions)).toEqual([
+        [0, 0, 0],
+        [2000, 0.1, 1000],
+        [12000, 0.2, 2700],
+        [20000, 0.2, 3800],
+        [25000, 0.2, 4900],
+        [30000, 0.2, 6000],
+        [35000, 0.2],
+      ]);
+    });
   });
 };
+
+

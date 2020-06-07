@@ -60,7 +60,7 @@ function StateHistoryCtrl($scope, $filter, taxData, taxService, graph, settings)
       hasDeduction ? ' Standard Deduction' : 'no deductions',
     ].join(' ');
     graph.updateTitle(primaryTitle, secondaryTitle);
-    graph.updateAxisLabels('Gross Income', 'Percent');
+    graph.updateAxisLabels('Gross Income', 'Tax Rate');
     graph.updateAxisFormats(axisFormats.dollar, axisFormats.percent);
   }
 
@@ -96,7 +96,7 @@ function StateHistoryCtrl($scope, $filter, taxData, taxService, graph, settings)
       const total = taxService.calcTotalMarginalTaxBrackets(rates, xMax, status);
       graph.addLine({
         label: year,
-        data: taxService.createTotalEffectiveTaxData(taxes, total, xMax, status),
+        data: taxData.createTotalEffectiveTaxData(taxes, total, xMax, status),
         tooltipFn: createTotalTaxRateFn(taxes, status, true),
         formattedFn: rateFormatter,
         isInterpolated: true,

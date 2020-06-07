@@ -2,7 +2,6 @@ Number.isNaN = require('is-nan');
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round#Example%3a_Decimal_rounding
 (() => {
-  'use strict';
   /**
    * Decimal adjustment of a number.
    *
@@ -24,28 +23,22 @@ Number.isNaN = require('is-nan');
     }
     // Shift
     value = value.toString().split('e');
-    value = Math[type](+(value[0] + 'e' + (value[1] ? +value[1] - exp : -exp)));
+    value = Math[type](+(`${value[0]}e${value[1] ? +value[1] - exp : -exp}`));
     // Shift back
     value = value.toString().split('e');
-    return +(value[0] + 'e' + (value[1] ? +value[1] + exp : exp));
+    return +(`${value[0]}e${value[1] ? +value[1] + exp : exp}`);
   }
 
   // Decimal round
   if (!Math.round10) {
-    Math.round10 = (value, exp) => {
-      return decimalAdjust('round', value, exp);
-    };
+    Math.round10 = (value, exp) => decimalAdjust('round', value, exp);
   }
   // Decimal floor
   if (!Math.floor10) {
-    Math.floor10 = (value, exp) => {
-      return decimalAdjust('floor', value, exp);
-    };
+    Math.floor10 = (value, exp) => decimalAdjust('floor', value, exp);
   }
   // Decimal ceil
   if (!Math.ceil10) {
-    Math.ceil10 = (value, exp) => {
-      return decimalAdjust('ceil', value, exp);
-    };
+    Math.ceil10 = (value, exp) => decimalAdjust('ceil', value, exp);
   }
 })();

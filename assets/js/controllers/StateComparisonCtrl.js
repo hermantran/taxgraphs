@@ -70,7 +70,7 @@ function StateComparisonCtrl(
       hasDeduction ? ' Standard Deduction' : 'no deductions',
     ].join(' ');
     graph.updateTitle(primaryTitle, secondaryTitle);
-    graph.updateAxisLabels('Gross Income', 'Percent');
+    graph.updateAxisLabels('Gross Income', 'Tax Rate');
     graph.updateAxisFormats(axisFormats.dollar, axisFormats.percent);
   }
 
@@ -117,7 +117,7 @@ function StateComparisonCtrl(
 
         if (graphLines.effective) {
           graph.addLine({
-            data: taxService.createTotalEffectiveTaxData(
+            data: taxData.createTotalEffectiveTaxData(
               taxes,
               total,
               xMax,
@@ -132,7 +132,7 @@ function StateComparisonCtrl(
 
         if (graphLines.marginal) {
           graph.addLine({
-            data: taxService.createTotalMarginalTaxData(
+            data: taxData.createTotalMarginalTaxData(
               taxes,
               total,
               xMax,

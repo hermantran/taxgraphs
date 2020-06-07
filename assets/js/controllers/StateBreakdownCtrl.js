@@ -74,7 +74,7 @@ function StateBreakdownCtrl(
       hasDeduction ? ' Standard Deduction' : 'no deductions',
     ].join(' ');
     graph.updateTitle(primaryTitle, secondaryTitle);
-    graph.updateAxisLabels('Gross Income', 'Percent');
+    graph.updateAxisLabels('Gross Income', 'Tax Rate');
     graph.updateAxisFormats(axisFormats.dollar, axisFormats.percent);
   }
 
@@ -121,8 +121,8 @@ function StateBreakdownCtrl(
 
       if (graphLines.effective) {
         graph.addLine({
-          label: tax.name + (graphLines.marginal ? ' (E)' : ''),
-          data: taxService.createEffectiveTaxData(...args),
+          label: tax.name + (graphLines.marginal ? ' (Effective)' : ''),
+          data: taxData.createEffectiveTaxData(...args),
           tooltipFn: createTaxRateFn(tax.rate, status, tax.credits, true),
           formattedFn: rateFormatter,
           isInterpolated: true,
@@ -131,8 +131,8 @@ function StateBreakdownCtrl(
 
       if (graphLines.marginal) {
         graph.addLine({
-          label: tax.name + (graphLines.effective ? ' (M)' : ''),
-          data: taxService.createMarginalTaxData(...args),
+          label: tax.name + (graphLines.effective ? ' (Marginal)' : ''),
+          data: taxData.createMarginalTaxData(...args),
           tooltipFn: createTaxRateFn(tax.rate, status, tax.credits),
           formattedFn: rateFormatter,
         });
@@ -146,7 +146,7 @@ function StateBreakdownCtrl(
     if (graphLines.totalMarginal) {
       graph.addLine({
         label: 'Total Marginal',
-        data: taxService.createTotalMarginalTaxData(taxes, total, xMax, status),
+        data: taxData.createTotalMarginalTaxData(taxes, total, xMax, status),
         tooltipFn: createTotalTaxRateFn(taxes, status),
         formattedFn: rateFormatter,
       });
@@ -155,7 +155,7 @@ function StateBreakdownCtrl(
     if (graphLines.totalEffective) {
       graph.addLine({
         label: 'Total Effective',
-        data: taxService.createTotalEffectiveTaxData(
+        data: taxData.createTotalEffectiveTaxData(
           taxes,
           total,
           xMax,

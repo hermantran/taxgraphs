@@ -4,11 +4,19 @@
   <div ng-include="'assets/templates/partials/filing-status.html'"></div>
   <div>
     <label for="income">Gross Income:</label>
-    <input type="text" id="income" name="income" ng-model="settings.income" required ng-pattern="/^\d+$/">
+    <input type="text" id="income" name="income" ng-model="data.income" convert-to-number required ng-pattern="/^\d+$/">
   </div>
-
+  <div>
+    <label for="strikePrice">Strike Price:</label>
+    <input type="text" id="strikePrice" name="strikePrice" ng-model="data.strikePrice" required ng-pattern="/^[\d\.]+$/">
+  </div>
+  <div>
+    <label for="optionValue">409A Value:</label>
+    <input type="text" id="optionValue" name="optionValue" ng-model="data.optionValue" required ng-pattern="/^[\d\.]+$/">
+  </div>
+  
   <div class="subsection" ng-include="'assets/templates/partials/adjustments.html'"></div>
   <div ng-include="'assets/templates/partials/itemized-deduction.html'"></div>
-  
-  <div class="subsection" ng-include="'assets/templates/partials/graph-settings.html'"></div>
+
+  <div ng-include="'assets/templates/partials/graph-button.html'"></div>
 </div>

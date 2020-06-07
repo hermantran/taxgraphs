@@ -1,3 +1,5 @@
+import '../lib/Math.round10';
+
 Number.isNaN = require('is-nan');
 
 /* eslint-disable no-use-before-define, no-param-reassign */
@@ -189,13 +191,13 @@ function graph(d3, _, screenService, settings) {
 
     service.y = d3.scale
       .linear()
-      .domain([service.settings.yMin / 100, service.settings.yMax / 100])
+      .domain([service.settings.yMin, service.settings.yMax])
       .range([service.h, 0]);
 
     service.yAxis = d3.svg
       .axis()
       .scale(service.y)
-      .ticks(Math.ceil(yMax / 10))
+      .ticks(Math.ceil(yMax / Math.pow(10, Math.ceil(Math.log10(yMax)) - 1)))
       .tickSize(-service.w, 0)
       .tickFormat(service.yAxisFormat)
       .tickPadding(7)
@@ -246,14 +248,19 @@ function graph(d3, _, screenService, settings) {
   };
 
   service.updateAxisFormats = (xAxisFormat, yAxisFormat) => {
-    const isMobile = screenService.isMobile();
-
     const d3Formats = {
-      [axisFormats.dollar]: isMobile ? '$.1s' : '$0,000',
+      [axisFormats.dollar]: '$.1s',
       [axisFormats.number]: ',.0f',
       [axisFormats.percent]: '%',
     };
 
+    const d3LabelFormats = {
+      [axisFormats.dollar]: '$0,000',
+      [axisFormats.number]: ',.0f',
+      [axisFormats.percent]: '%',
+    };
+
+    service.xAxisLabelFormat = d3.format(d3LabelFormats[xAxisFormat]);
     service.xAxisFormat = d3.format(d3Formats[xAxisFormat]);
     service.yAxisFormat = d3.format(d3Formats[yAxisFormat]);
   };
@@ -336,7 +343,9 @@ function graph(d3, _, screenService, settings) {
     const firstY = highestLine.data[0].y;
     const lastY = highestLine.data[highestLine.data.length - 1].y;
     const highestY = firstY > lastY ? firstY : lastY;
-    const yMax = Math.ceil((highestY + 0.05) * 10) * 10;
+    const factor = Math.ceil(Math.log10(highestY)) - 1;
+    const roundUpAmount = 0.5 * Math.pow(10, factor);
+    const yMax = Math.ceil10(highestY + roundUpAmount, factor);
 
     service.updateYAxis(yMax);
   };
@@ -479,7 +488,7 @@ function graph(d3, _, screenService, settings) {
         .classed(service.classes.hide, false)
         .attr('x', xPos - 35)
         .attr('y', service.h + 50)
-        .text(d3.format('$0,000')(xValue));
+        .text(service.xAxisLabelFormat(xValue));
     }
   };
 
@@ -501,7 +510,7 @@ function graph(d3, _, screenService, settings) {
       tooltip.classed(service.classes.hide, hide);
 
       const yValue = service.tooltipFns[i](xValue) || 0;
-      const yPos = service.h - (yValue / yScale) * 100;
+      const yPos = service.h - (yValue / yScale);
       const text = service.lines[i].formattedFn
         ? service.lines[i].formattedFn(xValue, yValue)
         : yValue;

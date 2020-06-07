@@ -96,7 +96,7 @@
         [187800, 0.28]
       ],
       "deductions": {
-        "exemption": {
+        "amtExemption": {
           "amount": {
             "single": 54300,
             "married": 84500
@@ -104,14 +104,14 @@
           "phaseout": {
             "single": {
               "start": 120700,
-              "step": 1,
-              "reduction": 0.25,
+              "step": 4,
+              "reduction": 1,
               "minimum": 0
             },
             "married": {
               "start": 160900,
-              "step": 1,
-              "reduction": 0.25,
+              "step": 4,
+              "reduction": 1,
               "minimum": 0
             }
           }

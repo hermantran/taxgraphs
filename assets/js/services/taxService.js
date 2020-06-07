@@ -7,11 +7,20 @@ function taxService(_) {
   const service = {};
 
   // enum to represent tax bracket indices
-  const MIN = 0;
-  const RATE = 1;
-  const MAX_TAX = 2;
+  const taxBracketEnum = {
+    MIN: 0,
+    RATE: 1,
+    MAX_TAX: 2,
+  };
+  const { MIN, RATE, MAX_TAX } = taxBracketEnum;
 
+  service.taxBracketEnum = taxBracketEnum;
   service.preprocessTaxes = preprocessTaxes;
+  service.precalcBracketTaxes = precalcBracketTaxes;
+  service.calcAmtIncome = calcAmtIncome;
+  service.calcIsosForAmtIncome = calcIsosForAmtIncome;
+  service.calcAmtTax = calcAmtTax;
+  service.calcAmtEffectiveTaxRate = calcAmtEffectiveTaxRate;
   service.calcTaxCredit = calcTaxCredit;
   service.calcTaxCredits = calcTaxCredits;
   service.calcTax = calcTax;
@@ -20,11 +29,6 @@ function taxService(_) {
   service.calcEffectiveTaxRate = calcEffectiveTaxRate;
   service.calcTotalMarginalTaxRate = calcTotalMarginalTaxRate;
   service.calcTotalEffectiveTaxRate = calcTotalEffectiveTaxRate;
-  service.createMarginalTaxData = createMarginalTaxData;
-  service.createEffectiveTaxData = createEffectiveTaxData;
-  service.createTotalMarginalTaxData = createTotalMarginalTaxData;
-  service.createTotalEffectiveTaxData = createTotalEffectiveTaxData;
-  service.createTakeHomePayData = createTakeHomePayData;
   service.createDeductionsData = createDeductionsData;
   service.createDeductionBracketData = createDeductionBracketData;
   service.applyCreditsToTaxBracket = applyCreditsToTaxBracket;
@@ -77,12 +81,42 @@ function taxService(_) {
     return calculatedBracketTaxes;
   }
 
+  function calcAmtIncome(income, strikePrice, optionValue, isos) {
+    return income + (isos * (optionValue - strikePrice));
+  }
+
+  function calcIsosForAmtIncome(amtIncome, income, strikePrice, optionValue) {
+    const isos = parseInt((amtIncome - income) / (optionValue - strikePrice), 10);
+    return Math.max(isos, 0);
+  }
+
+  function calcAmtTax(tax, income, filingStatus, strikePrice, optionValue, isos) {
+    if (_.isPlainObject(tax)) {
+      tax = tax[filingStatus];
+    }
+
+    if (!_.isArray(tax)) {
+      throw new Error(`Cannot calculate AMT of type ${typeof tax}`);
+    }
+
+    const amtIncome = calcAmtIncome(income, strikePrice, optionValue, isos);
+    return calcEffectiveTax(tax, amtIncome, 0, 0);
+  }
+
+  function calcAmtEffectiveTaxRate(tax, income, filingStatus, strikePrice, optionValue, isos) {
+    if (income < 1) {
+      return 0;
+    }
+    const rate = calcAmtTax(tax, income, filingStatus, strikePrice, optionValue, isos) / income;
+    return Math.max(rate, 0);
+  }
+
   function calcTaxCredit(credit, income) {
     const { amount } = credit;
     let refund = 0;
 
     if (_.isArray(amount)) {
-      _(amount).some((bracket) => {
+      amount.some((bracket) => {
         if (bracket[0] > income) {
           return true;
         }
@@ -160,219 +194,6 @@ function taxService(_) {
     }
     balance += (income - bracketMin) * tax[bracket][RATE];
     return Math.round10(balance, -2);
-  }
-
-  function createMarginalTaxData(tax, max, filingStatus, credits) {
-    max = max || 100000;
-
-    if (_.isNumber(tax)) {
-      return createFlatTaxData(tax, max);
-    }
-    if (_.isArray(tax)) {
-      return createMarginalBracketTaxData(tax, max, filingStatus, credits);
-    }
-    if (_.isPlainObject(tax)) {
-      return createMarginalBracketTaxData(tax[filingStatus], max, filingStatus, credits);
-    }
-
-    throw new Error('Cannot create marginal tax data');
-  }
-
-  function createFlatTaxData(tax, max) {
-    const data = [
-      {
-        x: 0,
-        y: tax,
-      },
-      {
-        x: max,
-        y: tax,
-      },
-    ];
-
-    return data;
-  }
-
-  function createMarginalBracketTaxData(tax, max, filingStatus, credits) {
-    const data = [];
-    let bracketMin;
-
-    data.push({
-      x: tax[0][MIN],
-      y: calcMarginalTaxRate(tax, tax[0][MIN] + 1, filingStatus, credits),
-    });
-
-    for (let i = 1, len = tax.length; i < len; i += 1) {
-      bracketMin = tax[i][MIN];
-
-      if (max < bracketMin) {
-        data.push({
-          x: max,
-          y: calcMarginalTaxRate(tax, max, filingStatus, credits),
-        });
-
-        return data;
-      }
-
-      data.push(
-        {
-          x: bracketMin - 1,
-          y: calcMarginalTaxRate(tax, bracketMin - 1, filingStatus, credits),
-        },
-        {
-          x: bracketMin,
-          y: calcMarginalTaxRate(tax, bracketMin, filingStatus, credits),
-        },
-      );
-    }
-
-    data.push({
-      x: max,
-      y: calcMarginalTaxRate(tax, max, filingStatus, credits),
-    });
-
-    return data;
-  }
-
-  function createEffectiveTaxData(tax, max, filingStatus, credits) {
-    max = max || 100000;
-
-    if (_.isNumber(tax)) {
-      return createFlatTaxData(tax, max);
-    }
-    if (_.isArray(tax)) {
-      return createEffectiveBracketTaxData(tax, max, filingStatus, credits);
-    }
-    if (_.isPlainObject(tax)) {
-      return createEffectiveBracketTaxData(tax[filingStatus], max, filingStatus, credits);
-    }
-
-    throw new Error('Cannot create effective tax data');
-  }
-
-  function createTotalMarginalTaxData(taxes, totalBracket, max, filingStatus) {
-    const data = taxes.map((tax) => {
-      let rate = totalBracket.map((bracket) => [
-        bracket[MIN],
-        calcMarginalTaxRate(tax.rate, bracket[MIN], filingStatus),
-      ]);
-      rate = precalcBracketTaxes(rate);
-      return createMarginalTaxData(rate, max, filingStatus, tax.credits);
-    });
-
-    const brackets = data[0].map(({ x }, i) => {
-      const y = data.reduce((total, point) => total + point[i].y, 0);
-
-      return { x, y };
-    });
-
-    return brackets;
-  }
-
-  function createTotalEffectiveTaxData(taxes, totalBracket, max, filingStatus) {
-    const data = taxes.map((tax) => {
-      let rate = totalBracket.map((bracket) => [
-        bracket[MIN],
-        calcMarginalTaxRate(tax.rate, bracket[MIN], filingStatus),
-      ]);
-      rate = precalcBracketTaxes(rate);
-      return createEffectiveTaxData(rate, max, filingStatus, tax.credits);
-    });
-
-    const brackets = data[0].map(({ x }, i) => {
-      const y = data.reduce((total, point) => total + point[i].y, 0);
-
-      return { x, y };
-    });
-
-    return brackets;
-  }
-
-  function createEffectiveBracketTaxData(tax, max, filingStatus, credits) {
-    const data = [];
-    let bracketMin;
-    let prevBracketMin;
-    let thirdPoint;
-    let twoThirdPoint;
-    let i;
-    let len;
-
-    max = parseInt(max, 10);
-
-    const lastPoint = {
-      x: max,
-      y: calcEffectiveTaxRate(tax, max, filingStatus, credits),
-    };
-
-    data.push({
-      x: tax[0][MIN],
-      y: credits ? calcEffectiveTaxRate(tax, tax[0][MIN] + 1, filingStatus, credits) : tax[0][RATE],
-    });
-
-    for (i = 1, len = tax.length; i < len; i += 1) {
-      bracketMin = tax[i][MIN];
-      prevBracketMin = tax[i - 1][MIN];
-      thirdPoint = prevBracketMin + (bracketMin - prevBracketMin) / 3;
-      twoThirdPoint = prevBracketMin + ((bracketMin - prevBracketMin) * 2) / 3;
-
-      if (max < bracketMin) {
-        break;
-      }
-
-      data.push(
-        {
-          x: thirdPoint,
-          y: calcEffectiveTaxRate(tax, thirdPoint, filingStatus, credits),
-        },
-        {
-          x: twoThirdPoint,
-          y: calcEffectiveTaxRate(tax, twoThirdPoint, filingStatus, credits),
-        },
-        {
-          x: bracketMin - 10,
-          y: calcEffectiveTaxRate(tax, bracketMin - 10, filingStatus, credits),
-        },
-        {
-          x: bracketMin - 1,
-          y: calcEffectiveTaxRate(tax, bracketMin - 1, filingStatus, credits),
-        },
-        {
-          x: bracketMin,
-          y: calcEffectiveTaxRate(tax, bracketMin, filingStatus, credits),
-        },
-        {
-          x: bracketMin + 10,
-          y: calcEffectiveTaxRate(tax, bracketMin + 10, filingStatus, credits),
-        },
-      );
-    }
-
-    prevBracketMin = tax[i - 1][MIN];
-    thirdPoint = prevBracketMin + (max - prevBracketMin) / 3;
-    twoThirdPoint = prevBracketMin + ((max - prevBracketMin) * 2) / 3;
-    data.push(
-      {
-        x: thirdPoint,
-        y: calcEffectiveTaxRate(tax, thirdPoint, filingStatus, credits),
-      },
-      {
-        x: twoThirdPoint,
-        y: calcEffectiveTaxRate(tax, twoThirdPoint, filingStatus, credits),
-      },
-      lastPoint,
-    );
-
-    return data;
-  }
-
-  function createTakeHomePayData(taxes, totalBracket, max, filingStatus) {
-    const data = createTotalEffectiveTaxData(taxes, totalBracket, max, filingStatus);
-
-    for (let i = 0, len = data.length; i < len; i += 1) {
-      data[i].y = 1 - data[i].y;
-    }
-
-    return data;
   }
 
   function calcTotalMarginalTaxBrackets(taxes, max, filingStatus) {
@@ -458,11 +279,8 @@ function taxService(_) {
   }
 
   function createDeductionBracketData(deduction, filingStatus) {
-    let { amount } = deduction;
-    let { phaseout } = deduction;
+    let { amount, phaseout } = deduction;
     const brackets = [];
-    let steps;
-    let i;
 
     if (_.isPlainObject(amount)) {
       amount = amount[filingStatus];
@@ -470,9 +288,9 @@ function taxService(_) {
 
     if (_.isPlainObject(phaseout)) {
       phaseout = phaseout[filingStatus] || phaseout;
-      steps = Math.ceil(amount - phaseout.minimum) / phaseout.reduction;
+      const steps = Math.ceil(amount - phaseout.minimum) / phaseout.reduction;
       brackets.push([0, amount]);
-      for (i = 1; i <= steps; i += 1) {
+      for (let i = 1; i <= steps; i += 1) {
         brackets.push([phaseout.start + phaseout.step * i, amount - phaseout.reduction * i]);
       }
     } else if (_.isNumber(amount)) {
@@ -567,38 +385,82 @@ function taxService(_) {
   }
 
   function applyDeductionsToTaxBracket(tax, filingStatus, deductions) {
-    const deductionsData = createDeductionsData(deductions, filingStatus).reverse();
-    let copy;
-    let currentDeductionBracket;
+    const deductionsData = createDeductionsData(deductions, filingStatus);
 
+    // No deductions, just retun the tax bracket
     if (!deductionsData.length) {
-      copy = _.cloneDeep(tax);
-    } else {
-      copy = [[0, 0, 0]];
-
-      if (_.isNumber(tax)) {
-        copy.push([0, tax]);
-      }
-      if (_.isArray(tax)) {
-        copy.push(..._.cloneDeep(tax));
-      } else if (_.isPlainObject(tax)) {
-        copy.push(..._.cloneDeep(tax[filingStatus]));
-      }
-
-      _(copy).forEach((taxBracket, i) => {
-        if (i === 0) {
-          return;
-        }
-
-        _(deductionsData).some((bracket) => {
-          currentDeductionBracket = bracket;
-          return bracket[0] <= taxBracket[MIN];
-        });
-        taxBracket[MIN] += currentDeductionBracket[1];
-      });
-
-      copy = precalcBracketTaxes(copy);
+      return _.cloneDeep(tax);
     }
+
+    let copy = [[0, 0, 0]];
+
+    if (_.isNumber(tax)) {
+      copy.push([0, tax]);
+    }
+    if (_.isArray(tax)) {
+      copy.push(..._.cloneDeep(tax));
+    } else if (_.isPlainObject(tax)) {
+      copy.push(..._.cloneDeep(tax[filingStatus]));
+    }
+
+    // Reverse to apply the first deduction bracket that overlaps with the tax bracket
+    const sortedDeductionsData = deductionsData.slice().reverse();
+    copy.forEach((taxBracket, i) => {
+      if (i === 0) {
+        return;
+      }
+
+      let currentDeductionBracket;
+
+      sortedDeductionsData.some((bracket) => {
+        currentDeductionBracket = bracket;
+        return bracket[0] <= taxBracket[MIN];
+      });
+      taxBracket[MIN] += currentDeductionBracket[1];
+    });
+
+    let additionalDeductionBrackets = deductionsData.filter((bracket) => (
+      bracket[MIN] > copy[copy.length - 1][MIN]
+    ));
+
+    // All deductions phase out before the last tax bracket, return the processed tax brackets
+    if (!additionalDeductionBrackets.length) {
+      return precalcBracketTaxes(copy);
+    }
+
+    // Restrict adding too many brackets for performance
+    const MAX_ADDITIONAL_BRACKETS = 100;
+    if (additionalDeductionBrackets.length > MAX_ADDITIONAL_BRACKETS) {
+      additionalDeductionBrackets = additionalDeductionBrackets.filter((bracket, i) => (
+        i % (additionalDeductionBrackets.length / MAX_ADDITIONAL_BRACKETS) === 0
+      ));
+    }
+
+    // Create a bracket for any deduction brackets that start after the last tax bracket
+    const additionalTaxBrackets = additionalDeductionBrackets.map((bracket) => (
+      [bracket[MIN], copy[copy.length - 1][RATE]]
+    ));
+
+    copy.push(...additionalTaxBrackets);
+    copy = precalcBracketTaxes(copy);
+
+    // Increase the max at each bracket by (deduction reduction * tax rate)
+    let deductionBracketIndex = 0;
+    let accumulatedExtraTax = 0;
+    let deductionReduction;
+    copy.forEach((bracket, i) => {
+      const currentDeductionBracket = additionalDeductionBrackets[deductionBracketIndex];
+
+      if (copy[i][MIN] === currentDeductionBracket[MIN]) {
+        const nextDeduction = additionalDeductionBrackets[deductionBracketIndex + 1];
+        deductionReduction = nextDeduction
+          ? (currentDeductionBracket[1] - nextDeduction[1])
+          : deductionReduction;
+        accumulatedExtraTax += (deductionReduction * copy[i - 1][RATE]);
+        copy[i - 1][MAX_TAX] += accumulatedExtraTax;
+        deductionBracketIndex += 1;
+      }
+    });
 
     return copy;
   }

@@ -36,5 +36,5 @@ export const routeOrder = [
   'stateBreakdown',
   'stateHistory',
   'takeHomePay',
-  // 'stockOptionAmt',
+  'stockOptionAmt',
 ];

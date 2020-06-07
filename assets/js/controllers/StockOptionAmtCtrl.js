@@ -26,14 +26,11 @@ function StockOptionAmtCtrl($scope, $filter, taxData, taxService, graph, setting
     $scope.settings = $scope.data.graph;
   }
 
-  function createTaxRateFn(tax, filingStatus) {
-    return (income) => 1 - taxService.calcTotalEffectiveTaxRate(tax, income, filingStatus);
-  }
-
-  function rateFormatter(income, rate) {
-    return [$filter('currency')(income * rate, '$', 0), `(${$filter('percentage')(rate, 2)})`].join(
-      ' ',
-    );
+  function rateFormatter(isos, taxAmount) {
+    return [
+      $filter('currency')(taxAmount, '$', 0),
+      `(${$filter('percentage')(taxAmount / $scope.data.income, 2)})`,
+    ].join(' ');
   }
 
   function formatAdjustments() {
@@ -56,17 +53,18 @@ function StockOptionAmtCtrl($scope, $filter, taxData, taxService, graph, setting
 
   function updateGraphText(state, year) {
     const { axisFormats } = settings;
-    const { data } = $scope;
-    const { itemized } = data.deductions;
-    const hasDeduction = data.deductions.federal.ordinaryIncome.standardDeduction;
+    const { status, deductions } = $scope.data;
+    const { itemized, federal } = deductions;
+    const hasDeduction = federal.ordinaryIncome.standardDeduction;
 
-    const primaryTitle = `${$scope.stateNames[state]} Incentive Stock Option AMT, ${year}`;
+    const primaryTitle = `Federal Ordinary Income Taxes vs AMT, ${year}`;
     const secondaryTitle = [
+      `${$filter('splitCamelCase')(status)} Filing Status,`,
       hasDeduction ? ' Standard Deduction' : 'no deductions',
       itemized > 0 ? `, $${itemized} Itemized Deduction` : '',
     ].join(' ');
     graph.updateTitle(primaryTitle, secondaryTitle);
-    graph.updateAxisLabels('ISOs Exercised', 'Taxes');
+    graph.updateAxisLabels('ISOs Exercised', 'Tax Amount');
     graph.updateAxisFormats(axisFormats.number, axisFormats.dollar);
   }
 
@@ -74,18 +72,14 @@ function StockOptionAmtCtrl($scope, $filter, taxData, taxService, graph, setting
     const {
       state,
       year,
+      status,
+      income,
+      strikePrice,
+      optionValue,
       deductions: deductionSettings,
       credits: creditSettings,
     } = $scope.data;
-    const capitalize = $filter('capitalize');
-    let { xMax } = $scope.settings;
-
-    xMax = Number.isNaN(xMax) ? graph.defaults.xMax : xMax;
-
-    if ($scope.settings.xAxisScale === settings.xAxisScales.log) {
-      $scope.settings.xMin = Math.max($scope.settings.xMin, 1);
-      xMax = Math.pow(10, Math.ceil(Math.log10(xMax)));
-    }
+    const { xMax } = $scope.settings;
 
     formatAdjustments();
     formatItemized();
@@ -93,15 +87,41 @@ function StockOptionAmtCtrl($scope, $filter, taxData, taxService, graph, setting
     updateGraphText(state, year);
     graph.update($scope.settings);
 
-    const status = 'single';
-    const rates = taxData.getAllRates(state, year, status, deductionSettings, creditSettings);
-    const taxes = taxData.getAllTaxes(state, year, status, deductionSettings, creditSettings);
-    const total = taxService.calcTotalMarginalTaxBrackets(rates, xMax, status);
-
+    const ordinaryIncomeTax = taxData.getFederalOrdinaryIncomeTax(
+      state,
+      year,
+      status,
+      deductionSettings,
+      creditSettings,
+    );
+    const ordinaryIncomeTaxRate = taxService.calcEffectiveTaxRate(
+      ordinaryIncomeTax.rate,
+      income,
+      status,
+    );
+    const ordinaryIncomeTaxAmount = income * ordinaryIncomeTaxRate;
     graph.addLine({
-      data: taxService.createTakeHomePayData(taxes, total, xMax, status),
-      label: `Net Income - ${capitalize(status)} Status`,
-      tooltipFn: createTaxRateFn(taxes, status, true),
+      data: taxData.createFlatTaxData(ordinaryIncomeTaxAmount, xMax),
+      label: 'Federal Tax Amount - Ordinary Income',
+      tooltipFn: () => ordinaryIncomeTaxAmount,
+      formattedFn: rateFormatter,
+    });
+
+    const amt = taxData.getFederalAmt(
+      state,
+      year,
+      status,
+      deductionSettings,
+      creditSettings,
+    );
+    graph.addLine({
+      data: taxData.createStockOptionAmtData(
+        amt.rate, income, status, strikePrice, optionValue, xMax,
+      ),
+      label: 'Federal Tax Amount - AMT',
+      tooltipFn: (isos) => taxService.calcAmtTax(
+        amt.rate, income, status, strikePrice, optionValue, isos,
+      ),
       formattedFn: rateFormatter,
       isInterpolated: true,
     });
