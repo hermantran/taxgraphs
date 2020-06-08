@@ -51,10 +51,15 @@ function StateBreakdownCtrl(
     return $filter('percentage')(rate, 2);
   }
 
+  // TODO separate out state and federal adjustments into separate fields
   function formatAdjustments() {
     const { deductions, credits } = $scope.data;
 
-    deductions.state.income = deductions.federal.ordinaryIncome;
+    deductions.state.income = {
+      ...deductions.federal.ordinaryIncome,
+      itemizedDeduction: 0,
+      tradRetirementContribution: 0,
+    };
     credits.state.income = credits.federal.ordinaryIncome;
   }
 
@@ -70,7 +75,7 @@ function StateBreakdownCtrl(
     ].join(' ');
     const secondaryTitle = [
       $filter('splitCamelCase')(status),
-      'Filing Status,',
+      'Filer,',
       hasDeduction ? ' Standard Deduction' : 'no deductions',
     ].join(' ');
     graph.updateTitle(primaryTitle, secondaryTitle);

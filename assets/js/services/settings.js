@@ -18,11 +18,13 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
   };
 
   service.deductionDefaults = {
-    itemized: 0,
+    itemizedDeduction: 0,
     standardDeduction: true,
     personalExemption: true,
     dependents: false,
     numDependents: 0,
+    hasTradRetirement: false,
+    tradRetirementContribution: 0,
   };
 
   service.creditDefaults = {
@@ -87,11 +89,15 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
       state: 'TX',
       income: 150000,
       strikePrice: 6.15,
-      optionValue: 10.55,
+      optionValue: 10.75,
       graph: {
         ...getBaseDefaults().graph,
-        xMax: 12000,
+        xMax: 7000,
       },
+      deductions: createDeductionSettings({
+        hasTradRetirement: true,
+        tradRetirementContribution: 10000,
+      }),
     },
     takeHomePayData: {
       ...getBaseDefaults(),
@@ -117,10 +123,13 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
     return _.cloneDeep(service.graphDefaults);
   }
 
-  function createDeductionSettings() {
+  function createDeductionSettings(federalIncomeOverrides) {
     return {
       federal: {
-        ordinaryIncome: _.cloneDeep(service.deductionDefaults),
+        ordinaryIncome: {
+          ...(_.cloneDeep(service.deductionDefaults)),
+          ...(federalIncomeOverrides || {}),
+        },
         amt: {
           amtExemption: true,
         },

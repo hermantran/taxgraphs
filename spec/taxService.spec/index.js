@@ -1,8 +1,12 @@
 import _ from 'lodash';
 import TaxService from '../../assets/js/services/taxService';
 import applyCreditsToTaxBracketSpecs from './applyCreditsToTaxBracket.spec';
-import applyDeductionsToTaxBracket from './applyDeductionsToTaxBracket.spec';
+import applyDeductionsToTaxBracketSpecs from './applyDeductionsToTaxBracket.spec';
+import calcAmtIncomeSpecs from './calcAmtIncome.spec';
+import calcAmtTaxSpecs from './calcAmtTax.spec';
 import calcEffectiveTaxRateSpecs from './calcEffectiveTaxRate.spec';
+import calcIsosForAmtIncome from './calcIsosForAmtIncome.spec';
+import calcIsosToAvoidAmt from './calcIsosToAvoidAmt.spec';
 import calcMarginalTaxRateSpecs from './calcMarginalTaxRate.spec';
 import calcTaxSpecs from './calcTax.spec';
 import calcTaxCreditSpecs from './calcTaxCredit.spec';
@@ -17,9 +21,13 @@ const taxService = new TaxService(_);
 
 describe('taxService', () => {
   applyCreditsToTaxBracketSpecs(taxService);
-  applyDeductionsToTaxBracket(taxService);
+  applyDeductionsToTaxBracketSpecs(taxService);
+  calcAmtIncomeSpecs(taxService);
+  calcAmtTaxSpecs(taxService);
   calcEffectiveTaxRateSpecs(taxService);
   calcMarginalTaxRateSpecs(taxService);
+  calcIsosForAmtIncome(taxService);
+  calcIsosToAvoidAmt(taxService);
   calcTaxSpecs(taxService);
   calcTaxCreditSpecs(taxService);
   calcTaxCreditsSpecs(taxService);

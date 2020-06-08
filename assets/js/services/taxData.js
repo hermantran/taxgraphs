@@ -273,8 +273,19 @@ function taxData($http, $q, $filter, _, TAX_API, TAX_YEAR, taxService) {
 
     deductionsUsed.push(...getAppliedDeductions(deductions, deductionValues, status));
 
-    if (deductionValues.itemized > 0) {
-      deductionsUsed.push({ amount: deductionValues.itemized });
+    const {
+      standardDeduction,
+      itemizedDeduction,
+      hasTradRetirement,
+      tradRetirementContribution,
+    } = deductionValues;
+
+    if (!standardDeduction && itemizedDeduction > 0) {
+      deductionsUsed.push({ amount: itemizedDeduction });
+    }
+
+    if (hasTradRetirement && tradRetirementContribution > 0) {
+      deductionsUsed.push({ amount: tradRetirementContribution });
     }
 
     if (tax.useFederalTaxableIncome) {
@@ -499,7 +510,10 @@ function taxData($http, $q, $filter, _, TAX_API, TAX_YEAR, taxService) {
         data.push(...[
           thirdPoint,
           twoThirdPoint,
+          bracketMin - 10,
+          bracketMin - 1,
           bracketMin,
+          bracketMin + 10,
         ].map((amtIncome) => (
           calcIsosForAmtIncome(amtIncome, income, strikePrice, optionValue)
         )));

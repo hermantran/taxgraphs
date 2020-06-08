@@ -14,7 +14,7 @@
     <link rel="shortcut icon" href="dist/images/favicon.ico">
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500">
     <!--STYLES-->
-    <link rel="stylesheet" href="dist/styles/main-0.3.9.min.css">
+    <link rel="stylesheet" href="dist/styles/main-0.3.10.min.css">
     <!--STYLES END-->
 
     <!--[if lt IE 9]>
@@ -61,7 +61,7 @@
         <div class="controls">
           <div class="controls-content">
             <div ng-view></div>
-            <div ng-hide="isActive(routeConfig.disclaimer.path)" class="section tip" ng-repeat="tip in tips" ng-hide="tip.closed">
+            <div class="section tip" ng-repeat="tip in tips" ng-hide="tip.closed || isActive(routeConfig.disclaimer.path)">
               <i class="fa fa-info-circle info"></i>
               <span class="text">{{ tip.text }}</span>
               <i class="fa fa-close close" ng-click="closeTip($index)"></i>
@@ -82,7 +82,7 @@
        ng-class="{ 'pure-hidden-sm': !$root.hideMobileControls  }">
         <svg class="graph" ng-hide="isActive(routeConfig.disclaimer.path)"></svg>
 
-        <div class="disclaimer" ng-show="isActive(routeConfig.disclaimer.path)">
+        <div class="disclaimer" ng-class="{ show: true }" ng-show="isActive(routeConfig.disclaimer.path)">
           <h2>Disclaimer</h2>
           <h3>PRIVACY POLICY</h3>
 
@@ -117,7 +117,7 @@
     </script>
 
     <!--SCRIPTS-->
-    <script src="dist/js/main-0.3.9.min.js"></script>
+    <script src="dist/js/main-0.3.10.min.js"></script>
     <!--SCRIPTS END-->
 
     <!--LIVERELOAD-->

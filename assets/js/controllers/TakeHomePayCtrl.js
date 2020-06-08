@@ -36,28 +36,27 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, settings) 
     );
   }
 
+  // TODO separate out state and federal adjustments into separate fields
   function formatAdjustments() {
     const { deductions, credits } = $scope.data;
 
-    deductions.state.income = deductions.federal.ordinaryIncome;
+    deductions.state.income = {
+      ...deductions.federal.ordinaryIncome,
+      itemizedDeduction: 0,
+      tradRetirementContribution: 0,
+    };
     credits.state.income = credits.federal.ordinaryIncome;
-  }
-
-  function formatItemized() {
-    const { itemized, federal, state } = $scope.data.deductions;
-    federal.ordinaryIncome.itemized = itemized;
-    state.income.itemized = itemized;
   }
 
   function updateGraphText(state, year) {
     const { axisFormats } = settings;
-    const { itemized, federal } = $scope.data.deductions;
-    const hasDeduction = federal.ordinaryIncome.standardDeduction;
+    const { deductions } = $scope.data;
+    const { itemizedDeduction, standardDeduction } = deductions.federal.ordinaryIncome;
 
     const primaryTitle = `${$scope.stateNames[state]} Take Home Pay, ${year}`;
     const secondaryTitle = [
-      hasDeduction ? ' Standard Deduction' : 'no deductions',
-      itemized > 0 ? `, $${itemized} Itemized Deduction` : '',
+      standardDeduction ? ' Standard Deduction' : 'no deductions',
+      itemizedDeduction > 0 ? `, $${itemizedDeduction} Itemized Deduction` : '',
     ].join(' ');
     graph.updateTitle(primaryTitle, secondaryTitle);
     graph.updateAxisLabels('Gross Income', 'Tax Rate');
@@ -83,7 +82,6 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, settings) 
     }
 
     formatAdjustments();
-    formatItemized();
     graph.clear();
     updateGraphText(state, year);
     graph.update($scope.settings);

@@ -247,7 +247,7 @@ function graph(d3, _, screenService, settings) {
 
   service.updateAxisFormats = (xAxisFormat, yAxisFormat) => {
     const d3Formats = {
-      [axisFormats.dollar]: '$.1s',
+      [axisFormats.dollar]: '$.2s',
       [axisFormats.number]: ',.0f',
       [axisFormats.percent]: '%',
     };
@@ -286,9 +286,9 @@ function graph(d3, _, screenService, settings) {
   };
 
   service.addLine = (line) => {
-    const { data } = line;
+    const { data, alwaysShow } = line;
     // Don't draw lines that start at y = 0 and end at y = 0
-    if (data[0].y === 0 && data[data.length - 1].y === 0) {
+    if (!alwaysShow && data[0].y === 0 && data[data.length - 1].y === 0) {
       return;
     }
 

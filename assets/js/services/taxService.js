@@ -19,8 +19,10 @@ function taxService(_) {
   service.precalcBracketTaxes = precalcBracketTaxes;
   service.calcAmtIncome = calcAmtIncome;
   service.calcIsosForAmtIncome = calcIsosForAmtIncome;
+  service.calcIsosToAvoidAmt = calcIsosToAvoidAmt;
   service.calcAmtTax = calcAmtTax;
   service.calcAmtEffectiveTaxRate = calcAmtEffectiveTaxRate;
+  service.calcDeductionFromTaxBracket = calcDeductionFromTaxBracket;
   service.calcTaxCredit = calcTaxCredit;
   service.calcTaxCredits = calcTaxCredits;
   service.calcTax = calcTax;
@@ -82,6 +84,10 @@ function taxService(_) {
   }
 
   function calcAmtIncome(income, strikePrice, optionValue, isos) {
+    if (optionValue <= strikePrice) {
+      return income;
+    }
+
     return income + (isos * (optionValue - strikePrice));
   }
 
@@ -109,6 +115,47 @@ function taxService(_) {
     }
     const rate = calcAmtTax(tax, income, filingStatus, strikePrice, optionValue, isos) / income;
     return Math.max(rate, 0);
+  }
+
+  function calcIsosToAvoidAmt(tax, income, filingStatus, strikePrice, optionValue, taxAmount) {
+    const args = [tax, income, filingStatus, strikePrice, optionValue];
+    const baseAmtTax = calcAmtTax(...args, 0);
+    // AMT has a higher marginal rate and exemption phaseout,
+    // so use a naive marginal tax for first guess
+    const naiveMarginalTax = calcAmtTax(...args, 1) - baseAmtTax;
+    const buffer = (10 * naiveMarginalTax);
+    let isosToAvoidAmt = Math.floor((taxAmount - baseAmtTax - buffer) / naiveMarginalTax);
+    let currentAmtTax = calcAmtTax(...args, isosToAvoidAmt);
+    let iterations = 0;
+
+    if (isosToAvoidAmt <= 0) {
+      return 0;
+    }
+
+    while ((currentAmtTax - taxAmount) < 0 && iterations < 100) {
+      iterations += 1;
+      isosToAvoidAmt += 1;
+      currentAmtTax = calcAmtTax(...args, isosToAvoidAmt);
+    }
+
+    return isosToAvoidAmt;
+  }
+
+  function calcDeductionFromTaxBracket(tax, filingStatus) {
+    if (_.isPlainObject(tax)) {
+      tax = tax[filingStatus];
+    }
+
+    if (!_.isArray(tax)) {
+      throw new Error(`Cannot calculate deduction from tax bracket of type ${typeof tax}`);
+    }
+
+    // Deductions create a 0% rate in the first bracket, so get income min of next bracket
+    if (tax[0][RATE] === 0) {
+      return tax[1][MIN];
+    }
+
+    return 0;
   }
 
   function calcTaxCredit(credit, income) {
