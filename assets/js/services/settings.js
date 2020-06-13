@@ -1,6 +1,6 @@
 /* eslint-disable no-use-before-define */
 /* @ngInject */
-function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
+function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService) {
   const service = {};
 
   service.key = `${APP_NAME}Settings${APP_VERSION}`;
@@ -47,7 +47,7 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
     state: 'CA',
     deductions: createDeductionSettings(),
     credits: createCreditSettings(),
-    graph: createGraphSettings(),
+    graph: { ...service.graphDefaults },
   });
 
   const defaults = {
@@ -119,15 +119,11 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
     localStorageService.set(service.key, cache);
   }
 
-  function createGraphSettings() {
-    return _.cloneDeep(service.graphDefaults);
-  }
-
   function createDeductionSettings(federalIncomeOverrides) {
     return {
       federal: {
         ordinaryIncome: {
-          ...(_.cloneDeep(service.deductionDefaults)),
+          ...service.deductionDefaults,
           ...(federalIncomeOverrides || {}),
         },
         amt: {
@@ -135,7 +131,7 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
         },
       },
       state: {
-        income: _.cloneDeep(service.deductionDefaults),
+        income: { ...service.deductionDefaults },
       },
     };
   }
@@ -143,10 +139,10 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService, _) {
   function createCreditSettings() {
     return {
       federal: {
-        ordinaryIncome: _.cloneDeep(service.creditDefaults),
+        ordinaryIncome: { ...service.creditDefaults },
       },
       state: {
-        income: _.cloneDeep(service.creditDefaults),
+        income: { ...service.creditDefaults },
       },
     };
   }

@@ -1,6 +1,10 @@
+import isArray from 'lodash/isArray';
+import isNumber from 'lodash/isNumber';
+import isPlainObject from 'lodash/isPlainObject';
+
 /* eslint-disable no-use-before-define, no-param-reassign */
 /* @ngInject */
-function taxData($http, $q, $filter, _, TAX_API, TAX_YEAR, taxService) {
+function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
   const service = {};
 
   const splitCamelCase = $filter('splitCamelCase');
@@ -303,13 +307,13 @@ function taxData($http, $q, $filter, _, TAX_API, TAX_YEAR, taxService) {
   function createMarginalTaxData(tax, max, filingStatus, credits) {
     max = max || 100000;
 
-    if (_.isNumber(tax)) {
+    if (isNumber(tax)) {
       return createFlatTaxData(tax, max);
     }
-    if (_.isArray(tax)) {
+    if (isArray(tax)) {
       return createMarginalBracketTaxData(tax, max, filingStatus, credits);
     }
-    if (_.isPlainObject(tax)) {
+    if (isPlainObject(tax)) {
       return createMarginalBracketTaxData(tax[filingStatus], max, filingStatus, credits);
     }
 
@@ -375,13 +379,13 @@ function taxData($http, $q, $filter, _, TAX_API, TAX_YEAR, taxService) {
   function createEffectiveTaxData(tax, max, filingStatus, credits) {
     max = max || 100000;
 
-    if (_.isNumber(tax)) {
+    if (isNumber(tax)) {
       return createFlatTaxData(tax, max);
     }
-    if (_.isArray(tax)) {
+    if (isArray(tax)) {
       return createEffectiveBracketTaxData(tax, max, filingStatus, credits);
     }
-    if (_.isPlainObject(tax)) {
+    if (isPlainObject(tax)) {
       return createEffectiveBracketTaxData(tax[filingStatus], max, filingStatus, credits);
     }
 

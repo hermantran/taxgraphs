@@ -1,5 +1,4 @@
 import d3 from 'd3';
-import lodash from 'lodash';
 import gtag from 'gtag'; // eslint-disable-line import/no-unresolved
 import app from '../app';
 import routeConfig, { routeOrder } from './routeConfig';
@@ -9,7 +8,6 @@ import { version, homepage } from '../../../package.json';
 
 app
   .constant('d3', d3)
-  .constant('_', lodash)
   .constant('gtag', gtag)
   .constant('GA_TRACKING_ID', 'UA-55615931-1')
   .constant('TAX_API', `data/taxes.json?v=${version}`)

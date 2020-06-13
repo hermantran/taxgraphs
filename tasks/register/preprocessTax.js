@@ -7,9 +7,19 @@ module.exports = function(grunt) {
 
   var jsonminify = require('jsonminify'),
       path = require('path'),
-      lodash = require('lodash'),
       TaxService = require('../../assets/js/services/taxService'),
-      taxService = new TaxService(lodash);
+      taxService = new TaxService();
+
+  // Don't pass source prop to reduce json file size
+  function removeSourceProp(obj) {
+    Object.keys(obj).forEach(key => {
+      if (key === 'source') {
+        delete obj[key];
+      } else if (!Array.isArray(obj[key]) && typeof obj[key] === 'object') {
+        removeSourceProp(obj[key]);
+      }
+    });
+  }
 
   grunt.registerMultiTask('preprocessTax', 'Preprocess tax data', function() {
     this.files.forEach(function(file) {
@@ -21,6 +31,7 @@ module.exports = function(grunt) {
       srcFiles.forEach(function(filepath) {
         var data = JSON.parse(grunt.file.read(filepath));
         var processedData = taxService.preprocessTaxes(data);
+        removeSourceProp(processedData);
 
         try {
           // minify json

@@ -19,7 +19,7 @@ module.exports = function(grunt) {
         banner: [
           '/*!',
           ' * <%= pkg.name %> v<%= pkg.version %>',
-          ' * Copyright 2014-2017 <%= pkg.author %>',
+          ' * Copyright 2014-<%= new Date().getFullYear() %> <%= pkg.author %>',
           ' * Licensed under the <%= pkg.license %> license.',
           ' */',
           ''

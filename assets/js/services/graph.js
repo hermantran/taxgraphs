@@ -1,10 +1,11 @@
+import angular from '../lib/angular';
 import '../lib/Math.round10';
 
 Number.isNaN = require('is-nan');
 
 /* eslint-disable no-use-before-define, no-param-reassign */
 /* @ngInject */
-function graph(d3, _, screenService, settings) {
+function graph(d3, screenService, settings) {
   const service = {};
   const { graphDefaults, xAxisScales, axisFormats } = settings;
 
@@ -40,8 +41,8 @@ function graph(d3, _, screenService, settings) {
     service.selectors[prop] = createSelector(service.classes[prop]);
   });
 
-  service.settings = _.cloneDeep(graphDefaults);
-  service.defaults = _.cloneDeep(graphDefaults);
+  service.settings = { ...graphDefaults };
+  service.defaults = { ...graphDefaults };
 
   service.colors = [
     '#396AB1',
@@ -414,7 +415,7 @@ function graph(d3, _, screenService, settings) {
     if (tooltipFn) {
       service.tooltipFns.push(tooltipFn);
     } else {
-      service.tooltipFns.push(_.noop);
+      service.tooltipFns.push(angular.noop);
     }
   };
 
