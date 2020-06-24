@@ -96,9 +96,8 @@ function StateHistoryCtrl($scope, $filter, taxData, taxService, graph, settings)
         return;
       }
 
-      const rates = taxData.getAllRates(state, year, status, deductionSettings, creditSettings);
       const taxes = taxData.getAllTaxes(state, year, status, deductionSettings, creditSettings);
-      const total = taxService.calcTotalMarginalTaxBrackets(rates, xMax, status);
+      const total = taxService.calcTotalMarginalTaxBrackets(taxes, xMax, status);
       graph.addLine({
         label: year,
         data: taxData.createTotalEffectiveTaxData(taxes, total, xMax, status),

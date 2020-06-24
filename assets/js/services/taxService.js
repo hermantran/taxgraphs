@@ -7,7 +7,7 @@ const uniqWith = require('lodash/uniqWith');
 Number.isNaN = require('is-nan');
 require('../lib/Math.round10');
 
-/* eslint-disable no-use-before-define, no-param-reassign, prefer-destructuring */
+/* eslint-disable no-use-before-define, no-param-reassign */
 /* @ngInject */
 function taxService() {
   const service = {};
@@ -19,6 +19,12 @@ function taxService() {
     MAX_TAX: 2,
   };
   const { MIN, RATE, MAX_TAX } = taxBracketEnum;
+
+  // enum to represent deduction bracket indices
+  const deductionBracketEnum = {
+    MIN: 0,
+    AMOUNT: 1,
+  };
 
   service.taxBracketEnum = taxBracketEnum;
   service.preprocessTaxes = preprocessTaxes;
@@ -125,18 +131,25 @@ function taxService() {
 
   function calcIsosToAvoidAmt(tax, income, filingStatus, strikePrice, optionValue, taxAmount) {
     const args = [tax, income, filingStatus, strikePrice, optionValue];
-    const baseAmtTax = calcAmtTax(...args, 0);
+    const baseDeduction = calcDeductionFromTaxBracket(tax, filingStatus);
+    const baseIncome = income > baseDeduction ? income : baseDeduction;
+    const baseIsos = calcIsosForAmtIncome(baseIncome, income, strikePrice, optionValue);
+    const baseAmtTax = calcAmtTax(...args, baseIsos);
+
     // AMT has a higher marginal rate and exemption phaseout,
     // so use a naive marginal tax for first guess
-    const naiveMarginalTax = calcAmtTax(...args, 1) - baseAmtTax;
+    const naiveMarginalTax = calcAmtTax(...args, baseIsos + 1) - baseAmtTax;
     const buffer = (10 * naiveMarginalTax);
-    let isosToAvoidAmt = Math.floor((taxAmount - baseAmtTax - buffer) / naiveMarginalTax);
-    let currentAmtTax = calcAmtTax(...args, isosToAvoidAmt);
-    let iterations = 0;
+    let isosToAvoidAmt = baseIsos + (
+      Math.floor((taxAmount - baseAmtTax - buffer) / naiveMarginalTax)
+    );
 
     if (isosToAvoidAmt <= 0) {
       return 0;
     }
+
+    let currentAmtTax = calcAmtTax(...args, isosToAvoidAmt);
+    let iterations = 0;
 
     while ((currentAmtTax - taxAmount) < 0 && iterations < 100) {
       iterations += 1;
@@ -174,7 +187,7 @@ function taxService() {
           return true;
         }
 
-        refund = bracket[1];
+        refund = bracket[deductionBracketEnum.AMOUNT];
         return false;
       });
     } else {
@@ -252,7 +265,9 @@ function taxService() {
   function calcTotalMarginalTaxBrackets(taxes, max, filingStatus) {
     let brackets = [];
 
-    taxes.forEach((tax) => {
+    const rates = taxes.map(({ rate }) => rate);
+
+    rates.forEach((tax) => {
       let copy = [];
 
       if (isArray(tax)) {
@@ -280,7 +295,9 @@ function taxService() {
       let totalRate = 0;
 
       for (let i = 0, len = taxes.length; i < len; i += 1) {
-        totalRate += calcMarginalTaxRate(taxes[i], bracket[MIN], filingStatus);
+        totalRate += calcMarginalTaxRate(
+          taxes[i].rate, bracket[MIN], filingStatus, taxes[i].credits,
+        );
       }
 
       return [bracket[MIN], totalRate];
@@ -305,10 +322,9 @@ function taxService() {
       tax = tax[filingStatus];
     }
 
-    let i;
-    let len;
+    const len = tax.length;
 
-    for (i = 0, len = tax.length; i < len - 1; i += 1) {
+    for (let i = 0; i < len - 1; i += 1) {
       if (income >= tax[i][MIN] && income < tax[i + 1][MIN]) {
         return tax[i][RATE];
       }
@@ -386,7 +402,7 @@ function taxService() {
 
     allBrackets.forEach((brackets) => {
       brackets.forEach((bracket) => {
-        currentStep = bracket[0];
+        ([currentStep] = bracket);
         deductionMap[currentStep] = 0;
         incomeSteps.push(currentStep);
       });
@@ -397,10 +413,10 @@ function taxService() {
     allBrackets.forEach((brackets) => {
       const bracketLen = brackets.length;
       brackets.forEach((bracket, i) => {
-        currentStep = bracket[0];
+        ([currentStep] = bracket);
         incomeSteps.forEach((step) => {
-          if (currentStep <= step && (i >= bracketLen - 1 || brackets[i + 1][0] > step)) {
-            deductionMap[step] += bracket[1];
+          if (currentStep <= step && (i >= bracketLen - 1 || brackets[i + 1][MIN] > step)) {
+            deductionMap[step] += bracket[deductionBracketEnum.AMOUNT];
           }
         });
       });
@@ -408,7 +424,7 @@ function taxService() {
 
     return Object.keys(deductionMap)
       .map((step) => [parseInt(step, 10), deductionMap[step]])
-      .sort((a, b) => a[0] - b[0]);
+      .sort((a, b) => a[MIN] - b[MIN]);
   }
 
   function modifyDependentsDeduction(deduction, filingStatus, numDependents) {
@@ -447,6 +463,7 @@ function taxService() {
   }
 
   function applyDeductionsToTaxBracket(tax, filingStatus, deductions) {
+    const { AMOUNT } = deductionBracketEnum;
     const deductionsData = createDeductionsData(deductions, filingStatus);
 
     // No deductions, just retun the tax bracket
@@ -476,9 +493,9 @@ function taxService() {
 
       sortedDeductionsData.some((bracket) => {
         currentDeductionBracket = bracket;
-        return bracket[0] <= taxBracket[MIN];
+        return bracket[MIN] <= taxBracket[MIN];
       });
-      taxBracket[MIN] += currentDeductionBracket[1];
+      taxBracket[MIN] += currentDeductionBracket[AMOUNT];
     });
 
     let additionalDeductionBrackets = deductionsData.filter((bracket) => (
@@ -509,14 +526,15 @@ function taxService() {
     // Increase the max at each bracket by (deduction reduction * tax rate)
     let deductionBracketIndex = 0;
     let accumulatedExtraTax = 0;
-    let deductionReduction;
+    // Set initial deduction amount to the differential between the first two deduction brackets
+    let deductionReduction = deductionsData[0][AMOUNT] - deductionsData[1][AMOUNT];
     copy.forEach((bracket, i) => {
       const currentDeductionBracket = additionalDeductionBrackets[deductionBracketIndex];
 
       if (copy[i][MIN] === currentDeductionBracket[MIN]) {
         const nextDeduction = additionalDeductionBrackets[deductionBracketIndex + 1];
         deductionReduction = nextDeduction
-          ? (currentDeductionBracket[1] - nextDeduction[1])
+          ? (currentDeductionBracket[AMOUNT] - nextDeduction[AMOUNT])
           : deductionReduction;
         accumulatedExtraTax += (deductionReduction * copy[i - 1][RATE]);
         copy[i - 1][MAX_TAX] += accumulatedExtraTax;

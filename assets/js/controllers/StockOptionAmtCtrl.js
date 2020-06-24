@@ -146,6 +146,7 @@ function StockOptionAmtCtrl($scope, $filter, taxData, taxService, graph, setting
       label: 'Federal Income Tax - Ordinary Income',
       tooltipFn: () => ordinaryIncomeTaxAmount,
       formattedFn: rateFormatter,
+      alwaysShow: true,
     });
 
     const amt = taxData.getFederalAmt(state, year, status, deductionSettings, creditSettings);

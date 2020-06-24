@@ -2,14 +2,7 @@ Number.isNaN = require('is-nan');
 
 /* eslint-disable no-use-before-define */
 /* @ngInject */
-function StateComparisonCtrl(
-  $scope,
-  $filter,
-  taxData,
-  taxService,
-  graph,
-  settings,
-) {
+function StateComparisonCtrl($scope, $filter, taxData, taxService, graph, settings) {
   $scope.key = 'stateComparisonData';
   $scope.xAxisScales = settings.xAxisScales;
   $scope.years = taxData.years;
@@ -40,9 +33,7 @@ function StateComparisonCtrl(
   }
 
   function createTaxRateFn(taxes, status, isEffective) {
-    const fnProp = isEffective
-      ? 'calcTotalEffectiveTaxRate'
-      : 'calcTotalMarginalTaxRate';
+    const fnProp = isEffective ? 'calcTotalEffectiveTaxRate' : 'calcTotalMarginalTaxRate';
 
     return (income) => taxService[fnProp](taxes, income, status);
   }
@@ -104,30 +95,12 @@ function StateComparisonCtrl(
 
     Object.keys(states).forEach((state) => {
       if (states[state]) {
-        const rates = taxData.getAllRates(
-          state,
-          year,
-          status,
-          deductionSettings,
-          creditSettings,
-        );
-        const taxes = taxData.getAllTaxes(
-          state,
-          year,
-          status,
-          deductionSettings,
-          creditSettings,
-        );
-        const total = taxService.calcTotalMarginalTaxBrackets(rates, xMax, status);
+        const taxes = taxData.getAllTaxes(state, year, status, deductionSettings, creditSettings);
+        const total = taxService.calcTotalMarginalTaxBrackets(taxes, xMax, status);
 
         if (graphLines.effective) {
           graph.addLine({
-            data: taxData.createTotalEffectiveTaxData(
-              taxes,
-              total,
-              xMax,
-              status,
-            ),
+            data: taxData.createTotalEffectiveTaxData(taxes, total, xMax, status),
             label: `${state} Effective`,
             tooltipFn: createTaxRateFn(taxes, status, true),
             formattedFn: rateFormatter,
@@ -137,12 +110,7 @@ function StateComparisonCtrl(
 
         if (graphLines.marginal) {
           graph.addLine({
-            data: taxData.createTotalMarginalTaxData(
-              taxes,
-              total,
-              xMax,
-              status,
-            ),
+            data: taxData.createTotalMarginalTaxData(taxes, total, xMax, status),
             label: `${state} Marginal`,
             tooltipFn: createTaxRateFn(taxes, status),
             formattedFn: rateFormatter,

@@ -2,7 +2,50 @@ import { filingStatuses as statuses } from '../specHelper';
 
 export default (taxService) => { 
   describe('applyDeductionsToTaxBracket()', () => {
-    it('should apply deductions with simple phaseouts correctly to the tax brackets', () => {
+    it('should apply deductions with simple phaseouts correctly to tax brackets that end before the phaseout', () => {
+      const deductions = [
+        {
+          amount: {
+            single: [
+              [0, 8900],
+              [231500, 0]
+            ],
+            married: [
+              [0, 17800],
+              [231500, 0]
+            ]
+          },
+        },
+        {
+          amount: {
+            single: [
+              [0, 4150],
+              [231500, 0]
+            ],
+            married: [
+              [0, 8300],
+              [231500, 0]
+            ]
+          },
+        }
+      ];
+
+      const tax = [
+        [0, 0.0375, 2447],
+        [65250, 0.0475, 6394],
+        [148350, 0.0599]
+      ];
+
+      expect(taxService.applyDeductionsToTaxBracket(tax, statuses.single, deductions)).toEqual([
+        [0, 0, 0],
+        [13050, 0.0375, 2447],
+        [78300, 0.0475, 6394],
+        [161400, 0.0599, 11374.695],
+        [231500, 0.0599]
+      ]);
+    });
+
+    it('should apply deductions with simple phaseouts correctly to tax brackets that end after the phaseout', () => {
       const deductions = [
         {
           amount: [

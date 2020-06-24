@@ -3,4 +3,5 @@
 User-agent: *
 Disallow: /assets
 Disallow: /data
+Disallow: /spec
 Disallow: /tasks

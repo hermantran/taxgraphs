@@ -88,12 +88,19 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, settings) 
 
     Object.keys(graphLines).forEach((status) => {
       if (graphLines[status]) {
-        const rates = taxData.getAllRates(state, year, status, deductionSettings, creditSettings);
         const taxes = taxData.getAllTaxes(state, year, status, deductionSettings, creditSettings);
-        const total = taxService.calcTotalMarginalTaxBrackets(rates, xMax, status);
+        const total = taxService.calcTotalMarginalTaxBrackets(taxes, xMax, status);
 
         graph.addLine({
-          data: taxData.createTakeHomePayData(taxes, total, xMax, status),
+          data: taxData.createTakeHomePayData(
+            taxes,
+            total,
+            xMax,
+            status,
+            year,
+            deductionSettings,
+            creditSettings,
+          ),
           label: `Net Income - ${capitalize(status)} Status`,
           tooltipFn: createTaxRateFn(taxes, status, true),
           formattedFn: rateFormatter,

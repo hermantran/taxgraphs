@@ -92,13 +92,6 @@ function StateBreakdownCtrl(
       deductions: deductionSettings,
       credits: creditSettings,
     } = $scope.data;
-    const rates = taxData.getAllRates(
-      state,
-      year,
-      status,
-      deductionSettings,
-      creditSettings,
-    );
     const taxes = taxData.getAllTaxes(
       state,
       year,
@@ -145,7 +138,7 @@ function StateBreakdownCtrl(
     });
 
     if (graphLines.totalEffective || graphLines.totalMarginal) {
-      total = taxService.calcTotalMarginalTaxBrackets(rates, xMax, status);
+      total = taxService.calcTotalMarginalTaxBrackets(taxes, xMax, status);
     }
 
     if (graphLines.totalMarginal) {
@@ -160,12 +153,7 @@ function StateBreakdownCtrl(
     if (graphLines.totalEffective) {
       graph.addLine({
         label: 'Total Effective',
-        data: taxData.createTotalEffectiveTaxData(
-          taxes,
-          total,
-          xMax,
-          status,
-        ),
+        data: taxData.createTotalEffectiveTaxData(taxes, total, xMax, status),
         tooltipFn: createTotalTaxRateFn(taxes, status, true),
         formattedFn: rateFormatter,
         isInterpolated: true,

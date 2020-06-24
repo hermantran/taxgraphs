@@ -39,7 +39,6 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
   service.getFederalTaxes = getFederalTaxes;
   service.getStateTaxes = getStateTaxes;
   service.getAllTaxes = getAllTaxes;
-  service.getAllRates = getAllRates;
   service.getFederalOrdinaryIncomeTax = getFederalOrdinaryIncomeTax;
   service.getFederalAmt = getFederalAmt;
   service.getAppliedCredits = getAppliedCredits;
@@ -202,21 +201,17 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
     return taxes;
   }
 
-  function getAllRates(...args) {
-    return getAllTaxes(...args).map(({ rate }) => rate);
-  }
-
   function getFederalOrdinaryIncomeTax(...args) {
-    return getAllTaxes(...args).find((tax) => (
-      tax.name === TAX_NAME_MAP[FEDERAL_INCOME_TAX.ORDINARY]
-    ));
+    return getAllTaxes(...args).find(
+      (tax) => tax.name === TAX_NAME_MAP[FEDERAL_INCOME_TAX.ORDINARY],
+    );
   }
 
   function getFederalAmt(...args) {
     const useAmt = true;
-    return getAllTaxes(...args, useAmt).find((tax) => (
-      tax.name === TAX_NAME_MAP[FEDERAL_INCOME_TAX.AMT]
-    ));
+    return getAllTaxes(...args, useAmt).find(
+      (tax) => tax.name === TAX_NAME_MAP[FEDERAL_INCOME_TAX.AMT],
+    );
   }
 
   function getAppliedDeductions(deductions, deductionValues, status) {
@@ -396,7 +391,7 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
     const data = taxes.map((tax) => {
       let rate = totalBracket.map((bracket) => [
         bracket[MIN],
-        calcMarginalTaxRate(tax.rate, bracket[MIN], filingStatus),
+        calcMarginalTaxRate(tax.rate, bracket[MIN], filingStatus, tax.credits),
       ]);
       rate = precalcBracketTaxes(rate);
       return createMarginalTaxData(rate, max, filingStatus, tax.credits);
@@ -415,7 +410,7 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
     const data = taxes.map((tax) => {
       let rate = totalBracket.map((bracket) => [
         bracket[MIN],
-        calcMarginalTaxRate(tax.rate, bracket[MIN], filingStatus),
+        calcMarginalTaxRate(tax.rate, bracket[MIN], filingStatus, tax.credits),
       ]);
       rate = precalcBracketTaxes(rate);
       return createEffectiveTaxData(rate, max, filingStatus, tax.credits);
@@ -511,16 +506,16 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
         const thirdPoint = prevBracketMin + (bracketMin - prevBracketMin) / 3;
         const twoThirdPoint = prevBracketMin + ((bracketMin - prevBracketMin) * 2) / 3;
 
-        data.push(...[
-          thirdPoint,
-          twoThirdPoint,
-          bracketMin - 10,
-          bracketMin - 1,
-          bracketMin,
-          bracketMin + 10,
-        ].map((amtIncome) => (
-          calcIsosForAmtIncome(amtIncome, income, strikePrice, optionValue)
-        )));
+        data.push(
+          ...[
+            thirdPoint,
+            twoThirdPoint,
+            bracketMin - 10,
+            bracketMin - 1,
+            bracketMin,
+            bracketMin + 10,
+          ].map((amtIncome) => calcIsosForAmtIncome(amtIncome, income, strikePrice, optionValue)),
+        );
       }
     }
 
