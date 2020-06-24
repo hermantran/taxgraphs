@@ -14,7 +14,7 @@
     <link rel="shortcut icon" href="dist/images/favicon.ico">
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500">
     <!--STYLES-->
-    <link rel="stylesheet" href="dist/styles/main-0.3.12.min.css">
+    <link rel="stylesheet" href="dist/styles/main-0.3.13.min.css">
     <!--STYLES END-->
 
     <!--[if lt IE 9]>
@@ -29,24 +29,24 @@
     <header class="pure-g pure-menu pure-menu-open pure-menu-horizontal">
       <ul class="pure-u-1">
         <li class="logo">TaxGraphs</li>
-        <li ng-repeat="route in routeOrder" class="pure-hidden-sm">
+        <li ng-repeat="route in routeOrder" class="pure-hidden-md">
           <a href="#{{ routeConfig[route].path }}" ng-class="{ active: isActive(routeConfig[route].path) }">
             {{ routeConfig[route].title }}
           </a>
         </li>
-        <li class="pure-visible-sm mobile">
+        <li class="pure-visible-md mobile">
           <a href="https://github.com/hermantran/taxgraphs" target="_blank"><i class="fa fa-github"></i></a>
         </li>
-        <li class="pure-visible-sm mobile">
+        <li class="pure-visible-md mobile">
           <a ng-click="$root.toggleMobileControls()"><i class="fa fa-line-chart"></i></a>
         </li>
       </ul>
     </header>
 
     <div class="pure-g container">
-      <div class="pure-u-1 pure-u-md-3-8 pure-u-lg-1-3 pure-u-xl-1-4 controls-wrapper" 
-       ng-class="{ 'pure-hidden-sm': $root.hideMobileControls }">
-        <div class="mobile-links section pure-visible-sm">
+      <div class="pure-u-1 pure-u-lg-1-3 pure-u-xl-1-4 controls-wrapper"
+       ng-class="{ 'pure-hidden-md': $root.hideMobileControls }">
+        <div class="mobile-links section pure-visible-md">
           <h3>Graph</h3>
           <div>
             <label>Currently Active:</label>
@@ -78,8 +78,8 @@
         </div>
       </div>
 
-      <div class="pure-u-1 pure-u-md-5-8 pure-u-lg-2-3 pure-u-xl-3-4 graph-wrapper"
-       ng-class="{ 'pure-hidden-sm': !$root.hideMobileControls  }">
+      <div class="pure-u-1 pure-u-lg-2-3 pure-u-xl-3-4 graph-wrapper"
+       ng-class="{ 'pure-hidden-md': !$root.hideMobileControls  }">
         <svg class="graph" ng-hide="isActive(routeConfig.disclaimer.path)"></svg>
 
         <div class="disclaimer" ng-class="{ show: true }" ng-show="isActive(routeConfig.disclaimer.path)">
@@ -117,7 +117,7 @@
     </script>
 
     <!--SCRIPTS-->
-    <script src="dist/js/main-0.3.12.min.js"></script>
+    <script src="dist/js/main-0.3.13.min.js"></script>
     <!--SCRIPTS END-->
 
     <!--LIVERELOAD-->

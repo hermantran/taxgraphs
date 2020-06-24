@@ -7,10 +7,10 @@ function tips(APP_NAME, APP_VERSION, localStorageService) {
 
   if (!localStorageService.get(service.key)) {
     list = [
-      // {
-      //   closed: false,
-      //   text: 'Hover over or click on the graph to view tax rates at a specific income.',
-      // },
+      {
+        closed: false,
+        text: 'Hover or tap on the graph to view tax rates at a specific income.',
+      },
     ];
     localStorageService.set(service.key, list);
   }

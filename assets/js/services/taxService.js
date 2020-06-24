@@ -338,7 +338,7 @@ function taxService() {
       return 0;
     }
     const rate = calcTax(tax, income, filingStatus, credits) / income;
-    return Math.max(rate, 0);
+    return Math.max(Math.round10(rate, -4), 0);
   }
 
   function calcTotalMarginalTaxRate(taxes, income, filingStatus) {
@@ -347,7 +347,7 @@ function taxService() {
       return total + added;
     }, 0);
 
-    return Math.max(rate, 0);
+    return Math.max(Math.round10(rate, -4), 0);
   }
 
   function calcTotalEffectiveTaxRate(taxes, income, filingStatus) {
@@ -356,7 +356,7 @@ function taxService() {
       return total + added;
     }, 0);
 
-    return Math.max(rate, 0);
+    return Math.max(Math.round10(rate, -4), 0);
   }
 
   function createDeductionBracketData(deduction, filingStatus) {

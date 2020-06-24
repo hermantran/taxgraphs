@@ -6,6 +6,12 @@
   button {
     margin: 0 5px;
   }
+
+  [data-tooltip] {
+    cursor: default;
+    display: inline-block;
+    margin-left: 8px;
+  }
 }
 
 .controls-content {
@@ -65,6 +71,7 @@
 }
 
 .price-line {
+  width: 100px;
   max-width: 100px;
   text-align: right;
 }
@@ -126,7 +133,7 @@
   margin: 0 10px;
   padding: 4px 10px;
   box-sizing: border-box;
-  z-index: 0;
+  z-index: 100;
   border: 1px solid darken(@light-grey, 10%);
   background: white;
   font-size: 0.95em;

@@ -38,7 +38,7 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService) {
     xMax: 300000,
     yMin: 0,
     yMax: 0.6,
-    animationTime: 1250,
+    animationTime: 1050,
   };
 
   const getBaseDefaults = () => ({

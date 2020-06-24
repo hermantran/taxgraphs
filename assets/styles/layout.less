@@ -38,7 +38,8 @@ input[type="checkbox"] + label {
 .controls {
   width: 100%;
   height: 100%;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .graph-wrapper {
@@ -60,6 +61,12 @@ input[type="checkbox"] + label {
   .pure-hidden-sm {
     display: none !important;
   }
+}
+
+@media screen and (max-width: @screen-md-max) {
+  .pure-hidden-md {
+    display: none !important;
+  }
 
   .container {
     min-height: 0;
@@ -69,6 +76,12 @@ input[type="checkbox"] + label {
     height: auto;
     width: auto;
     position: relative;
+  }
+}
+
+@media screen and (min-width: @screen-lg-min) {
+  .pure-visible-md {
+    display: none !important;
   }
 }
 

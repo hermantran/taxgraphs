@@ -29,7 +29,12 @@
   <h3>Result</h3>
   <div>
     <div class="pure-u-1-2"><strong>Max ISOs to avoid AMT:</strong></div>
-    <div class="pure-u-1-2 price-line"><strong>{{ results.maxIsos | currency:'':0 }}</strong></div>
+    <div class="pure-u-1-2">
+      <div class="price-line inline-block"><strong>{{ results.maxIsos | currency:'':0 }}</strong></div>
+      <div class="tooltip-bottom" data-tooltip="Note: this is a simplified calculation and can significantly change after factoring in all income sources (dividends, capital gains, etc.) and deductions (mortgage interest, student loans, etc.)">
+        <i class="fa fa-info-circle info"></i>
+      </div>
+    </div>
   </div>
   <div>
     <div class="pure-u-1-2">ISOs Exercised:</div>

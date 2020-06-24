@@ -12,6 +12,11 @@
       <input type="checkbox" name="tradRetirement" id="tradRetirement" ng-model="data.deductions.federal.ordinaryIncome.hasTradRetirement">
       <label for="tradRetirement">Traditional 401k + IRA</label>
     </div>
+    <div>
+      <input type="checkbox" name="dependents" id="dependents"
+        ng-model="data.deductions.federal.ordinaryIncome.dependents">
+      <label for="dependents">Dependents</label>
+    </div>
   </div>
 </div>
 
@@ -23,13 +28,15 @@
 <div ng-if="data.deductions.federal.ordinaryIncome.hasTradRetirement">
   <label for="tradRetirementContribution" class="valign-top">t401k + tIRA <br>Contribution:</label>
   <input type="text" id="tradRetirementContribution" name="tradRetirementContribution" convert-to-number ng-model="data.deductions.federal.ordinaryIncome.tradRetirementContribution">
+  <div class="tooltip-bottom" data-tooltip="Only include contributions in traditional retirement accounts; Roth contributions do not reduce taxable income.">
+    <i class="fa fa-info-circle info"></i>
+  </div>
 </div>
 
 <div ng-if="data.deductions.federal.ordinaryIncome.dependents">
   <label for="dependents">Dependents:</label>
   <select id="dependents" name="dependents" ng-model="data.deductions.federal.ordinaryIncome.numDependents"
    ng-options="num as num for num in [0, 1, 2, 3, 4, 5]">
-    </option>
   </select>
 </div>
 
@@ -47,4 +54,7 @@
 <div ng-if="data.credits.federal.ordinaryIncome.retirementSavers">
   <label class="valign-top" for="retirement-contribution">Retirement <br> Contribution:</label>
   <input type="text" id="retirement-contribution" name="retirement-contribution" ng-model="data.credits.federal.ordinaryIncome.retirementContribution" convert-to-number>
+  <div class="tooltip-bottom" data-tooltip="Include contributions in both traditional and Roth retirement accounts; both are counted towards the saver's credit.">
+    <i class="fa fa-info-circle info"></i>
+  </div>
 </div>

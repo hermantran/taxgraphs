@@ -1,6 +1,6 @@
 {
   "name": "taxgraphs",
-  "version": "0.3.12",
+  "version": "0.3.13",
   "description": "Visualization of US individual income tax rates",
   "author": "Herman Tran <hermanctran@gmail.com>",
   "license": "MIT",
@@ -40,7 +40,7 @@
     "eslint": "^7.1.0",
     "font-awesome": "^4.2.0",
     "grunt": "^1.1.0",
-    "grunt-angular-templates": "^1.2.0",
+    "grunt-angular-templates": "^0.5.7",
     "grunt-browserify": "^5.3.0",
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-concat": "^0.3.0",
