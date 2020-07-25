@@ -491,11 +491,13 @@ function graph(d3, screenService, settings) {
     }
   };
 
+  service.getTextYPos = () => (screenService.isMobile() ? -32 : -34);
+
   service.updateTooltips = (xPos) => {
     const xValue = Math.round(service.x.invert(xPos));
     const yScale = service.settings.yMax / service.h;
     const textPos = [];
-    const textYPos = -34;
+    const textYPos = service.getTextYPos();
     const textXPos = 10;
     const yOffset = -10;
     let showTooltipOnLeft = false;
@@ -607,7 +609,7 @@ function graph(d3, screenService, settings) {
   };
 
   service.fixTooltipOverlaps = (textPos, showTooltipOnLeft) => {
-    const textYPos = -35;
+    const textYPos = service.getTextYPos();
     const textXPos = 8;
     const yOffset = -10;
     const tooltipHeight = 45;

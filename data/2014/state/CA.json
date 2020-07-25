@@ -94,6 +94,35 @@
         "name": "State of California - Franchise Tax Board",
         "url": "//www.ftb.ca.gov/forms/2014_California_Tax_Rates_and_Exemptions.shtml"
       }
+    },
+    "amt": {
+      "rate": 0.07,
+      "deductions": {
+        "amtExemption": {
+          "amount": {
+            "single": 64878,
+            "married": 86502
+          },
+          "phaseout": {
+            "single": {
+              "start": 243288,
+              "step": 4,
+              "reduction": 1,
+              "minimum": 0
+            },
+            "married": {
+              "start": 324384,
+              "step": 4,
+              "reduction": 1,
+              "minimum": 0
+            }
+          }
+        }
+      },
+      "source": {
+        "name": "Forms and Publications Search",
+        "url": "//www.ftb.ca.gov/forms/Search/Home/Results"
+      }
     }
   }
 }

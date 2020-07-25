@@ -96,6 +96,35 @@
         "name": "State Individual Income Tax Rates and Brackets for 2016 - Tax Foundation",
         "url": "//taxfoundation.org/state-individual-income-tax-rates-and-brackets-2016/"
       }
+    },
+    "amt": {
+      "rate": 0.07,
+      "deductions": {
+        "amtExemption": {
+          "amount": {
+            "single": 67101,
+            "married": 89467
+          },
+          "phaseout": {
+            "single": {
+              "start": 251626,
+              "step": 4,
+              "reduction": 1,
+              "minimum": 0
+            },
+            "married": {
+              "start": 335502,
+              "step": 4,
+              "reduction": 1,
+              "minimum": 0
+            }
+          }
+        }
+      },
+      "source": {
+        "name": "Taxable Year 2016 Alternative Minimum Tax and Credit Limitations - Residents California Schedule P (540)",
+        "url": "//www.ftb.ca.gov/forms/2016/16_540p.pdf"
+      }
     }
   }
 }

@@ -2,7 +2,7 @@ Number.isNaN = require('is-nan');
 
 /* eslint-disable no-use-before-define */
 /* @ngInject */
-function StockOptionAmtCtrl($scope, $filter, taxData, taxService, graph, settings) {
+function FederalIsoAmtCtrl($scope, $filter, taxData, taxService, graph, settings) {
   $scope.key = 'stockOptionAmtData';
   $scope.xAxisScales = settings.xAxisScales;
   $scope.years = taxData.years;
@@ -37,11 +37,7 @@ function StockOptionAmtCtrl($scope, $filter, taxData, taxService, graph, setting
   function formatAdjustments() {
     const { deductions, credits } = $scope.data;
 
-    deductions.state.income = {
-      ...deductions.federal.ordinaryIncome,
-      itemizedDeduction: 0,
-      tradRetirementContribution: 0,
-    };
+    deductions.state.income = deductions.federal.ordinaryIncome;
     credits.state.income = credits.federal.ordinaryIncome;
   }
 
@@ -175,4 +171,4 @@ function StockOptionAmtCtrl($scope, $filter, taxData, taxService, graph, setting
   }
 }
 
-export default StockOptionAmtCtrl;
+export default FederalIsoAmtCtrl;

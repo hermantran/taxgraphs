@@ -58,7 +58,7 @@ body {
 }
 header {
   position: fixed;
-  z-index: 3;
+  z-index: 10 !important;
 }
 input[type="checkbox"] + label {
   margin-left: 3px;
@@ -228,6 +228,11 @@ header.pure-menu.pure-menu-horizontal .logo {
   font-size: 1em;
   padding: 7px 40px 7px 15px;
 }
+@media screen and (max-width: 1279px) {
+  header.pure-menu.pure-menu-horizontal .logo {
+    padding: 7px 15px;
+  }
+}
 header.pure-menu.pure-menu-horizontal li a {
   cursor: pointer;
 }
@@ -238,6 +243,11 @@ header.pure-menu.pure-menu-horizontal li a.active,
 header.pure-menu.pure-menu-horizontal li a:focus {
   background: #365fb0;
   outline: 0;
+}
+@media screen and (max-width: 1279px) {
+  header.pure-menu.pure-menu-horizontal li a {
+    padding: 5px 16px;
+  }
 }
 header.pure-menu.pure-menu-horizontal .mobile {
   float: right;

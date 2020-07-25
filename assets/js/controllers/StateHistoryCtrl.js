@@ -24,7 +24,7 @@ function StateHistoryCtrl($scope, $filter, taxData, taxService, graph, settings)
   const setData = () => {
     $scope.data = settings.get($scope.key);
     $scope.settings = $scope.data.graph;
-    $scope.graphLines = [...$scope.years].reverse().map((year) => ({
+    $scope.graphLines = [...$scope.years].map((year) => ({
       id: year,
       prop: year,
       label: year,
@@ -45,11 +45,7 @@ function StateHistoryCtrl($scope, $filter, taxData, taxService, graph, settings)
   function formatAdjustments() {
     const { deductions, credits } = $scope.data;
 
-    deductions.state.income = {
-      ...deductions.federal.ordinaryIncome,
-      itemizedDeduction: 0,
-      tradRetirementContribution: 0,
-    };
+    deductions.state.income = deductions.federal.ordinaryIncome;
     credits.state.income = credits.federal.ordinaryIncome;
   }
 

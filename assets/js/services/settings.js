@@ -86,7 +86,7 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService) {
     },
     stockOptionAmtData: {
       ...getBaseDefaults(),
-      state: 'TX',
+      state: 'CA',
       income: 150000,
       strikePrice: 6.15,
       optionValue: 10.75,
@@ -132,6 +132,9 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService) {
       },
       state: {
         income: { ...service.deductionDefaults },
+        amt: {
+          amtExemption: true,
+        },
       },
     };
   }

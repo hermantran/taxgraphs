@@ -94,6 +94,35 @@
         "name": "Tax Foundation - State Individual Income Tax Rates and Brackets for 2015",
         "url": "//taxfoundation.org/article/state-individual-income-tax-rates-and-brackets-2015"
       }
+    },
+    "amt": {
+      "rate": 0.07,
+      "deductions": {
+        "amtExemption": {
+          "amount": {
+            "single": 65721,
+            "married": 87627
+          },
+          "phaseout": {
+            "single": {
+              "start": 246451,
+              "step": 4,
+              "reduction": 1,
+              "minimum": 0
+            },
+            "married": {
+              "start": 328601,
+              "step": 4,
+              "reduction": 1,
+              "minimum": 0
+            }
+          }
+        }
+      },
+      "source": {
+        "name": "2015 Schedule P (540) -- Alternative Minimum Tax and Credit Limitations – Residents",
+        "url": "//www.ftb.ca.gov/forms/2015/15_540p.pdf"
+      }
     }
   }
 }

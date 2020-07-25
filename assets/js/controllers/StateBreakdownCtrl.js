@@ -55,11 +55,7 @@ function StateBreakdownCtrl(
   function formatAdjustments() {
     const { deductions, credits } = $scope.data;
 
-    deductions.state.income = {
-      ...deductions.federal.ordinaryIncome,
-      itemizedDeduction: 0,
-      tradRetirementContribution: 0,
-    };
+    deductions.state.income = deductions.federal.ordinaryIncome;
     credits.state.income = credits.federal.ordinaryIncome;
   }
 

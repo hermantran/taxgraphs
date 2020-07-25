@@ -8,13 +8,14 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
   const service = {};
 
   const splitCamelCase = $filter('splitCamelCase');
-  const FEDERAL_INCOME_TAX = {
-    ORDINARY: 'ordinaryIncome',
+  const INCOME_TAX = {
+    FEDERAL_ORDINARY: 'ordinaryIncome',
+    STATE_ORDINARY: 'income',
     AMT: 'amt',
   };
   const TAX_NAME_MAP = {
-    [FEDERAL_INCOME_TAX.ORDINARY]: 'Federal Income',
-    [FEDERAL_INCOME_TAX.AMT]: 'AMT',
+    [INCOME_TAX.FEDERAL_ORDINARY]: 'Federal Income',
+    [INCOME_TAX.AMT]: 'AMT',
   };
   const {
     taxBracketEnum,
@@ -41,6 +42,8 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
   service.getAllTaxes = getAllTaxes;
   service.getFederalOrdinaryIncomeTax = getFederalOrdinaryIncomeTax;
   service.getFederalAmt = getFederalAmt;
+  service.getStateOrdinaryIncomeTax = getStateOrdinaryIncomeTax;
+  service.getStateAmt = getStateAmt;
   service.getAppliedCredits = getAppliedCredits;
   service.getModifiedTaxBracket = getModifiedTaxBracket;
   service.createFlatTaxData = createFlatTaxData;
@@ -129,7 +132,7 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
     const yearData = data[service.year];
     const { rate, deductions, credits } = yearData.federal.taxes.ordinaryIncome;
 
-    service.years.push(...Object.keys(data));
+    service.years.push(...Object.keys(data).reverse());
     service.states.push(...Object.keys(yearData.state));
     service.filingStatuses.push(...Object.keys(rate));
     service.deductions.push(...Object.keys(deductions));
@@ -150,6 +153,10 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
     return taxes;
   }
 
+  function getStateTaxName(state, taxName) {
+    return `${state} ${splitCamelCase(taxName)}`;
+  }
+
   function getStateTaxes(state, year) {
     let tax;
 
@@ -158,7 +165,7 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
 
     Object.keys(taxes).forEach((taxName) => {
       tax = taxes[taxName];
-      tax.name = `${state} ${splitCamelCase(taxName)}`;
+      tax.name = getStateTaxName(state, taxName);
     });
 
     return taxes;
@@ -173,7 +180,7 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
     const federalTaxes = getFederalTaxes(year);
     Object.keys(federalTaxes)
       .filter(
-        (taxName) => taxName !== (useAmt ? FEDERAL_INCOME_TAX.ORDINARY : FEDERAL_INCOME_TAX.AMT),
+        (taxName) => taxName !== (useAmt ? INCOME_TAX.FEDERAL_ORDINARY : INCOME_TAX.AMT),
       )
       .forEach((taxName) => {
         tax = federalTaxes[taxName];
@@ -187,30 +194,49 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
       });
 
     const stateTaxes = getStateTaxes(state, year);
-    Object.keys(stateTaxes).forEach((taxName) => {
-      tax = stateTaxes[taxName];
-      deductionValues = deductionSettings.state[taxName];
-      creditValues = creditSettings.state[taxName];
-      taxes.push({
-        name: tax.name,
-        rate: getModifiedTaxBracket(tax, year, status, deductionValues, creditValues),
-        credits: getAppliedCredits(tax.credits, creditValues, status),
+    Object.keys(stateTaxes)
+      .filter(
+        (taxName) => taxName !== (useAmt ? INCOME_TAX.STATE_ORDINARY : INCOME_TAX.AMT),
+      )
+      .forEach((taxName) => {
+        tax = stateTaxes[taxName];
+        deductionValues = deductionSettings.state[taxName];
+        creditValues = creditSettings.state[taxName];
+        taxes.push({
+          name: tax.name,
+          rate: getModifiedTaxBracket(tax, year, status, deductionValues, creditValues),
+          credits: getAppliedCredits(tax.credits, creditValues, status),
+        });
       });
-    });
 
     return taxes;
   }
 
   function getFederalOrdinaryIncomeTax(...args) {
     return getAllTaxes(...args).find(
-      (tax) => tax.name === TAX_NAME_MAP[FEDERAL_INCOME_TAX.ORDINARY],
+      (tax) => tax.name === TAX_NAME_MAP[INCOME_TAX.FEDERAL_ORDINARY],
     );
   }
 
   function getFederalAmt(...args) {
     const useAmt = true;
     return getAllTaxes(...args, useAmt).find(
-      (tax) => tax.name === TAX_NAME_MAP[FEDERAL_INCOME_TAX.AMT],
+      (tax) => tax.name === TAX_NAME_MAP[INCOME_TAX.AMT],
+    );
+  }
+
+  function getStateOrdinaryIncomeTax(...args) {
+    const state = args[0];
+    return getAllTaxes(...args).find(
+      (tax) => tax.name === getStateTaxName(state, INCOME_TAX.STATE_ORDINARY),
+    );
+  }
+
+  function getStateAmt(...args) {
+    const state = args[0];
+    const useAmt = true;
+    return getAllTaxes(...args, useAmt).find(
+      (tax) => tax.name === getStateTaxName(state, INCOME_TAX.AMT),
     );
   }
 

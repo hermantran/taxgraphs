@@ -5,7 +5,8 @@ function routes($routeProvider, ROUTE_CONFIG) {
     .when(ROUTE_CONFIG.stateBreakdown.path, ROUTE_CONFIG.stateBreakdown)
     .when(ROUTE_CONFIG.stateHistory.path, ROUTE_CONFIG.stateHistory)
     .when(ROUTE_CONFIG.takeHomePay.path, ROUTE_CONFIG.takeHomePay)
-    .when(ROUTE_CONFIG.stockOptionAmt.path, ROUTE_CONFIG.stockOptionAmt)
+    .when(ROUTE_CONFIG.federalIsoAmt.path, ROUTE_CONFIG.federalIsoAmt)
+    .when(ROUTE_CONFIG.californiaIsoAmt.path, ROUTE_CONFIG.californiaIsoAmt)
     .when(ROUTE_CONFIG.disclaimer.path, ROUTE_CONFIG.disclaimer)
     .otherwise({
       redirectTo: '/',
