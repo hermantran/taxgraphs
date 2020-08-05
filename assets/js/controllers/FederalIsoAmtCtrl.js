@@ -34,11 +34,16 @@ function FederalIsoAmtCtrl($scope, $filter, taxData, taxService, graph, settings
   }
 
   // TODO separate out state and federal adjustments into separate fields
+  // and separate out above the line and below the line deductions
   function formatAdjustments() {
     const { deductions, credits } = $scope.data;
 
     deductions.state.income = deductions.federal.ordinaryIncome;
     credits.state.income = credits.federal.ordinaryIncome;
+
+    const { hasTradRetirement, tradRetirementContribution } = deductions.federal.ordinaryIncome;
+    deductions.federal.amt.hasTradRetirement = hasTradRetirement;
+    deductions.federal.amt.tradRetirementContribution = tradRetirementContribution;
   }
 
   function updateGraphText(state, year) {
