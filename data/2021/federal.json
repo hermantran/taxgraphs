@@ -1,0 +1,120 @@
+{
+  "taxes": {
+    "medicare": {
+      "rate": {
+        "single": [
+          [0, 0.0145],
+          [200000, 0.0235]
+        ],
+        "married": [
+          [0, 0.0145],
+          [200000, 0.0235]
+        ]
+      },
+      "source": {
+        "name": "Topic No. 751 Social Security and Medicare Withholding Rates | Internal Revenue Service",
+        "url": "//www.irs.gov/taxtopics/tc751"
+      }
+    },
+    "socialSecurity": {
+      "rate": [
+        [0, 0.062],
+        [142800, 0]
+      ],
+      "source": {
+        "name": "Topic No. 751 Social Security and Medicare Withholding Rates | Internal Revenue Service",
+        "url": "//www.irs.gov/taxtopics/tc751"
+      }
+    },
+    "ordinaryIncome": {
+      "rate": {
+        "single": [
+          [0, 0.1],
+          [9950, 0.12],
+          [40525, 0.22],
+          [86375, 0.24],
+          [164925, 0.32],
+          [209425, 0.35],
+          [523600, 0.37]
+        ],
+        "married": [
+          [0, 0.1],
+          [19900, 0.12],
+          [81050, 0.22],
+          [172750, 0.24],
+          [329850, 0.32],
+          [418850, 0.35],
+          [628300, 0.37]
+        ]
+      },
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 12550,
+            "married": 25100
+          }
+        }
+      },
+      "credits": {
+        "retirementSavers": {
+          "rate": {
+            "single": [
+              [0, 0.5],
+              [19751, 0.2],
+              [21501, 0.1],
+              [33001, 0]
+            ],
+            "married": [
+              [0, 0.5],
+              [39501, 0.2],
+              [43001, 0.1],
+              [66001, 0]
+            ]
+          },
+          "maximum": 2000,
+          "isRefundable": false,
+          "source": {
+            "name": "Retirement Savings Contributions Savers Credit | Internal Revenue Service",
+            "url": "//www.irs.gov/retirement-plans/plan-participant-employee/retirement-savings-contributions-savers-credit"
+          }
+        }
+      },
+      "source": {
+        "name": "2021 Tax Brackets | 2021 Federal Income Tax Brackets &amp; Rates - Tax Foundation",
+        "url": "//taxfoundation.org/2021-tax-brackets/"
+      }
+    },
+    "amt": {
+      "rate": [
+        [0, 0.26],
+        [199900, 0.28]
+      ],
+      "deductions": {
+        "amtExemption": {
+          "amount": {
+            "single": 73600,
+            "married": 114600
+          },
+          "phaseout": {
+            "single": {
+              "start": 523600,
+              "step": 400,
+              "reduction": 100,
+              "minimum": 0
+            },
+            "married": {
+              "start": 1047200,
+              "step": 400,
+              "reduction": 100,
+              "minimum": 0
+            }
+          }
+        }
+      },
+      "source": {
+        "name": "2021 Tax Brackets | 2021 Federal Income Tax Brackets &amp; Rates - Tax Foundation",
+        "url": "//taxfoundation.org/2021-tax-brackets/"
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "taxes": {
+    "income": {
+      "rate": 0.0455,
+      "useFederalTaxableIncome": true,
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 12550,
+            "married": 25100
+          }
+        }
+      },
+      "source": {
+        "name": "State Income Tax Rates and Brackets, 2021 | Tax Foundation",
+        "url": "//taxfoundation.org/state-income-tax-rates-2021/"
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "taxes": {
+    "income": {
+      "rate": {
+        "single": [
+          [0, 0.0475],
+          [3650, 0.0675],
+          [9200, 0.0875],
+          [125000, 0.099]
+        ],
+        "married": [
+          [0, 0.0475],
+          [7300, 0.0675],
+          [18400, 0.0875],
+          [250000, 0.099]
+        ]
+      },
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 2315,
+            "married": 4630
+          }
+        },
+        "personalExemption": {
+          "amount": {
+            "single": 210,
+            "married": 420
+          }
+        },
+        "dependents": {
+          "amount": 210
+        }
+      },
+      "source": {
+        "name": "State Income Tax Rates and Brackets, 2021 | Tax Foundation",
+        "url": "//taxfoundation.org/state-income-tax-rates-2021/"
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "taxes": {
+    "income": {
+      "rate": 0.0307,
+      "source": {
+        "name": "State Income Tax Rates and Brackets, 2021 | Tax Foundation",
+        "url": "//taxfoundation.org/state-income-tax-rates-2021/"
+      }
+    },
+    "stateUnemploymentInsurance": {
+      "rate": 0.0006,
+      "source": {
+        "name": "Pennsylvania 2021 SUI tax rate factors and taxable wage base to remain the same; COVID-19 benefits are not charged to employer accounts despite information sent to employers",
+        "url": "//taxnews.ey.com/news/2021-0458-pennsylvania-2021-sui-tax-rate-factors-and-taxable-wage-base-to-remain-the-same-covid-19-benefits-are-not-charged-to-employer-accounts-despite-information-sent-to-employers"
+      }
+    }
+  }
+}

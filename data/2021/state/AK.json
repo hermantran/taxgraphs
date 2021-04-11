@@ -1,0 +1,21 @@
+{
+  "taxes": {
+    "income": {
+      "rate": 0,
+      "source": {
+        "name": "State Income Tax Rates and Brackets, 2021 | Tax Foundation",
+        "url": "//taxfoundation.org/state-income-tax-rates-2021/"
+      }
+    },
+    "employmentSecurity": {
+      "rate": [
+        [0, 0.005],
+        [43600, 0]
+      ],
+      "source": {
+        "name": "Alaska Department of Labor",
+        "url": "//labor.alaska.gov/estax/faq/w1.htm"
+      }
+    }
+  }
+}
