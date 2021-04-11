@@ -106,14 +106,14 @@
           "phaseout": {
             "single": {
               "start": 276552,
-              "step": 4,
-              "reduction": 1,
+              "step": 400,
+              "reduction": 100,
               "minimum": 0
             },
             "married": {
               "start": 368737,
-              "step": 4,
-              "reduction": 1,
+              "step": 400,
+              "reduction": 100,
               "minimum": 0
             }
           }

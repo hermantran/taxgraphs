@@ -100,28 +100,28 @@
       "deductions": {
         "amtExemption": {
           "amount": {
-            "single": 73748,
-            "married": 98330
+            "single": 74780,
+            "married": 99707
           },
           "phaseout": {
             "single": {
-              "start": 276552,
-              "step": 4,
-              "reduction": 1,
+              "start": 280424,
+              "step": 400,
+              "reduction": 100,
               "minimum": 0
             },
             "married": {
-              "start": 368737,
-              "step": 4,
-              "reduction": 1,
+              "start": 373899,
+              "step": 400,
+              "reduction": 100,
               "minimum": 0
             }
           }
         }
       },
       "source": {
-        "name": "2019 Schedule P (540) Alternative Minimum Tax and Credit Limitations - Residents",
-        "url": "//www.ftb.ca.gov/forms/2019/2019-540-p.pdf"
+        "name": "2020 Schedule P (540) Alternative Minimum Tax and Credit Limitations - Residents",
+        "url": "//www.ftb.ca.gov/forms/2020/2020-540-p.pdf"
       }
     }
   }
