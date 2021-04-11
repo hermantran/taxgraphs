@@ -87,14 +87,16 @@ function StateBreakdownCtrl(
       graphLines,
       deductions: deductionSettings,
       credits: creditSettings,
+      selfEmployed,
     } = $scope.data;
-    const taxes = taxData.getAllTaxes(
+    const taxes = taxData.getAllTaxes({
       state,
       year,
       status,
       deductionSettings,
       creditSettings,
-    );
+      selfEmployed,
+    });
     let { xMax } = $scope.settings;
     let total;
 

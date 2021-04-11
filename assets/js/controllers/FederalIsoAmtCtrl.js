@@ -121,6 +121,7 @@ function FederalIsoAmtCtrl($scope, $filter, taxData, taxService, graph, settings
       optionValue,
       deductions: deductionSettings,
       credits: creditSettings,
+      selfEmployed,
     } = $scope.data;
     const { xMax } = $scope.settings;
 
@@ -129,13 +130,14 @@ function FederalIsoAmtCtrl($scope, $filter, taxData, taxService, graph, settings
     updateGraphText(state, year);
     graph.update($scope.settings);
 
-    const ordinaryIncomeTax = taxData.getFederalOrdinaryIncomeTax(
+    const ordinaryIncomeTax = taxData.getFederalOrdinaryIncomeTax({
       state,
       year,
       status,
       deductionSettings,
       creditSettings,
-    );
+      selfEmployed,
+    });
     const ordinaryIncomeTaxRate = taxService.calcEffectiveTaxRate(
       ordinaryIncomeTax.rate,
       income,
@@ -150,7 +152,9 @@ function FederalIsoAmtCtrl($scope, $filter, taxData, taxService, graph, settings
       alwaysShow: true,
     });
 
-    const amt = taxData.getFederalAmt(state, year, status, deductionSettings, creditSettings);
+    const amt = taxData.getFederalAmt({
+      state, year, status, deductionSettings, creditSettings, selfEmployed,
+    });
     graph.addLine({
       data: taxData.createStockOptionAmtData(
         amt.rate,

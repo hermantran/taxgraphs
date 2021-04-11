@@ -116,6 +116,7 @@ function CaliforniaIsoAmtCtrl($scope, $filter, taxData, taxService, graph, setti
       optionValue,
       deductions: deductionSettings,
       credits: creditSettings,
+      selfEmployed,
     } = $scope.data;
     const { xMax } = $scope.settings;
 
@@ -124,13 +125,14 @@ function CaliforniaIsoAmtCtrl($scope, $filter, taxData, taxService, graph, setti
     updateGraphText(state, year);
     graph.update($scope.settings);
 
-    const ordinaryIncomeTax = taxData.getStateOrdinaryIncomeTax(
+    const ordinaryIncomeTax = taxData.getStateOrdinaryIncomeTax({
       state,
       year,
       status,
       deductionSettings,
       creditSettings,
-    );
+      selfEmployed,
+    });
     const ordinaryIncomeTaxRate = taxService.calcEffectiveTaxRate(
       ordinaryIncomeTax.rate,
       income,
@@ -145,7 +147,9 @@ function CaliforniaIsoAmtCtrl($scope, $filter, taxData, taxService, graph, setti
       alwaysShow: true,
     });
 
-    const amt = taxData.getStateAmt(state, year, status, deductionSettings, creditSettings);
+    const amt = taxData.getStateAmt({
+      state, year, status, deductionSettings, creditSettings, selfEmployed,
+    });
     graph.addLine({
       data: taxData.createStockOptionAmtData(
         amt.rate,

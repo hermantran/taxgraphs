@@ -1,15 +1,31 @@
 {
   "taxes": {
     "medicare": {
-      "rate": {
-        "single": [
-          [0, 0.0145],
-          [200000, 0.0235]
-        ],
-        "married": [
-          [0, 0.0145],
-          [250000, 0.0235]
-        ]
+      "employment": {
+        "employee": {
+          "rate": {
+            "single": [
+              [0, 0.0145],
+              [200000, 0.0235]
+            ],
+            "married": [
+              [0, 0.0145],
+              [250000, 0.0235]
+            ]
+          }
+        },
+        "selfEmployed": {
+          "rate": {
+            "single": [
+              [0, 0.029],
+              [200000, 0.038]
+            ],
+            "married": [
+              [0, 0.029],
+              [250000, 0.038]
+            ]
+          }
+        }
       },
       "source": {
         "name": "OASDI and SSI Program Rates &amp; Limits, 2017",
@@ -17,10 +33,20 @@
       }
     },
     "socialSecurity": {
-      "rate": [
-        [0, 0.062],
-        [127200, 0]
-      ],
+      "employment": {
+        "employee": {
+          "rate": [
+            [0, 0.062],
+            [127200, 0]
+          ]
+        },
+        "selfEmployed": {
+          "rate": [
+            [0, 0.124],
+            [127200, 0]
+          ]
+        }
+      },
       "source": {
         "name": "OASDI and SSI Program Rates &amp; Limits, 2017",
         "url": "//www.ssa.gov/policy/docs/quickfacts/prog_highlights/RatesLimits2017.html"

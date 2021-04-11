@@ -66,6 +66,7 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, settings) 
       graphLines,
       deductions: deductionSettings,
       credits: creditSettings,
+      selfEmployed,
     } = $scope.data;
     const capitalize = $filter('capitalize');
     let { xMax } = $scope.settings;
@@ -84,7 +85,9 @@ function TakeHomePayCtrl($scope, $filter, taxData, taxService, graph, settings) 
 
     Object.keys(graphLines).forEach((status) => {
       if (graphLines[status]) {
-        const taxes = taxData.getAllTaxes(state, year, status, deductionSettings, creditSettings);
+        const taxes = taxData.getAllTaxes({
+          state, year, status, deductionSettings, creditSettings, selfEmployed,
+        });
         const total = taxService.calcTotalMarginalTaxBrackets(taxes, xMax, status);
 
         graph.addLine({

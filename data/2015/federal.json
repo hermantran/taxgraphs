@@ -1,15 +1,31 @@
 {
   "taxes": {
     "medicare": {
-      "rate": {
-        "single": [
-          [0, 0.0145],
-          [200000, 0.0235]
-        ],
-        "married": [
-          [0, 0.0145],
-          [250000, 0.0235]
-        ]
+      "employment": {
+        "employee": {
+          "rate": {
+            "single": [
+              [0, 0.0145],
+              [200000, 0.0235]
+            ],
+            "married": [
+              [0, 0.0145],
+              [250000, 0.0235]
+            ]
+          }
+        },
+        "selfEmployed": {
+          "rate": {
+            "single": [
+              [0, 0.029],
+              [200000, 0.038]
+            ],
+            "married": [
+              [0, 0.029],
+              [250000, 0.038]
+            ]
+          }
+        }
       },
       "source": {
         "name": "Social Security Administration - 2015 Social Security Changes",
@@ -17,10 +33,20 @@
       }
     },
     "socialSecurity": {
-      "rate": [
-        [0, 0.062],
-        [118500, 0]
-      ],
+      "employment": {
+        "employee": {
+          "rate": [
+            [0, 0.062],
+            [118500, 0]
+          ]
+        },
+        "selfEmployed": {
+          "rate": [
+            [0, 0.124],
+            [118500, 0]
+          ]
+        }
+      },
       "source": {
         "name": "Social Security Administration - 2015 Social Security Changes",
         "url": "//www.ssa.gov/news/press/factsheets/colafacts2015.html"

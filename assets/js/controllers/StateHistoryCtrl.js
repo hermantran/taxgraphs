@@ -72,6 +72,7 @@ function StateHistoryCtrl($scope, $filter, taxData, taxService, graph, settings)
       graphLines,
       deductions: deductionSettings,
       credits: creditSettings,
+      selfEmployed,
     } = $scope.data;
     let { xMax } = $scope.settings;
 
@@ -92,7 +93,9 @@ function StateHistoryCtrl($scope, $filter, taxData, taxService, graph, settings)
         return;
       }
 
-      const taxes = taxData.getAllTaxes(state, year, status, deductionSettings, creditSettings);
+      const taxes = taxData.getAllTaxes({
+        state, year, status, deductionSettings, creditSettings, selfEmployed,
+      });
       const total = taxService.calcTotalMarginalTaxBrackets(taxes, xMax, status);
       graph.addLine({
         label: year,

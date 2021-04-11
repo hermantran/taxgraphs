@@ -74,6 +74,7 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph, settin
       graphLines,
       deductions: deductionSettings,
       credits: creditSettings,
+      selfEmployed,
     } = $scope.data;
     let { xMax } = $scope.settings;
 
@@ -91,7 +92,9 @@ function StateComparisonCtrl($scope, $filter, taxData, taxService, graph, settin
 
     Object.keys(states).forEach((state) => {
       if (states[state]) {
-        const taxes = taxData.getAllTaxes(state, year, status, deductionSettings, creditSettings);
+        const taxes = taxData.getAllTaxes({
+          state, year, status, deductionSettings, creditSettings, selfEmployed,
+        });
         const total = taxService.calcTotalMarginalTaxBrackets(taxes, xMax, status);
 
         if (graphLines.effective) {
