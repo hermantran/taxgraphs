@@ -11,6 +11,8 @@ function CaliforniaIsoAmtCtrl($scope, $filter, taxData, taxService, graph, setti
   $scope.stateNames = taxData.stateNames;
   $scope.deductions = taxData.deductions;
   $scope.credits = taxData.credits;
+  $scope.addGrant = addGrant;
+  $scope.removeGrant = removeGrant;
   $scope.drawGraph = drawGraph;
 
   taxData.get().then(init);
@@ -44,8 +46,9 @@ function CaliforniaIsoAmtCtrl($scope, $filter, taxData, taxService, graph, setti
   function updateGraphText(state, year) {
     const { axisFormats } = settings;
     const {
-      status, deductions, optionValue, strikePrice,
+      status, deductions, stockOptions,
     } = $scope.data;
+    const { optionValue, strikePrice } = stockOptions[0];
     const {
       itemizedDeduction,
       standardDeduction,
@@ -62,8 +65,12 @@ function CaliforniaIsoAmtCtrl($scope, $filter, taxData, taxService, graph, setti
       ...(hasTradRetirement ? [
         `${$filter('currency')(tradRetirementContribution / 1000, '$', 0)}k t401k + tIRA`,
       ] : []),
-      `${$filter('currency')(optionValue, '$', 2)} 409A`,
-      `${$filter('currency')(strikePrice, '$', 2)} Strike Price`,
+      ...(stockOptions.length > 1
+        ? ['Multipe ISO Grants']
+        : [
+          `${$filter('currency')(optionValue, '$', 2)} 409A`,
+          `${$filter('currency')(strikePrice, '$', 2)} Strike Price`,
+        ]),
     ].join(', ');
     graph.updateTitle(primaryTitle, secondaryTitle);
     graph.updateAxisLabels('ISOs Exercised', 'Tax Amount');
@@ -72,7 +79,7 @@ function CaliforniaIsoAmtCtrl($scope, $filter, taxData, taxService, graph, setti
 
   function displayResults(input, ordinaryIncomeTax, amt) {
     const {
-      income, status, strikePrice, optionValue,
+      income, status, stockOptions,
     } = input;
     const { xMax } = $scope.settings;
 
@@ -82,10 +89,10 @@ function CaliforniaIsoAmtCtrl($scope, $filter, taxData, taxService, graph, setti
       status,
     );
     const ordinaryIncomeTaxAmount = income * ordinaryIncomeTaxRate;
-    const amtIncomeTaxAmount = taxService.calcAmtTax(
-      amt.rate, income, status, strikePrice, optionValue, xMax,
+    const amtIncomeTaxAmount = taxService.calcMultiGrantAmtTax(
+      amt.rate, income, status, stockOptions, xMax,
     );
-    const amtGrossIncome = taxService.calcAmtIncome(income, strikePrice, optionValue, xMax);
+    const amtGrossIncome = taxService.calcMultiGrantAmtIncome(income, stockOptions, xMax);
     const excessAmtTax = Math.max(0, amtIncomeTaxAmount - ordinaryIncomeTaxAmount);
 
     $scope.results = {
@@ -93,8 +100,7 @@ function CaliforniaIsoAmtCtrl($scope, $filter, taxData, taxService, graph, setti
         amt.rate,
         income,
         status,
-        strikePrice,
-        optionValue,
+        stockOptions,
         ordinaryIncomeTaxAmount,
       ),
       exercisedIsos: xMax,
@@ -106,18 +112,36 @@ function CaliforniaIsoAmtCtrl($scope, $filter, taxData, taxService, graph, setti
     };
   }
 
+  function addGrant() {
+    $scope.data.stockOptions.push({});
+  }
+
+  function removeGrant() {
+    $scope.data.stockOptions.pop();
+  }
+
   function drawGraph() {
     const {
       state,
       year,
       status,
       income,
-      strikePrice,
-      optionValue,
       deductions: deductionSettings,
       credits: creditSettings,
       selfEmployed,
     } = $scope.data;
+
+    let { stockOptions } = $scope.data;
+    stockOptions = stockOptions.filter(
+      (option) => {
+        const keys = Object.keys(option);
+        return keys.length > 1 && keys.every((key) => option[key]);
+      },
+    );
+
+    $scope.settings.xMax = stockOptions.reduce(
+      (total, { isoAmount }) => total + isoAmount, 0,
+    );
     const { xMax } = $scope.settings;
 
     formatAdjustments();
@@ -155,13 +179,12 @@ function CaliforniaIsoAmtCtrl($scope, $filter, taxData, taxService, graph, setti
         amt.rate,
         income,
         status,
-        strikePrice,
-        optionValue,
+        stockOptions,
         xMax,
       ),
       label: 'California Income Tax - AMT',
-      tooltipFn: (isos) => taxService.calcAmtTax(
-        amt.rate, income, status, strikePrice, optionValue, isos,
+      tooltipFn: (isos) => taxService.calcMultiGrantAmtTax(
+        amt.rate, income, status, stockOptions, isos,
       ),
       formattedFn: rateFormatter,
       isInterpolated: true,

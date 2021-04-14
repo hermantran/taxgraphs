@@ -20,9 +20,7 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
   };
   const {
     taxBracketEnum,
-    calcIsosForAmtIncome,
-    calcAmtIncome,
-    calcAmtTax,
+    calcMultiGrantAmtTax,
     calcEffectiveTaxRate,
     calcMarginalTaxRate,
     precalcBracketTaxes,
@@ -517,43 +515,26 @@ function taxData($http, $q, $filter, TAX_API, TAX_YEAR, taxService) {
     return data;
   }
 
-  function createStockOptionAmtData(tax, income, filingStatus, strikePrice, optionValue, isoMax) {
+  function createStockOptionAmtData(tax, income, filingStatus, stockOptions, isoMax) {
     const data = [];
-    const len = tax.length;
-    const amtIncomeMax = calcAmtIncome(income, strikePrice, optionValue, isoMax);
+    let currentIsoAmount = 0;
 
     data.push(0);
 
-    for (let i = 1; i < len; i += 1) {
-      const bracketMin = tax[i][MIN];
-
-      if (amtIncomeMax < bracketMin) {
-        break;
-      }
-
-      if (income < bracketMin) {
-        const prevBracketMin = tax[i - 1][MIN];
-        const thirdPoint = prevBracketMin + (bracketMin - prevBracketMin) / 3;
-        const twoThirdPoint = prevBracketMin + ((bracketMin - prevBracketMin) * 2) / 3;
-
-        data.push(
-          ...[
-            thirdPoint,
-            twoThirdPoint,
-            bracketMin - 10,
-            bracketMin - 1,
-            bracketMin,
-            bracketMin + 10,
-          ].map((amtIncome) => calcIsosForAmtIncome(amtIncome, income, strikePrice, optionValue)),
-        );
-      }
-    }
+    stockOptions.forEach((option) => {
+      const { isoAmount } = option;
+      const intervals = [0.1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9.9].map(
+        (num) => currentIsoAmount + ((isoAmount * num) / 10),
+      );
+      data.push(...intervals);
+      currentIsoAmount += isoAmount;
+    });
 
     data.push(isoMax);
 
     return data.map((isos) => ({
       x: isos,
-      y: calcAmtTax(tax, income, filingStatus, strikePrice, optionValue, isos),
+      y: calcMultiGrantAmtTax(tax, income, filingStatus, stockOptions, isos),
     }));
   }
 

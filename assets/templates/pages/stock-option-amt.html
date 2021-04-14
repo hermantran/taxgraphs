@@ -6,19 +6,29 @@
     <label for="income">Gross Income:</label>
     <input type="text" id="income" name="income" ng-model="data.income" required convert-to-number>
   </div>
-  <div>
-    <label for="exercisedIsos">ISOs Exercised:</label>
-    <input type="text" id="exercisedIsos" name="exercisedIsos" ng-model="settings.xMax" required convert-to-number>
+
+  <div ng-if="data.stockOptions.length > 1" ng-repeat-start="stockOption in data.stockOptions track by $index">
+    <strong>Grant #{{::$index + 1}}</strong>
   </div>
   <div>
-    <label for="optionValue">409A Valuation:</label>
-    <input type="text" id="optionValue" name="optionValue" ng-model="data.optionValue" required convert-to-price>
+    <label for="{{::'isoAmount-'+$index}}">ISOs Exercised:</label>
+    <input type="text" id="{{::'isoAmount-'+$index}}" name="{{::'isoAmount-'+$index}}" ng-model="stockOption.isoAmount" required convert-to-number>
   </div>
   <div>
-    <label for="strikePrice">Strike Price:</label>
-    <input type="text" id="strikePrice" name="strikePrice" ng-model="data.strikePrice" required convert-to-price>
+    <label for="{{::'optionValue-'+$index}}">409A Valuation:</label>
+    <input type="text" id="{{::'optionValue-'+$index}}" name="{{::'optionValue-'+$index}}" ng-model="stockOption.optionValue" required convert-to-price>
   </div>
-  
+  <div ng-repeat-end>
+    <label for="{{::'strikePrice'+$index}}">Strike Price:</label>
+    <input type="text" id="{{::'strikePrice'+$index}}" name="{{::'strikePrice'+$index}}" ng-model="stockOption.strikePrice" required convert-to-price>
+  </div>
+  <div>
+    <button class="button-link" ng-click="addGrant()">Add Grant</button>
+    <button ng-if="data.stockOptions.length > 1" class="button-link" ng-click="removeGrant()">Remove Grant</button>
+    <div class="tooltip-bottom" data-tooltip="Each ISO grant will be applied in the order that they are inputted.">
+      <i class="fa fa-info-circle info"></i>
+    </div>
+  </div>
   
   <div class="subsection" ng-include="'assets/templates/partials/adjustments.html'"></div>
 

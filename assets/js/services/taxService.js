@@ -34,6 +34,9 @@ function taxService() {
   service.calcIsosToAvoidAmt = calcIsosToAvoidAmt;
   service.calcAmtTax = calcAmtTax;
   service.calcAmtEffectiveTaxRate = calcAmtEffectiveTaxRate;
+  service.calcMultiGrantAmtIncome = calcMultiGrantAmtIncome;
+  service.calcMultiGrantAmtTax = calcMultiGrantAmtTax;
+  service.calcMultiGrantAmtEffectiveTaxRate = calcMultiGrantAmtEffectiveTaxRate;
   service.calcDeductionFromTaxBracket = calcDeductionFromTaxBracket;
   service.calcTaxCredit = calcTaxCredit;
   service.calcTaxCredits = calcTaxCredits;
@@ -103,8 +106,42 @@ function taxService() {
     return income + (isos * (optionValue - strikePrice));
   }
 
-  function calcIsosForAmtIncome(amtIncome, income, strikePrice, optionValue) {
-    const isos = Math.round((amtIncome - income) / (optionValue - strikePrice));
+  function calcMultiGrantAmtIncome(income, stockOptions, isos) {
+    let isosLeft = isos;
+    let amtIncome = income;
+
+    stockOptions.some((option, index) => {
+      const { strikePrice, optionValue, isoAmount } = option;
+      if (index === stockOptions.length - 1 || isosLeft <= isoAmount) {
+        amtIncome = calcAmtIncome(amtIncome, strikePrice, optionValue, isosLeft);
+        return true;
+      }
+
+      amtIncome = calcAmtIncome(amtIncome, strikePrice, optionValue, isoAmount);
+      isosLeft -= isoAmount;
+      return false;
+    });
+
+    return amtIncome;
+  }
+
+  function calcIsosForAmtIncome(amtIncome, income, stockOptions) {
+    let isos = 0;
+    let incomeDiff = amtIncome - income;
+
+    stockOptions.some((option, index) => {
+      const { strikePrice, optionValue, isoAmount } = option;
+      const isosNeeded = Math.round(incomeDiff / (optionValue - strikePrice));
+      if (index === stockOptions.length - 1 || isosNeeded <= isoAmount) {
+        isos += isosNeeded;
+        return true;
+      }
+
+      isos += isoAmount;
+      incomeDiff -= isoAmount * (optionValue - strikePrice);
+      return false;
+    });
+
     return Math.max(isos, 0);
   }
 
@@ -121,6 +158,19 @@ function taxService() {
     return calcEffectiveTax(tax, amtIncome, 0, 0);
   }
 
+  function calcMultiGrantAmtTax(tax, income, filingStatus, stockOptions, isos) {
+    if (isPlainObject(tax)) {
+      tax = tax[filingStatus];
+    }
+
+    if (!isArray(tax)) {
+      throw new Error(`Cannot calculate AMT of type ${typeof tax}`);
+    }
+
+    const amtIncome = calcMultiGrantAmtIncome(income, stockOptions, isos);
+    return calcEffectiveTax(tax, amtIncome, 0, 0);
+  }
+
   function calcAmtEffectiveTaxRate(tax, income, filingStatus, strikePrice, optionValue, isos) {
     if (income < 1) {
       return 0;
@@ -129,32 +179,55 @@ function taxService() {
     return Math.max(rate, 0);
   }
 
-  function calcIsosToAvoidAmt(tax, income, filingStatus, strikePrice, optionValue, taxAmount) {
-    const args = [tax, income, filingStatus, strikePrice, optionValue];
+  function calcMultiGrantAmtEffectiveTaxRate(tax, income, filingStatus, stockOptions) {
+    if (income < 1) {
+      return 0;
+    }
+    const rate = calcMultiGrantAmtTax(tax, income, filingStatus, stockOptions) / income;
+    return Math.max(rate, 0);
+  }
+
+  function calcIsosToAvoidAmt(tax, income, filingStatus, stockOptions, taxAmount) {
+    const args = [tax, income, filingStatus, stockOptions];
     const baseDeduction = calcDeductionFromTaxBracket(tax, filingStatus);
     const baseIncome = income > baseDeduction ? income : baseDeduction;
-    const baseIsos = calcIsosForAmtIncome(baseIncome, income, strikePrice, optionValue);
-    const baseAmtTax = calcAmtTax(...args, baseIsos);
+    const baseIsos = calcIsosForAmtIncome(baseIncome, income, stockOptions);
+    const baseAmtTax = calcMultiGrantAmtTax(...args, baseIsos);
 
-    // AMT has a higher marginal rate and exemption phaseout,
-    // so use a naive marginal tax for first guess
-    const naiveMarginalTax = calcAmtTax(...args, baseIsos + 1) - baseAmtTax;
-    const buffer = (10 * naiveMarginalTax);
-    let isosToAvoidAmt = baseIsos + (
-      Math.floor((taxAmount - baseAmtTax - buffer) / naiveMarginalTax)
-    );
+    let isosToAvoidAmt = baseIsos;
+    let currentAmtTax = baseAmtTax;
+
+    stockOptions.some((option, index) => {
+      const { isoAmount } = option;
+      // AMT has a higher marginal rate and exemption phaseout,
+      // so use a naive marginal tax for first guess
+      const naiveMarginalTax = calcMultiGrantAmtTax(...args, isosToAvoidAmt + 1) - currentAmtTax;
+      const buffer = (10 * naiveMarginalTax);
+      const isosNeeded = (
+        Math.floor((taxAmount - currentAmtTax - buffer) / naiveMarginalTax)
+      );
+
+      if (index === stockOptions.length - 1 || isosNeeded <= isoAmount) {
+        isosToAvoidAmt += isosNeeded;
+        currentAmtTax = calcMultiGrantAmtTax(...args, isosToAvoidAmt);
+        return true;
+      }
+
+      isosToAvoidAmt += isoAmount;
+      currentAmtTax = calcMultiGrantAmtTax(...args, isosToAvoidAmt);
+      return false;
+    });
 
     if (isosToAvoidAmt <= 0) {
       return 0;
     }
 
-    let currentAmtTax = calcAmtTax(...args, isosToAvoidAmt);
     let iterations = 0;
 
     while ((currentAmtTax - taxAmount) < 0 && iterations < 100) {
       iterations += 1;
       isosToAvoidAmt += 1;
-      currentAmtTax = calcAmtTax(...args, isosToAvoidAmt);
+      currentAmtTax = calcMultiGrantAmtTax(...args, isosToAvoidAmt);
     }
 
     return isosToAvoidAmt;

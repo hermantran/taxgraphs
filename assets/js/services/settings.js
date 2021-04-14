@@ -88,11 +88,13 @@ function settings(APP_NAME, APP_VERSION, TAX_YEAR, localStorageService) {
       ...getBaseDefaults(),
       state: 'CA',
       income: 150000,
-      strikePrice: 6.15,
-      optionValue: 10.75,
+      stockOptions: [{
+        isoAmount: 7000,
+        strikePrice: 6.15,
+        optionValue: 10.75,
+      }],
       graph: {
         ...getBaseDefaults().graph,
-        xMax: 7000,
       },
       deductions: createDeductionSettings({
         hasTradRetirement: true,
