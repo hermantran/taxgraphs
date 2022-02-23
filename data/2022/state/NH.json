@@ -1,0 +1,11 @@
+{
+  "taxes": {
+    "income": {
+      "rate": 0,
+      "source": {
+        "name": "NH.gov - Resources for New Hampshire Residents",
+        "url": "//www.nh.gov/residents/taxes.html"
+      }
+    }
+  }
+}

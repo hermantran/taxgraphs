@@ -1,0 +1,19 @@
+{
+  "taxes": {
+    "income": {
+      "rate": 0.0499,
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 12750,
+            "married": 25500
+          }
+        }
+      },
+      "source": {
+        "name": "State Individual Income Tax Rates and Brackets | Tax Foundation",
+        "url": "https://taxfoundation.org/publications/state-individual-income-tax-rates-and-brackets/"
+      }
+    }
+  }
+}

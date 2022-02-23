@@ -11,7 +11,7 @@ app
   .constant('gtag', gtag)
   .constant('GA_TRACKING_ID', 'UA-55615931-1')
   .constant('TAX_API', `data/taxes.json?v=${version}`)
-  .constant('TAX_YEAR', '2021')
+  .constant('TAX_YEAR', '2022')
   .constant('DOMAIN', homepage)
   .constant('APP_NAME', 'taxApp')
   .constant('APP_VERSION', version)

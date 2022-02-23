@@ -1,0 +1,18 @@
+{
+  "taxes": {
+    "income": {
+      "rate": 0.0307,
+      "source": {
+        "name": "State Individual Income Tax Rates and Brackets | Tax Foundation",
+        "url": "https://taxfoundation.org/publications/state-individual-income-tax-rates-and-brackets/"
+      }
+    },
+    "stateUnemploymentInsurance": {
+      "rate": 0.0006,
+      "source": {
+        "name": "Pennsylvania Issues Unemployment Tax Rates for 2022",
+        "url": "https://news.bloombergtax.com/payroll/pennsylvania-issues-unemployment-tax-rates-for-2022"
+      }
+    }
+  }
+}

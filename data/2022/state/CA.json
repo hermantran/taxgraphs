@@ -2,12 +2,12 @@
   "taxes": {
     "stateDisabilityInsurance": {
       "rate": [
-        [0, 0.012],
-        [128298, 0]
+        [0, 0.011],
+        [145600, 0]
       ],
       "source": {
         "name": "State of California - Rates, Withholding Schedules, and Meals and Lodging Values",
-        "url": "//www.edd.ca.gov/payroll_taxes/rates_and_withholding.htm"
+        "url": "https://www.edd.ca.gov/payroll_taxes/rates_and_withholding.htm"
       }
     },
     "mentalHealthServices": {
@@ -17,55 +17,55 @@
       ],
       "source": {
         "name": "Mental Health Services Act (MHSA)",
-        "url": "//www.dhcs.ca.gov/services/mh/Pages/MH_Prop63.aspx"
+        "url": "https://www.dhcs.ca.gov/services/mh/Pages/MH_Prop63.aspx"
       }
     },
     "income": {
       "rate": {
         "single": [
           [0, 0.01],
-          [8932, 0.02],
-          [21175, 0.04],
-          [33421, 0.06],
-          [46394, 0.08],
-          [58634, 0.093],
-          [299508, 0.103],
-          [359407, 0.113],
-          [599012, 0.123]
+          [9325, 0.02],
+          [22107, 0.04],
+          [34892, 0.06],
+          [48435, 0.08],
+          [61214, 0.093],
+          [312686, 0.103],
+          [375221, 0.113],
+          [625369, 0.123]
         ],
         "married": [
           [0, 0.01],
-          [17864, 0.02],
-          [42350, 0.04],
-          [66842, 0.06],
-          [92788, 0.08],
-          [117268, 0.093],
-          [599016, 0.103],
-          [718814, 0.113],
-          [1198024, 0.123]
+          [18650, 0.02],
+          [44214, 0.04],
+          [69784, 0.06],
+          [96870, 0.08],
+          [122428, 0.093],
+          [625372, 0.103],
+          [750442, 0.113],
+          [1250738, 0.123]
         ]
       },
       "deductions": {
         "standardDeduction": {
           "amount": {
-            "single": 4601,
-            "married": 9202
+            "single": 4803,
+            "married": 9606
           }
         },
         "personalExemption": {
           "amount": {
-            "single": 124,
-            "married": 248
+            "single": 129,
+            "married": 258
           },
           "phaseout": {
             "single": {
-              "start": 203341,
+              "start": 212288,
               "step": 2500,
               "reduction": 6,
               "minimum": 0
             },
             "married": {
-              "start": 406687,
+              "start": 424581,
               "step": 2500,
               "reduction": 12,
               "minimum": 0
@@ -73,16 +73,16 @@
           }
         },
         "dependents": {
-          "amount": 383,
+          "amount": 400,
           "phaseout": {
             "single": {
-              "start": 203341,
+              "start": 212288,
               "step": 2500,
               "reduction": 6,
               "minimum": 0
             },
             "married": {
-              "start": 406687,
+              "start": 424581,
               "step": 2500,
               "reduction": 12,
               "minimum": 0
@@ -91,8 +91,8 @@
         }
       },
       "source": {
-        "name": "State Income Tax Rates and Brackets, 2021 | Tax Foundation",
-        "url": "//taxfoundation.org/state-income-tax-rates-2021/"
+        "name": "State Individual Income Tax Rates and Brackets | Tax Foundation",
+        "url": "https://taxfoundation.org/publications/state-individual-income-tax-rates-and-brackets/"
       }
     },
     "amt": {
