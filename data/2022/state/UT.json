@@ -1,7 +1,7 @@
 {
   "taxes": {
     "income": {
-      "rate": 0.0495,
+      "rate": 0.0485,
       "deductions": {
         "standardDeduction": {
           "amount": {
@@ -10,7 +10,7 @@
           }
         },
         "dependents": {
-          "amount": 1750
+          "amount": 1802
         }
       },
       "source": {

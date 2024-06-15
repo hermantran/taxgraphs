@@ -63,8 +63,8 @@
     },
     "familyLeaveInsurance": {
       "rate": [
-        [0, 0.0027],
-        [134900, 0]
+        [0, 0.00455],
+        [87785, 0]
       ],
       "source": {
         "name": "Payroll Taxes - New York State Tax Information",

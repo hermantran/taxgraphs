@@ -10,8 +10,8 @@
       "deductions": {
         "standardDeduction": {
           "amount": {
-            "single": 4500,
-            "married": 9000
+            "single": 8000,
+            "married": 16000
           }
         },
         "personalExemption": {

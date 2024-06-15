@@ -3,28 +3,28 @@
     "income": {
       "rate": [
         [0, 0.01],
-        [3100, 0.02],
-        [5500, 0.03],
-        [8400, 0.04],
-        [11400, 0.05],
-        [14600, 0.06],
-        [18800, 0.069]
+        [3300, 0.02],
+        [5800, 0.03],
+        [8900, 0.04],
+        [12000, 0.05],
+        [15400, 0.06],
+        [19800, 0.0675]
       ],
       "deductions": {
         "standardDeduction": {
           "amount": {
-            "single": 4830,
-            "married": 9660
+            "single": 5090,
+            "married": 10180
           }
         },
         "personalExemption": {
           "amount": {
-            "single": 2580,
-            "married": 5160
+            "single": 2710,
+            "married": 5420
           }
         },
         "dependents": {
-          "amount": 2580
+          "amount": 2710
         }
       },
       "source": {

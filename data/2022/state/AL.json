@@ -16,21 +16,21 @@
       "deductions": {
         "standardDeduction": {
           "amount": {
-            "single": 2500,
-            "married": 7500
+            "single": 3000,
+            "married": 8500
           },
           "phaseout": {
             "single": {
-              "start": 23500,
+              "start": 26000,
               "step": 500,
               "reduction": 25,
-              "minimum": 2000
+              "minimum": 2500
             },
             "married": {
-              "start": 23500,
+              "start": 26000,
               "step": 500,
               "reduction": 175,
-              "minimum": 4000
+              "minimum": 5000
             }
           }
         },
@@ -43,7 +43,7 @@
         "dependents": {
           "amount": [
             [0, 1000],
-            [20000, 500],
+            [50000, 500],
             [100000, 300]
           ]
         }
