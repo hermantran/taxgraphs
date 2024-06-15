@@ -1,0 +1,146 @@
+{
+  "taxes": {
+    "medicare": {
+      "employment": {
+        "employee": {
+          "rate": {
+            "single": [
+              [0, 0.0145],
+              [200000, 0.0235]
+            ],
+            "married": [
+              [0, 0.0145],
+              [200000, 0.0235]
+            ]
+          }
+        },
+        "selfEmployed": {
+          "rate": {
+            "single": [
+              [0, 0.029],
+              [200000, 0.038]
+            ],
+            "married": [
+              [0, 0.029],
+              [200000, 0.038]
+            ]
+          }
+        }
+      },
+      "source": {
+        "name": "Topic No. 751 Social Security and Medicare Withholding Rates | Internal Revenue Service",
+        "url": "//www.irs.gov/taxtopics/tc751"
+      }
+    },
+    "socialSecurity": {
+      "employment": {
+        "employee": {
+          "rate": [
+            [0, 0.062],
+            [168600, 0]
+          ]
+        },
+        "selfEmployed": {
+          "rate": [
+            [0, 0.124],
+            [168600, 0]
+          ]
+        }
+      },
+      "source": {
+        "name": "Topic No. 751 Social Security and Medicare Withholding Rates | Internal Revenue Service",
+        "url": "//www.irs.gov/taxtopics/tc751"
+      }
+    },
+    "ordinaryIncome": {
+      "rate": {
+        "single": [
+          [0, 0.1],
+          [11600, 0.12],
+          [47150, 0.22],
+          [100525, 0.24],
+          [191950, 0.32],
+          [243725, 0.35],
+          [609350, 0.37]
+        ],
+        "married": [
+          [0, 0.1],
+          [23200, 0.12],
+          [94300, 0.22],
+          [201050, 0.24],
+          [383900, 0.32],
+          [487450, 0.35],
+          [731200, 0.37]
+        ]
+      },
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 14600,
+            "married": 29200
+          }
+        }
+      },
+      "credits": {
+        "retirementSavers": {
+          "rate": {
+            "single": [
+              [0, 0.5],
+              [23001, 0.2],
+              [25001, 0.1],
+              [38251, 0]
+            ],
+            "married": [
+              [0, 0.5],
+              [46001, 0.2],
+              [50001, 0.1],
+              [76501, 0]
+            ]
+          },
+          "maximum": 2000,
+          "isRefundable": false,
+          "source": {
+            "name": "Retirement Savings Contributions Savers Credit | Internal Revenue Service",
+            "url": "//www.irs.gov/retirement-plans/plan-participant-employee/retirement-savings-contributions-savers-credit"
+          }
+        }
+      },
+      "source": {
+        "name": "2024 Tax Brackets | 2024 Federal Income Tax Brackets &amp; Rates - Tax Foundation",
+        "url": "//taxfoundation.org/2024-tax-brackets/"
+      }
+    },
+    "amt": {
+      "rate": [
+        [0, 0.26],
+        [206100, 0.28]
+      ],
+      "deductions": {
+        "amtExemption": {
+          "amount": {
+            "single": 85700,
+            "married": 133300
+          },
+          "phaseout": {
+            "single": {
+              "start": 609350,
+              "step": 400,
+              "reduction": 100,
+              "minimum": 0
+            },
+            "married": {
+              "start": 1218700,
+              "step": 400,
+              "reduction": 100,
+              "minimum": 0
+            }
+          }
+        }
+      },
+      "source": {
+        "name": "2024 Tax Brackets | 2024 Federal Income Tax Brackets &amp; Rates - Tax Foundation",
+        "url": "//taxfoundation.org/2024-tax-brackets/"
+      }
+    }
+  }
+}

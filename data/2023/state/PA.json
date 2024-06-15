@@ -1,0 +1,18 @@
+{
+  "taxes": {
+    "income": {
+      "rate": 0.0307,
+      "source": {
+        "name": "State Individual Income Tax Rates and Brackets | Tax Foundation",
+        "url": "https://taxfoundation.org/publications/state-individual-income-tax-rates-and-brackets/"
+      }
+    },
+    "stateUnemploymentInsurance": {
+      "rate": 0.0007,
+      "source": {
+        "name": "2023 Pennsylvania Payroll Tax Rates",
+        "url": "https://abacuspay.com/resources/payroll-tax-wage-rates/2023-pennsylvania-payroll-tax-rates/"
+      }
+    }
+  }
+}
