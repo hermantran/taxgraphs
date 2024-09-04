@@ -1,0 +1,129 @@
+{
+  "taxes": {
+    "stateDisabilityInsurance": {
+      "rate": [
+        [0, 0.011]
+      ],
+      "source": {
+        "name": "State of California - Rates, Withholding Schedules, and Meals and Lodging Values",
+        "url": "https://www.edd.ca.gov/payroll_taxes/rates_and_withholding.htm"
+      }
+    },
+    "mentalHealthServices": {
+      "rate": [
+        [0, 0],
+        [1000000, 0.01]
+      ],
+      "source": {
+        "name": "Mental Health Services Act (MHSA)",
+        "url": "https://www.dhcs.ca.gov/services/mh/Pages/MH_Prop63.aspx"
+      }
+    },
+    "income": {
+      "rate": {
+        "single": [
+          [0, 0.01],
+          [10412, 0.02],
+          [24684, 0.04],
+          [38959, 0.06],
+          [54081, 0.08],
+          [68350, 0.093],
+          [349137, 0.103],
+          [418961, 0.113],
+          [698271, 0.123],
+          [1000000, 0.133]
+        ],
+        "married": [
+          [0, 0.01],
+          [20824, 0.02],
+          [49368, 0.04],
+          [77918, 0.06],
+          [108162, 0.08],
+          [136700, 0.093],
+          [698274, 0.103],
+          [837922, 0.113],
+          [1000000, 0.123],
+          [1396542, 0.133]
+        ]
+      },
+      "deductions": {
+        "standardDeduction": {
+          "amount": {
+            "single": 5363,
+            "married": 10726
+          }
+        },
+        "personalExemption": {
+          "amount": {
+            "single": 144,
+            "married": 288
+          },
+          "phaseout": {
+            "single": {
+              "start": 212288,
+              "step": 2500,
+              "reduction": 6,
+              "minimum": 0
+            },
+            "married": {
+              "start": 424581,
+              "step": 2500,
+              "reduction": 12,
+              "minimum": 0
+            }
+          }
+        },
+        "dependents": {
+          "amount": 446,
+          "phaseout": {
+            "single": {
+              "start": 212288,
+              "step": 2500,
+              "reduction": 6,
+              "minimum": 0
+            },
+            "married": {
+              "start": 424581,
+              "step": 2500,
+              "reduction": 12,
+              "minimum": 0
+            }
+          }
+        }
+      },
+      "source": {
+        "name": "State Individual Income Tax Rates and Brackets | Tax Foundation",
+        "url": "https://taxfoundation.org/publications/state-individual-income-tax-rates-and-brackets/"
+      }
+    },
+    "amt": {
+      "rate": 0.07,
+      "deductions": {
+        "amtExemption": {
+          "amount": {
+            "single": 87171,
+            "married": 116229
+          },
+          "phaseout": {
+            "single": {
+              "start": 326891,
+              "step": 400,
+              "reduction": 100,
+              "minimum": 0
+            },
+            "married": {
+              "start": 435855,
+              "step": 400,
+              "reduction": 100,
+              "minimum": 0
+            }
+          }
+        }
+      },
+      "source": {
+        "name": "2024 Schedule P (540) Alternative Minimum Tax and Credit Limitations - Residents",
+        "url": "https://www.ftb.ca.gov/forms/2024/2024-540-p.pdf"
+      }
+    }
+  }
+}

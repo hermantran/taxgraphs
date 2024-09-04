@@ -24,48 +24,50 @@
       "rate": {
         "single": [
           [0, 0.01],
-          [9325, 0.02],
-          [22107, 0.04],
-          [34892, 0.06],
-          [48435, 0.08],
-          [61214, 0.093],
-          [312686, 0.103],
-          [375221, 0.113],
-          [625369, 0.123]
+          [10099, 0.02],
+          [23942, 0.04],
+          [37788, 0.06],
+          [52455, 0.08],
+          [66295, 0.093],
+          [338639, 0.103],
+          [406364, 0.113],
+          [677275, 0.123],
+          [1000000, 0.133]
         ],
         "married": [
           [0, 0.01],
-          [18650, 0.02],
-          [44214, 0.04],
-          [69784, 0.06],
-          [96870, 0.08],
-          [122428, 0.093],
-          [625372, 0.103],
-          [750442, 0.113],
-          [1250738, 0.123]
+          [20198, 0.02],
+          [47884, 0.04],
+          [75576, 0.06],
+          [104910, 0.08],
+          [132590, 0.093],
+          [677278, 0.103],
+          [812728, 0.113],
+          [1000000, 0.123],
+          [1354550, 0.133]
         ]
       },
       "deductions": {
         "standardDeduction": {
           "amount": {
-            "single": 4803,
-            "married": 9606
+            "single": 5202,
+            "married": 10404
           }
         },
         "personalExemption": {
           "amount": {
-            "single": 129,
-            "married": 258
+            "single": 140,
+            "married": 280
           },
           "phaseout": {
             "single": {
-              "start": 212288,
+              "start": 229908,
               "step": 2500,
               "reduction": 6,
               "minimum": 0
             },
             "married": {
-              "start": 424581,
+              "start": 459821,
               "step": 2500,
               "reduction": 12,
               "minimum": 0
@@ -73,16 +75,16 @@
           }
         },
         "dependents": {
-          "amount": 400,
+          "amount": 433,
           "phaseout": {
             "single": {
-              "start": 212288,
+              "start": 229908,
               "step": 2500,
               "reduction": 6,
               "minimum": 0
             },
             "married": {
-              "start": 424581,
+              "start": 459821,
               "step": 2500,
               "reduction": 12,
               "minimum": 0
@@ -100,18 +102,18 @@
       "deductions": {
         "amtExemption": {
           "amount": {
-            "single": 78070,
-            "married": 104094
+            "single": 84550,
+            "married": 112734
           },
           "phaseout": {
             "single": {
-              "start": 292763,
+              "start": 317062,
               "step": 400,
               "reduction": 100,
               "minimum": 0
             },
             "married": {
-              "start": 390351,
+              "start": 422750,
               "step": 400,
               "reduction": 100,
               "minimum": 0
@@ -120,8 +122,8 @@
         }
       },
       "source": {
-        "name": "2021 Schedule P (540) Alternative Minimum Tax and Credit Limitations - Residents",
-        "url": "https://www.ftb.ca.gov/forms/2021/2021-540-p.pdf"
+        "name": "2022 Schedule P (540) Alternative Minimum Tax and Credit Limitations - Residents",
+        "url": "https://www.ftb.ca.gov/forms/2022/2022-540-p.pdf"
       }
     }
   }

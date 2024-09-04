@@ -5,19 +5,19 @@
         "single": [
           [0, 0.02],
           [4300, 0.04],
-          [8500, 0.055]
+          [8500, 0.049]
         ],
         "married": [
           [0, 0.02],
           [4300, 0.04],
-          [8500, 0.055]
+          [8500, 0.049]
         ]
       },
       "deductions": {
         "standardDeduction": {
           "amount": {
-            "single": 2200,
-            "married": 4400
+            "single": 2270,
+            "married": 4540
           }
         },
         "personalExemption": {

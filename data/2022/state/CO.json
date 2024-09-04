@@ -1,7 +1,7 @@
 {
   "taxes": {
     "income": {
-      "rate": 0.0455,
+      "rate": 0.044,
       "useFederalTaxableIncome": true,
       "deductions": {
         "standardDeduction": {
